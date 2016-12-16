@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C0496EB51E04533D0000E33E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0496EB41E04533D0000E33E /* main.swift */; };
+		C0496EBC1E04534F0000E33E /* Lexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0496EBB1E04534F0000E33E /* Lexer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		C0496EB11E04533D0000E33E /* Sibil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sibil; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0496EB41E04533D0000E33E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		C0496EBB1E04534F0000E33E /* Lexer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lexer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				C0496EB41E04533D0000E33E /* main.swift */,
+				C0496EBB1E04534F0000E33E /* Lexer.swift */,
 			);
 			path = Sibil;
 			sourceTree = "<group>";
@@ -120,6 +123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0496EBC1E04534F0000E33E /* Lexer.swift in Sources */,
 				C0496EB51E04533D0000E33E /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
