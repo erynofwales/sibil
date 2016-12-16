@@ -8,5 +8,8 @@
 
 import Foundation
 
-print("Hello, World!")
+let l = Lexer(input: "(())")
+for t in l {
+    print(t)
+}
 
