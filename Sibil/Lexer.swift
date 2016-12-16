@@ -9,7 +9,7 @@
 import Foundation
 
 
-struct Token {
+struct Token: CustomDebugStringConvertible {
     enum Kind {
         case LeftParen
         case RightParen
@@ -17,24 +17,38 @@ struct Token {
     
     let kind: Kind
     let value: String
+
+    // MARK: CustomDebugStringConvertible
+
+    var debugDescription: String {
+        return "Token(kind: .\(kind), value: \"\(value)\")"
+    }
 }
 
 
-class Lexer: IteratorProtocol {
-    typealias Element = Token
-
+class Lexer {
     let input: String
 
-    private var index: String.Index
+    var index: String.Index
 
     init(input: String) {
         self.input = input
         self.index = input.startIndex
     }
+}
 
-    // MARK: IteratorProtocol
+extension Lexer: Sequence, IteratorProtocol {
+    typealias Element = Token
+
+    func makeIterator() -> Lexer {
+        return self
+    }
 
     func next() -> Token? {
+        guard index != input.endIndex else {
+            return nil
+        }
+
         var token: Token?
         while token == nil {
             let c = input[index]
@@ -46,6 +60,7 @@ class Lexer: IteratorProtocol {
             default:
                 break
             }
+            index = input.index(after: index)
         }
         return token
     }
