@@ -93,7 +93,7 @@ extension Lexer: Sequence, IteratorProtocol {
                     toState(.Identifier)
                 }
             case .Identifier:
-                if c.isIdentifierSubsequent
+                break
             case .Emit:
                 // Nothing to do for this state
                 break
@@ -101,38 +101,5 @@ extension Lexer: Sequence, IteratorProtocol {
         }
 
         return token
-    }
-}
-
-extension Character {
-    static let identifierInitialSet: CharacterSet = {
-        let letters = CharacterSet.letters
-        let extras = CharacterSet(charactersIn: "!$%&*/:<=>?~_^")
-        let initials = letters.union(extras)
-        return initials
-    }()
-
-    static let identifierSubsequentSet: CharacterSet = {
-        let initials = Character.identifierInitialSet
-        let digits = CharacterSet.decimalDigits
-        let extras = CharacterSet(charactersIn: ".+-")
-        let subsequents = initials.union(digits).union(extras)
-        return subsequents
-    }()
-
-    var isLeftParen: Bool {
-        return self == "("
-    }
-
-    var isRightParen: Bool {
-        return self == ")"
-    }
-
-    var isIdentifierInitial: Bool {
-        return false
-    }
-
-    var isIdentifierSubsequent: Bool {
-        Character.identifierSubsequentSet.contains(<#T##member: UnicodeScalar##UnicodeScalar#>)
     }
 }
