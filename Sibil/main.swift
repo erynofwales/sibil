@@ -8,7 +8,7 @@
 
 import Foundation
 
-let l = Lexer(input: "(())")
+let l = Lexer(input: "((abc))")
 for t in l {
     print(t)
 }

@@ -13,6 +13,7 @@ struct Token: CustomDebugStringConvertible {
     enum Kind {
         case LeftParen
         case RightParen
+        case Identifier
     }
     
     let kind: Kind
@@ -79,26 +80,37 @@ extension Lexer: Sequence, IteratorProtocol {
         }
 
         while state != .Emit {
-            let c = input[index]
+            let c = input[forward]
+            print("processing '\(c)' in \(state)")
             switch state {
             case .Initial:
                 if c.isLeftParen {
-
+                    emit(.LeftParen)
                 }
                 else if c.isRightParen {
-
+                    emit(.RightParen)
                 }
                 else if c.isIdentifierInitial {
                     advance()
                     toState(.Identifier)
                 }
             case .Identifier:
+                if c.isIdentifierSubsequent {
+                    advance()
+                }
+                else {
+                    retract()
+                    emit(.Identifier)
+                }
                 break
             case .Emit:
                 // Nothing to do for this state
                 break
             }
         }
+
+        // Set up for the next token.
+        index = input.index(after: forward)
 
         return token
     }

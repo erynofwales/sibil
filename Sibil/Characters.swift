@@ -33,10 +33,10 @@ extension CharacterSet {
         return subsequents
     }()
 
-    func contains(_ char: Character) -> Bool {
-        let cSet = CharacterSet(charactersIn: String(char))
-        let isSuperset = self.isSuperset(of: cSet)
-        return isSuperset
+    func contains(_ c: Character) -> Bool {
+        let cSet = CharacterSet(charactersIn: String(c))
+        let containsC = isSuperset(of: cSet)
+        return containsC
     }
 }
 
@@ -51,7 +51,7 @@ extension Character {
     }
 
     var isIdentifierInitial: Bool {
-        return false
+        return CharacterSet.identifierInitials.contains(self)
     }
 
     var isIdentifierSubsequent: Bool {
