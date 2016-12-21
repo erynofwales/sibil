@@ -28,6 +28,8 @@ impl Iterator for Lexer {
     type Item = Token;
 
     fn next(&mut self) -> Option<Token> {
+        let mut forward = self.index;
+        println!("Lexing '{}'", self.input);
         None
     }
 }
