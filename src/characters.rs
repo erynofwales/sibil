@@ -56,7 +56,7 @@ impl RelativeIndexable for str {
 
     fn index_after(&self, index: &usize) -> usize {
         let mut next_index = index + 1;
-        if next_index > self.len() {
+        if next_index >= self.len() {
             return self.len();
         }
         while !self.is_char_boundary(next_index) {
