@@ -9,12 +9,12 @@ pub type CharSet = HashSet<char>;
 
 pub fn ascii_letters() -> CharSet {
     let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".chars();
-    return CharSet::from_iter(letters);
+    CharSet::from_iter(letters)
 }
 
 pub fn ascii_digits() -> CharSet {
     let digits = "1234567890".chars();
-    return CharSet::from_iter(digits);
+    CharSet::from_iter(digits)
 }
 
 pub fn identifier_initials() -> CharSet {
@@ -23,7 +23,7 @@ pub fn identifier_initials() -> CharSet {
     let mut initials = CharSet::new();
     initials.extend(letters.iter());
     initials.extend(extras.iter());
-    return initials;
+    initials
 }
 
 pub fn identifier_subsequents() -> CharSet {
@@ -34,7 +34,7 @@ pub fn identifier_subsequents() -> CharSet {
     subsequents.extend(initials.iter());
     subsequents.extend(digits.iter());
     subsequents.extend(extras.iter());
-    return subsequents;
+    subsequents
 }
 
 pub trait RelativeIndexable {
@@ -51,7 +51,7 @@ impl RelativeIndexable for str {
         while !self.is_char_boundary(prev_index) {
             prev_index -= 1;
         }
-        return prev_index;
+        prev_index
     }
 
     fn index_after(&self, index: &usize) -> usize {
@@ -62,6 +62,6 @@ impl RelativeIndexable for str {
         while !self.is_char_boundary(next_index) {
             next_index += 1;
         }
-        return next_index;
+        next_index
     }
 }
