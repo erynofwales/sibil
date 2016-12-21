@@ -7,12 +7,12 @@ use std::iter::FromIterator;
 
 pub type CharSet = HashSet<char>;
 
-pub fn ascii_letters() -> CharSet {
+fn ascii_letters() -> CharSet {
     let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".chars();
     CharSet::from_iter(letters)
 }
 
-pub fn ascii_digits() -> CharSet {
+fn ascii_digits() -> CharSet {
     let digits = "1234567890".chars();
     CharSet::from_iter(digits)
 }

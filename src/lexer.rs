@@ -31,6 +31,6 @@ impl Iterator for Lexer {
 pub fn hello(person: &str) {
     println!("Hello, {}!", person);
     for (idx, c) in person.char_indices() {
-        println!("  {}, {} -> {}", c, idx, characters::ascii_letters().contains(&c));
+        println!("  {}, {} -> {}", c, idx, characters::identifier_initials().contains(&c));
     }
 }
