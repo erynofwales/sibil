@@ -2,22 +2,26 @@
 
 use characters;
 
-enum Kind {
+pub enum Kind {
     LeftParen,
     RightParen,
     Identifier,
 }
 
-struct Token {
+pub struct Token {
     kind: Kind,
     value: String,
 }
 
-struct Lexer {
-    input: str,
+pub struct Lexer {
+    input: String,
+    index: usize,
 }
 
 impl Lexer {
+    pub fn new(input: String) -> Lexer {
+        Lexer { input: input, index: 0 }
+    }
 }
 
 impl Iterator for Lexer {
