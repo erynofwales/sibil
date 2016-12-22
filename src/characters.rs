@@ -7,6 +7,9 @@ use std::iter::FromIterator;
 
 pub type CharSet = HashSet<char>;
 
+// TODO: Use std::sync::Once for these sets?
+// https://doc.rust-lang.org/beta/std/sync/struct.Once.html
+
 fn ascii_letters() -> CharSet {
     let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".chars();
     CharSet::from_iter(letters)
@@ -17,6 +20,7 @@ fn ascii_digits() -> CharSet {
     CharSet::from_iter(digits)
 }
 
+/// A set of all characters allowed to start Scheme identifiers.
 pub fn identifier_initials() -> CharSet {
     let letters = ascii_letters();
     let extras = CharSet::from_iter("!$%&*/:<=>?~_^".chars());
@@ -26,6 +30,7 @@ pub fn identifier_initials() -> CharSet {
     initials
 }
 
+/// A set of all characters allowed to follow an identifier initial.
 pub fn identifier_subsequents() -> CharSet {
     let initials = identifier_initials();
     let digits = ascii_digits();
