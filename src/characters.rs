@@ -43,30 +43,30 @@ pub fn identifier_subsequents() -> CharSet {
 }
 
 pub trait RelativeIndexable {
-    fn index_before(&self, &usize) -> usize;
-    fn index_after(&self, &usize) -> usize;
+    fn index_before(&self, &usize) -> Option<usize>;
+    fn index_after(&self, &usize) -> Option<usize>;
 }
 
 impl RelativeIndexable for str {
-    fn index_before(&self, index: &usize) -> usize {
+    fn index_before(&self, index: &usize) -> Option<usize> {
         let mut prev_index = index - 1;
         if prev_index <= 0 {
-            return 0;
+            return None;
         }
         while !self.is_char_boundary(prev_index) {
             prev_index -= 1;
         }
-        prev_index
+        Some(prev_index)
     }
 
-    fn index_after(&self, index: &usize) -> usize {
+    fn index_after(&self, index: &usize) -> Option<usize> {
         let mut next_index = index + 1;
         if next_index >= self.len() {
-            return self.len();
+            return None;
         }
         while !self.is_char_boundary(next_index) {
             next_index += 1;
         }
-        next_index
+        Some(next_index)
     }
 }
