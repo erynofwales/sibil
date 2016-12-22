@@ -1,6 +1,7 @@
 //! # Lexer
 
 use characters;
+use characters::RelativeIndexable;
 
 pub enum Kind {
     LeftParen,
@@ -13,14 +14,57 @@ pub struct Token {
     value: String,
 }
 
+enum State {
+    Initial,
+    Identifier,
+}
+
 pub struct Lexer {
     input: String,
-    index: usize,
+    begin: usize,
+    forward: usize,
+    state: State,
 }
 
 impl Lexer {
     pub fn new(input: String) -> Lexer {
-        Lexer { input: input, index: 0 }
+        Lexer {
+            input: input,
+            begin: 0,
+            forward: 0,
+            state: State::Initial,
+        }
+    }
+}
+
+impl Lexer {
+    fn begin_lexing(&mut self) {
+        self.forward = self.begin;
+        self.state = State::Initial;
+    }
+
+    /// Advance the forward pointer to the next character.
+    fn advance(&mut self) {
+        if let Some(next) = self.input.index_after(&self.forward) {
+            self.forward = next;
+        }
+    }
+
+    /// Retract the forward pointer to the previous character.
+    fn retract(&mut self) {
+        if let Some(prev) = self.input.index_before(&self.forward) {
+            self.forward = prev;
+        }
+    }
+}
+
+impl Lexer {
+    fn state_initial(&mut self) {
+        println!("Initial!");
+    }
+
+    fn state_identifier(&mut self) {
+        println!("Identifier!")
     }
 }
 
@@ -28,8 +72,16 @@ impl Iterator for Lexer {
     type Item = Token;
 
     fn next(&mut self) -> Option<Token> {
-        let mut forward = self.index;
+        self.begin_lexing();
+        let mut emit = false;
         println!("Lexing '{}'", self.input);
+        while !emit {
+            match self.state {
+                State::Initial => self.state_initial(),
+                State::Identifier => self.state_identifier(),
+            }
+            emit = true;
+        }
         None
     }
 }
