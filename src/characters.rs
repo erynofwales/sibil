@@ -42,6 +42,39 @@ pub fn identifier_subsequents() -> CharSet {
     subsequents
 }
 
+//
+// char
+//
+
+pub trait Lexable {
+    fn is_left_paren(&self) -> bool;
+    fn is_right_paren(&self) -> bool;
+    fn is_identifier_initial(&self) -> bool;
+    fn is_identifier_subsequent(&self) -> bool;
+}
+
+impl Lexable for char {
+    fn is_left_paren(&self) -> bool {
+        self == &'('
+    }
+
+    fn is_right_paren(&self) -> bool {
+        self == &')'
+    }
+
+    fn is_identifier_initial(&self) -> bool {
+        identifier_initials().contains(&self)
+    }
+
+    fn is_identifier_subsequent(&self) -> bool {
+        identifier_subsequents().contains(&self)
+    }
+}
+
+//
+// str and String
+//
+
 pub trait RelativeIndexable {
     fn index_before(&self, &usize) -> Option<usize>;
     fn index_after(&self, &usize) -> Option<usize>;
