@@ -16,6 +16,7 @@ use self::token::Kind;
 enum State {
     Initial,
     Identifier,
+    Hash,
 }
 
 pub struct Lexer {
@@ -72,13 +73,13 @@ impl Lexer {
 impl Lexer {
     /// Handle self.state == State::Initial
     fn state_initial(&mut self, c: char, token: &mut Option<Token>) {
-        println!("Initial! c='{}'", c);
         if c.is_left_paren() {
             *token = Some(Token::new(Kind::LeftParen, c.to_string()));
         }
         else if c.is_right_paren() {
             *token = Some(Token::new(Kind::RightParen, c.to_string()));
         }
+
         else if c.is_identifier_single() {
             *token = Some(Token::new(Kind::Identifier, c.to_string()));
         }
@@ -86,6 +87,12 @@ impl Lexer {
             self.state = State::Identifier;
             self.advance();
         }
+
+        else if c.is_hash() {
+            self.state = State::Hash;
+            self.advance();
+        }
+
         else if c.is_whitespace() {
             if c.is_newline() {
                 self.line += 1;
@@ -96,7 +103,6 @@ impl Lexer {
 
     /// Handle self.state == State::Identifier
     fn state_identifier(&mut self, c: char, token: &mut Option<Token>) {
-        println!("Identifier! c='{}'", c);
         if c.is_identifier_subsequent() {
             // State in Identifier state.
             self.advance();
@@ -104,6 +110,13 @@ impl Lexer {
         else {
             *token = Some(Token::new(Kind::Identifier, self.value()));
             self.retract();
+        }
+    }
+
+    fn state_hash(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_boolean() {
+            self.advance();
+            *token = Some(Token::new(Kind::Boolean, self.value()));
         }
     }
 }
@@ -120,9 +133,11 @@ impl Iterator for Lexer {
         println!("Lexing '{}'", &self.input[self.begin ..]);
         while token.is_none() {
             if let Some(c) = self.input.char_at(self.forward) {
+                println!("{}! c='{}'", self.state, c);
                 match self.state {
                     State::Initial => self.state_initial(c, &mut token),
                     State::Identifier => self.state_identifier(c, &mut token),
+                    State::Hash => self.state_hash(c, &mut token),
                 }
             }
             else {

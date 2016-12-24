@@ -6,6 +6,7 @@ pub enum Kind {
     LeftParen,
     RightParen,
     Identifier,
+    Boolean,
 }
 
 pub struct Token {
@@ -29,6 +30,7 @@ impl fmt::Display for Kind {
             Kind::LeftParen => "LeftParen",
             Kind::RightParen => "RightParen",
             Kind::Identifier => "Identifier",
+            Kind::Boolean => "Boolean",
         };
         write!(f, "{}", s)
     }
