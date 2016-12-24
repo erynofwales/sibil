@@ -85,6 +85,12 @@ pub trait RelativeIndexable {
     fn index_after(&self, usize) -> usize;
 }
 
+pub trait CharAt {
+    /// Get the character at the given byte index. This index must be at a character boundary as defined by
+    /// `is_char_boundary()`.
+    fn char_at(&self, usize) -> Option<char>;
+}
+
 impl RelativeIndexable for str {
     fn index_before(&self, index: usize) -> usize {
         if index == 0 {
@@ -150,5 +156,16 @@ fn index_after_is_well_behaved_for_ascii() {
         let idx = s.index_after(4);
         assert_eq!(idx, s.len());
         assert!(s.is_char_boundary(idx));
+    }
+}
+
+impl CharAt for str {
+    fn char_at(&self, index: usize) -> Option<char> {
+        if !self.is_char_boundary(index) {
+            return None;
+        }
+        let end = self.index_after(index);
+        let char_str = &self[index .. end];
+        char_str.chars().nth(0)
     }
 }
