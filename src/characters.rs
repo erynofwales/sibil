@@ -76,30 +76,44 @@ impl Lexable for char {
 //
 
 pub trait RelativeIndexable {
-    fn index_before(&self, &usize) -> Option<usize>;
-    fn index_after(&self, &usize) -> Option<usize>;
+    /// Get the index of the character boundary preceding the given index. The index does not need to be on a character
+    /// boundary.
+    fn index_before(&self, usize) -> usize;
+
+    /// Get the index of the character boundary following the given index. The index does not need to be on a character
+    /// boundary.
+    fn index_after(&self, usize) -> usize;
 }
 
 impl RelativeIndexable for str {
-    fn index_before(&self, index: &usize) -> Option<usize> {
-        let mut prev_index = index - 1;
-        if prev_index <= 0 {
-            return None;
+    fn index_before(&self, index: usize) -> usize {
+        if index == 0 {
+            return 0;
         }
-        while !self.is_char_boundary(prev_index) {
-            prev_index -= 1;
+        let mut index = index;
+        if index > self.len() {
+            index = self.len();
         }
-        Some(prev_index)
+        loop {
+            index -= 1;
+            if self.is_char_boundary(index) {
+                break;
+            }
+        }
+        index
     }
 
-    fn index_after(&self, index: &usize) -> Option<usize> {
-        let mut next_index = index + 1;
-        if next_index >= self.len() {
-            return None;
+    fn index_after(&self, index: usize) -> usize {
+        if index >= self.len() {
+            return self.len();
         }
-        while !self.is_char_boundary(next_index) {
-            next_index += 1;
+        let mut index = index;
+        loop {
+            index += 1;
+            if self.is_char_boundary(index) {
+                break;
+            }
         }
-        Some(next_index)
+        index
     }
 }
