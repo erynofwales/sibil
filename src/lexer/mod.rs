@@ -22,6 +22,7 @@ pub struct Lexer {
     input: String,
     begin: usize,
     forward: usize,
+    line: u32,
     state: State,
 }
 
@@ -31,6 +32,7 @@ impl Lexer {
             input: input,
             begin: 0,
             forward: 0,
+            line: 1,
             state: State::Initial,
         }
     }
@@ -81,6 +83,12 @@ impl Lexer {
         }
         else if c.is_identifier_initial() {
             self.state = State::Identifier;
+            self.advance();
+        }
+        else if c.is_whitespace() {
+            if c.is_newline() {
+                self.line += 1;
+            }
             self.advance();
         }
     }

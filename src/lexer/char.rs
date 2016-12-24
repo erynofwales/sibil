@@ -10,6 +10,7 @@ pub trait Lexable {
     fn is_identifier_initial(&self) -> bool;
     fn is_identifier_subsequent(&self) -> bool;
     fn is_identifier_single(&self) -> bool;
+    fn is_newline(&self) -> bool;
 }
 
 impl Lexable for char {
@@ -31,6 +32,10 @@ impl Lexable for char {
 
     fn is_identifier_single(&self) -> bool {
         charset::identifier_singles().contains(&self)
+    }
+
+    fn is_newline(&self) -> bool {
+        *self == '\n'
     }
 }
 
