@@ -1,6 +1,6 @@
-/// Character Sets
-///
-/// Sets of characters valid for making up tokens.
+/* charset.rs
+ * Eryn Wells <eryn@erynwells.me>
+ */
 
 use std::collections::HashSet;
 use std::iter::FromIterator;

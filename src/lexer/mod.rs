@@ -1,4 +1,6 @@
-//! # Lexer
+/* lexer.rs
+ * Eryn Wells <eryn@erynwells.me>
+ */
 
 pub mod token;
 mod char;
@@ -58,8 +60,7 @@ impl Lexer {
         println!("> begin={}", self.begin);
     }
 
-    /// Get the substring between the two input indexes. This is the value to give to a new Token
-    /// instance.
+    /// Get the substring between the two input indexes. This is the value to give to a new Token instance.
     fn value(&self) -> String {
         self.input[self.begin .. self.forward].to_string()
     }
