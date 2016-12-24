@@ -76,6 +76,9 @@ impl Lexer {
         else if c.is_right_paren() {
             *token = Some(Token::new(Kind::RightParen, c.to_string()));
         }
+        else if c.is_identifier_single() {
+            *token = Some(Token::new(Kind::Identifier, c.to_string()));
+        }
         else if c.is_identifier_initial() {
             self.state = State::Identifier;
             self.advance();
