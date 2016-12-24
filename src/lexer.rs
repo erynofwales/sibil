@@ -85,17 +85,21 @@ impl Lexer {
         println!("< forward={}", self.forward);
     }
 
+    /// Advance the begin pointer to prepare for the next iteration.
     fn advance_begin(&mut self) {
         self.begin = self.input.index_after(self.forward);
         println!("> begin={}", self.begin);
     }
 
+    /// Get the substring between the two input indexes. This is the value to give to a new Token
+    /// instance.
     fn value(&self) -> String {
         self.input[self.begin .. self.forward].to_string()
     }
 }
 
 impl Lexer {
+    /// Handle self.state == State::Initial
     fn state_initial(&mut self, c: char, token: &mut Option<Token>) {
         println!("Initial! c='{}'", c);
         if c.is_left_paren() {
@@ -110,6 +114,7 @@ impl Lexer {
         }
     }
 
+    /// Handle self.state == State::Identifier
     fn state_identifier(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_identifier_subsequent() {
             // State in Identifier state.
@@ -132,7 +137,7 @@ impl Iterator for Lexer {
         }
         let mut token: Option<Token> = None;
         println!("Lexing '{}'", &self.input[self.begin ..]);
-        loop {
+        while token.is_none() {
             if let Some(c) = self.input.char_at(self.forward) {
                 match self.state {
                     State::Initial => self.state_initial(c, &mut token),
@@ -142,12 +147,9 @@ impl Iterator for Lexer {
             else {
                 assert!(false, "Invalid character! :-(");
             }
-            if token.is_some() {
-                break;
-            }
         }
         self.advance_begin();
-        assert!(token.is_some());
+        assert!(token.is_some(), "We quit the lexing loop but didn't actually have a token. :-(");
         token
     }
 }
