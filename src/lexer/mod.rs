@@ -7,14 +7,13 @@ mod char;
 mod charset;
 mod str;
 
-use std::fmt;
-
 use self::char::Lexable;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
 use self::token::Token;
 use self::token::Kind;
 
+#[derive(Debug)]
 enum State {
     Initial,
     Identifier,
@@ -135,7 +134,7 @@ impl Iterator for Lexer {
         println!("Lexing '{}'", &self.input[self.begin ..]);
         while token.is_none() {
             if let Some(c) = self.input.char_at(self.forward) {
-                println!("{}! c='{}'", self.state, c);
+                println!("{:?}! c='{}'", self.state, c);
                 match self.state {
                     State::Initial => self.state_initial(c, &mut token),
                     State::Identifier => self.state_identifier(c, &mut token),
@@ -151,15 +150,3 @@ impl Iterator for Lexer {
         token
     }
 }
-
-impl fmt::Display for State {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match *self {
-            State::Initial => "Initial",
-            State::Identifier => "Identifier",
-            State::Hash => "Hash",
-        };
-        write!(f, "{}", s)
-    }
-}
-
