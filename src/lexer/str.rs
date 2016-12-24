@@ -1,79 +1,6 @@
-//! Characters
-//!
-//! Utilities for dealing with chars of various sorts.
-
-use std::collections::HashSet;
-use std::iter::FromIterator;
-
-pub type CharSet = HashSet<char>;
-
-// TODO: Use std::sync::Once for these sets?
-// https://doc.rust-lang.org/beta/std/sync/struct.Once.html
-
-fn ascii_letters() -> CharSet {
-    let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".chars();
-    CharSet::from_iter(letters)
-}
-
-fn ascii_digits() -> CharSet {
-    let digits = "1234567890".chars();
-    CharSet::from_iter(digits)
-}
-
-/// A set of all characters allowed to start Scheme identifiers.
-pub fn identifier_initials() -> CharSet {
-    let letters = ascii_letters();
-    let extras = CharSet::from_iter("!$%&*/:<=>?~_^".chars());
-    let mut initials = CharSet::new();
-    initials.extend(letters.iter());
-    initials.extend(extras.iter());
-    initials
-}
-
-/// A set of all characters allowed to follow an identifier initial.
-pub fn identifier_subsequents() -> CharSet {
-    let initials = identifier_initials();
-    let digits = ascii_digits();
-    let extras = CharSet::from_iter(".+-".chars());
-    let mut subsequents = CharSet::new();
-    subsequents.extend(initials.iter());
-    subsequents.extend(digits.iter());
-    subsequents.extend(extras.iter());
-    subsequents
-}
-
-//
-// char
-//
-
-pub trait Lexable {
-    fn is_left_paren(&self) -> bool;
-    fn is_right_paren(&self) -> bool;
-    fn is_identifier_initial(&self) -> bool;
-    fn is_identifier_subsequent(&self) -> bool;
-}
-
-impl Lexable for char {
-    fn is_left_paren(&self) -> bool {
-        self == &'('
-    }
-
-    fn is_right_paren(&self) -> bool {
-        self == &')'
-    }
-
-    fn is_identifier_initial(&self) -> bool {
-        identifier_initials().contains(&self)
-    }
-
-    fn is_identifier_subsequent(&self) -> bool {
-        identifier_subsequents().contains(&self)
-    }
-}
-
-//
-// str and String
-//
+/* str.rs
+ * Eryn Wells <eryn@erynwells.me>
+ */
 
 pub trait RelativeIndexable {
     /// Get the index of the character boundary preceding the given index. The index does not need to be on a character
@@ -124,6 +51,17 @@ impl RelativeIndexable for str {
     }
 }
 
+impl CharAt for str {
+    fn char_at(&self, index: usize) -> Option<char> {
+        if !self.is_char_boundary(index) {
+            return None;
+        }
+        let end = self.index_after(index);
+        let char_str = &self[index .. end];
+        char_str.chars().nth(0)
+    }
+}
+
 #[test]
 fn index_before_is_well_behaved_for_ascii() {
     let s = "abc";
@@ -156,16 +94,5 @@ fn index_after_is_well_behaved_for_ascii() {
         let idx = s.index_after(4);
         assert_eq!(idx, s.len());
         assert!(s.is_char_boundary(idx));
-    }
-}
-
-impl CharAt for str {
-    fn char_at(&self, index: usize) -> Option<char> {
-        if !self.is_char_boundary(index) {
-            return None;
-        }
-        let end = self.index_after(index);
-        let char_str = &self[index .. end];
-        char_str.chars().nth(0)
     }
 }

@@ -1,11 +1,15 @@
 //! # Lexer
 
 pub mod token;
+mod char;
+mod charset;
+mod str;
 
-use characters;
-use characters::CharAt;
-use characters::Lexable;
-use characters::RelativeIndexable;
+use self::char::Lexable;
+use self::str::CharAt;
+use self::str::RelativeIndexable;
+use self::token::Token;
+use self::token::Kind;
 
 enum State {
     Initial,

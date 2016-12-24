@@ -14,7 +14,7 @@ pub struct Token {
 }
 
 impl Token {
-    fn new(kind: Kind, value: String) -> Token {
+    pub fn new(kind: Kind, value: String) -> Token {
         Token { kind: kind, value: value, }
     }
 }
