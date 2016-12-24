@@ -1,5 +1,7 @@
 //! # Lexer
 
+use std::fmt;
+
 use characters;
 use characters::RelativeIndexable;
 
@@ -9,9 +11,26 @@ pub enum Kind {
     Identifier,
 }
 
+impl fmt::Display for Kind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s = match *self {
+            Kind::LeftParen => "LeftParen",
+            Kind::RightParen => "RightParen",
+            Kind::Identifier => "Identifier",
+        };
+        write!(f, "{}", s)
+    }
+}
+
 pub struct Token {
     kind: Kind,
     value: String,
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, \"{}\")", self.kind, self.value)
+    }
 }
 
 enum State {
