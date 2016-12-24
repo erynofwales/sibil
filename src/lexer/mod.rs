@@ -59,7 +59,8 @@ impl Lexer {
     /// Advance the begin pointer to prepare for the next iteration.
     fn advance_begin(&mut self) {
         self.begin = self.input.index_after(self.forward);
-        println!("> begin={}", self.begin);
+        self.forward = self.begin;
+        println!("> begin={}, forward={}", self.begin, self.forward);
     }
 
     /// Get the substring between the two input indexes. This is the value to give to a new Token instance.
@@ -89,12 +90,13 @@ impl Lexer {
             if c.is_newline() {
                 self.line += 1;
             }
-            self.advance();
+            self.advance_begin();
         }
     }
 
     /// Handle self.state == State::Identifier
     fn state_identifier(&mut self, c: char, token: &mut Option<Token>) {
+        println!("Identifier! c='{}'", c);
         if c.is_identifier_subsequent() {
             // State in Identifier state.
             self.advance();
