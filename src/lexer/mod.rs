@@ -7,6 +7,8 @@ mod char;
 mod charset;
 mod str;
 
+use std::fmt;
+
 use self::char::Lexable;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
@@ -149,3 +151,15 @@ impl Iterator for Lexer {
         token
     }
 }
+
+impl fmt::Display for State {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s = match *self {
+            State::Initial => "Initial",
+            State::Identifier => "Identifier",
+            State::Hash => "Hash",
+        };
+        write!(f, "{}", s)
+    }
+}
+
