@@ -1,4 +1,3 @@
-mod characters;
 mod lexer;
 
 fn main() {
