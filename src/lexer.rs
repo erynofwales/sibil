@@ -151,10 +151,3 @@ impl Iterator for Lexer {
         token
     }
 }
-
-pub fn hello(person: &str) {
-    println!("Hello, {}!", person);
-    for (idx, c) in person.char_indices() {
-        println!("  {}, {} -> {}", c, idx, characters::identifier_initials().contains(&c));
-    }
-}
