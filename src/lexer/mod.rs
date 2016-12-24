@@ -1,48 +1,11 @@
 //! # Lexer
 
-use std::fmt;
+pub mod token;
 
 use characters;
 use characters::CharAt;
 use characters::Lexable;
 use characters::RelativeIndexable;
-
-pub enum Kind {
-    LeftParen,
-    RightParen,
-    Identifier,
-}
-
-impl fmt::Display for Kind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match *self {
-            Kind::LeftParen => "LeftParen",
-            Kind::RightParen => "RightParen",
-            Kind::Identifier => "Identifier",
-        };
-        write!(f, "{}", s)
-    }
-}
-
-pub struct Token {
-    kind: Kind,
-    value: String,
-}
-
-impl Token {
-    fn new(kind: Kind, value: String) -> Token {
-        Token {
-            kind: kind,
-            value: value,
-        }
-    }
-}
-
-impl fmt::Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}, \"{}\")", self.kind, self.value)
-    }
-}
 
 enum State {
     Initial,
