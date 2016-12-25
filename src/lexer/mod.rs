@@ -19,6 +19,7 @@ enum State {
     Identifier,
     Hash,
     Comment,
+    String,
 }
 
 pub struct Lexer {
@@ -85,17 +86,20 @@ impl Lexer {
         else if c.is_right_paren() {
             *token = Some(Token::RightParen(c.to_string()));
         }
+        else if c.is_hash() {
+            self.state = State::Hash;
+            self.advance();
+        }
+        else if c.is_string_quote() {
+            self.state = State::String;
+            self.advance();
+        }
 
         else if c.is_identifier_single() {
             *token = Some(Token::Identifier(c.to_string()));
         }
         else if c.is_identifier_initial() {
             self.state = State::Identifier;
-            self.advance();
-        }
-
-        else if c.is_hash() {
-            self.state = State::Hash;
             self.advance();
         }
 
@@ -131,6 +135,15 @@ impl Lexer {
         }
     }
 
+    fn state_string(&mut self, c: char, token: &mut Option<Token>) {
+        self.advance();
+        if c.is_string_quote() {
+            *token = Some(Token::String(self.value()));
+        }
+        else {
+        }
+    }
+
     fn state_comment(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_newline() {
             self.handle_newline();
@@ -163,6 +176,7 @@ impl Iterator for Lexer {
                 State::Initial => self.state_initial(c, &mut token),
                 State::Identifier => self.state_identifier(c, &mut token),
                 State::Hash => self.state_hash(c, &mut token),
+                State::String => self.state_string(c, &mut token),
                 State::Comment => self.state_comment(c, &mut token),
             }
         }
@@ -204,6 +218,14 @@ fn lexer_finds_comments() {
     let s = "; a comment";
     let mut lexer = Lexer::new(s);
     assert_next_token(&mut lexer, &Token::Comment(s.to_string()));
+}
+
+#[test]
+fn lexer_finds_strings() {
+    let mut lexer = Lexer::new("\"\"");
+    assert_next_token(&mut lexer, &Token::String("\"\"".to_string()));
+    let mut lexer = Lexer::new("\"abc\"");
+    assert_next_token(&mut lexer, &Token::String("\"abc\"".to_string()));
 }
 
 fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
