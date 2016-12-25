@@ -18,6 +18,7 @@ enum State {
     Initial,
     Identifier,
     Hash,
+    Comment,
 }
 
 pub struct Lexer {
@@ -65,6 +66,10 @@ impl Lexer {
         println!("> begin={}, forward={}", self.begin, self.forward);
     }
 
+    fn handle_newline(&mut self) {
+        self.line += 1;
+    }
+
     /// Get the substring between the two input indexes. This is the value to give to a new Token instance.
     fn value(&self) -> String {
         self.input[self.begin .. self.forward].to_string()
@@ -96,7 +101,7 @@ impl Lexer {
 
         else if c.is_whitespace() {
             if c.is_newline() {
-                self.line += 1;
+                self.handle_newline();
             }
             self.advance_begin();
         }
@@ -118,6 +123,13 @@ impl Lexer {
         if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
             *lex = Some(Lex::new(Token::Boolean(c.is_boolean_true()));
+        }
+    }
+
+    fn state_comment(&mut self, c: char, lex: &mut Option<Lex>) {
+        if c.is_newline() {
+            self.handle_newline();
+            *lex = Some(Lex::new(Token::Comment(self.value())));
         }
     }
 }

@@ -14,6 +14,7 @@ pub trait Lexable {
     fn is_boolean_true(&self) -> bool;
     fn is_boolean_false(&self) -> bool;
     fn is_newline(&self) -> bool;
+    fn is_comment_initial(&self) -> bool;
 }
 
 impl Lexable for char {
@@ -51,6 +52,10 @@ impl Lexable for char {
 
     fn is_newline(&self) -> bool {
         *self == '\n'
+    }
+
+    fn is_comment_initial(&self) -> bool {
+        *self == ';'
     }
 }
 
