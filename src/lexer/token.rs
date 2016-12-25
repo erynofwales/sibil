@@ -1,21 +1,24 @@
-/// # Token
+/* token.rs
+ * Eryn Wells <eryn@erynwells.me>
+ */
 
 #[derive(Debug)]
-pub enum Kind {
-    LeftParen,
-    RightParen,
-    Identifier,
-    Boolean,
+pub enum Token {
+    LeftParen(String),
+    RightParen(String),
+    Identifier(String),
+    Boolean(bool),
 }
 
+/// A Lex is a Token extracted from a specific position in an input. It contains useful information about the token's
+/// place.
 #[derive(Debug)]
-pub struct Token {
-    kind: Kind,
-    value: String,
+pub struct Lex {
+    token: Token,
 }
 
-impl Token {
-    pub fn new(kind: Kind, value: String) -> Token {
-        Token { kind: kind, value: value, }
+impl Lex {
+    pub fn new(token: Token) -> Lex {
+        Lex { token: token }
     }
 }

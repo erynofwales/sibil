@@ -10,8 +10,8 @@ mod str;
 use self::char::Lexable;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
+use self::token::Lex;
 use self::token::Token;
-use self::token::Kind;
 
 #[derive(Debug)]
 enum State {
@@ -73,16 +73,16 @@ impl Lexer {
 
 impl Lexer {
     /// Handle self.state == State::Initial
-    fn state_initial(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_initial(&mut self, c: char, lex: &mut Option<Lex>) {
         if c.is_left_paren() {
-            *token = Some(Token::new(Kind::LeftParen, c.to_string()));
+            *lex = Some(Lex::new(Token::LeftParen(c.to_string())));
         }
         else if c.is_right_paren() {
-            *token = Some(Token::new(Kind::RightParen, c.to_string()));
+            *lex = Some(Lex::new(Token::RightParen(c.to_string())));
         }
 
         else if c.is_identifier_single() {
-            *token = Some(Token::new(Kind::Identifier, c.to_string()));
+            *lex = Some(Lex::new(Token::Identifier(c.to_string())));
         }
         else if c.is_identifier_initial() {
             self.state = State::Identifier;
@@ -103,42 +103,42 @@ impl Lexer {
     }
 
     /// Handle self.state == State::Identifier
-    fn state_identifier(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_identifier(&mut self, c: char, lex: &mut Option<Lex>) {
         if c.is_identifier_subsequent() {
             // State in Identifier state.
             self.advance();
         }
         else {
-            *token = Some(Token::new(Kind::Identifier, self.value()));
+            *lex = Some(Lex::new(Token::Identifier(self.value())));
             self.retract();
         }
     }
 
-    fn state_hash(&mut self, c: char, token: &mut Option<Token>) {
-        if c.is_boolean() {
+    fn state_hash(&mut self, c: char, lex: &mut Option<Lex>) {
+        if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
-            *token = Some(Token::new(Kind::Boolean, self.value()));
+            *lex = Some(Lex::new(Token::Boolean(c.is_boolean_true()));
         }
     }
 }
 
 impl Iterator for Lexer {
-    type Item = Token;
+    type Item = Lex;
 
-    fn next(&mut self) -> Option<Token> {
+    fn next(&mut self) -> Option<Lex> {
         self.begin_lexing();
         if self.begin == self.input.len() {
             return None;
         }
-        let mut token: Option<Token> = None;
+        let mut lex: Option<Lex> = None;
         println!("Lexing '{}'", &self.input[self.begin ..]);
-        while token.is_none() {
+        while lex.is_none() {
             if let Some(c) = self.input.char_at(self.forward) {
                 println!("{:?}! c='{}'", self.state, c);
                 match self.state {
-                    State::Initial => self.state_initial(c, &mut token),
-                    State::Identifier => self.state_identifier(c, &mut token),
-                    State::Hash => self.state_hash(c, &mut token),
+                    State::Initial => self.state_initial(c, &mut lex),
+                    State::Identifier => self.state_identifier(c, &mut lex),
+                    State::Hash => self.state_hash(c, &mut lex),
                 }
             }
             else {
@@ -146,7 +146,7 @@ impl Iterator for Lexer {
             }
         }
         self.advance_begin();
-        assert!(token.is_some(), "We quit the lexing loop but didn't actually have a token. :-(");
-        token
+        assert!(lex.is_some(), "We quit the lexing loop but didn't actually have a token. :-(");
+        lex
     }
 }
