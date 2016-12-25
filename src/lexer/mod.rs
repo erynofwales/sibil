@@ -167,11 +167,10 @@ impl Iterator for Lexer {
             }
         }
         self.advance_begin();
-        let mut lex: Option<Lex> = None;
-        if let Some(token) = token {
-            lex = Some(Lex::new(token));
+        match token {
+            Some(t) => Some(Lex::new(t)),
+            None => None,
         }
-        lex
     }
 }
 
