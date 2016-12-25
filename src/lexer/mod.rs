@@ -136,6 +136,10 @@ impl Lexer {
             self.handle_newline();
             *token = Some(Token::Comment(self.value()));
         }
+        else if c.is_eof() {
+            *token = Some(Token::Comment(self.value()));
+        }
+        self.advance();
     }
 }
 
