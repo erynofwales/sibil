@@ -30,9 +30,9 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn new(input: String) -> Lexer {
+    pub fn new(input: &str) -> Lexer {
         Lexer {
-            input: input,
+            input: String::from(input),
             begin: 0,
             forward: 0,
             line: 1,
@@ -172,20 +172,35 @@ impl Iterator for Lexer {
 }
 
 //
-// TESTING
+// UNIT TESTING
 //
 
 #[test]
 fn lexer_finds_parens() {
-    let mut lexer = Lexer::new("()".to_string());
+    let mut lexer = Lexer::new("()");
     assert_next_token(&mut lexer, &Token::LeftParen("(".to_string()));
     assert_next_token(&mut lexer, &Token::RightParen(")".to_string()));
 }
 
 #[test]
 fn lexer_finds_identifiers() {
-    let mut lexer = Lexer::new("abc".to_string());
-    assert_next_token(&mut lexer, &Token::Identifier("abc".to_string()));
+    let s = "abc";
+    let mut lexer = Lexer::new(s);
+    assert_next_token(&mut lexer, &Token::Identifier(s.to_string()));
+}
+
+#[test]
+fn lexer_finds_booleans() {
+    let mut lexer = Lexer::new("#t #f");
+    assert_next_token(&mut lexer, &Token::Boolean(true));
+    assert_next_token(&mut lexer, &Token::Boolean(false));
+}
+
+#[test]
+fn lexer_finds_comments() {
+    let s = "; a comment";
+    let mut lexer = Lexer::new(s);
+    assert_next_token(&mut lexer, &Token::Comment(s.to_string()));
 }
 
 fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
