@@ -3,6 +3,7 @@
  */
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Token {
     LeftParen(String),
     RightParen(String),
@@ -15,7 +16,7 @@ pub enum Token {
 /// place.
 #[derive(Debug)]
 pub struct Lex {
-    token: Token,
+    pub token: Token,
 }
 
 impl Lex {

@@ -170,3 +170,25 @@ impl Iterator for Lexer {
         lex
     }
 }
+
+//
+// TESTING
+//
+
+#[test]
+fn lexer_finds_parens() {
+    let mut lexer = Lexer::new("()".to_string());
+    assert_next_token(&mut lexer, &Token::LeftParen("(".to_string()));
+    assert_next_token(&mut lexer, &Token::RightParen(")".to_string()));
+}
+
+#[test]
+fn lexer_finds_identifiers() {
+    let mut lexer = Lexer::new("abc".to_string());
+    assert_next_token(&mut lexer, &Token::Identifier("abc".to_string()));
+}
+
+fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
+    let lex = lexer.next().unwrap();
+    assert_eq!(lex.token, *expected);
+}
