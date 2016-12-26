@@ -132,12 +132,12 @@ impl Lexer {
             // State in Identifier state.
             self.advance();
         }
-        else {
+        else if c.is_identifier_delimiter() {
             *token = Some(Token::Identifier(self.value()));
             self.retract();
         }
         else {
-            assert!(false, "Invalid token character: {}", c);
+            assert!(false, "Invalid token character: '{}'", c);
         }
     }
 
@@ -151,7 +151,7 @@ impl Lexer {
             *token = Some(Token::LeftVectorParen);
         }
         else {
-            assert!(false, "Invalid token character: {}", c);
+            assert!(false, "Invalid token character: '{}'", c);
         }
     }
 
@@ -160,24 +160,18 @@ impl Lexer {
         if c.is_string_quote() {
             *token = Some(Token::String(self.value()));
         }
-        else {
-            assert!(false, "Invalid token character: {}", c);
-        }
     }
 
     fn state_comment(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_newline() {
             self.handle_newline();
-            self.advance();
             *token = Some(Token::Comment(self.value()));
         }
         else if c.is_eof() {
             *token = Some(Token::Comment(self.value()));
-            self.advance();
         }
-        else {
-            assert!(false, "Invalid token character: {}", c);
-        }
+        // Consume all characters.
+        self.advance();
     }
 }
 
