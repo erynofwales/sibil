@@ -234,6 +234,8 @@ mod tests {
     #[test]
     fn lexer_finds_identifiers() {
         check_single_token("abc", Token::Identifier(String::from("abc")));
+        check_single_token("+", Token::Identifier(String::from("+")));
+        check_single_token("-", Token::Identifier(String::from("-")));
     }
 
     #[test]
