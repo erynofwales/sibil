@@ -192,43 +192,50 @@ impl Iterator for Lexer {
 // UNIT TESTING
 //
 
-#[test]
-fn lexer_finds_parens() {
-    let mut lexer = Lexer::new("()");
-    assert_next_token(&mut lexer, &Token::LeftParen("(".to_string()));
-    assert_next_token(&mut lexer, &Token::RightParen(")".to_string()));
-}
+#[cfg(test)]
+mod tests {
+    use std::iter::Iterator;
+    use super::*;
+    use super::token::*;
 
-#[test]
-fn lexer_finds_identifiers() {
-    let s = "abc";
-    let mut lexer = Lexer::new(s);
-    assert_next_token(&mut lexer, &Token::Identifier(s.to_string()));
-}
+    #[test]
+    fn lexer_finds_parens() {
+        let mut lexer = Lexer::new("()");
+        assert_next_token(&mut lexer, &Token::LeftParen("(".to_string()));
+        assert_next_token(&mut lexer, &Token::RightParen(")".to_string()));
+    }
 
-#[test]
-fn lexer_finds_booleans() {
-    let mut lexer = Lexer::new("#t #f");
-    assert_next_token(&mut lexer, &Token::Boolean(true));
-    assert_next_token(&mut lexer, &Token::Boolean(false));
-}
+    #[test]
+    fn lexer_finds_identifiers() {
+        let s = "abc";
+        let mut lexer = Lexer::new(s);
+        assert_next_token(&mut lexer, &Token::Identifier(s.to_string()));
+    }
 
-#[test]
-fn lexer_finds_comments() {
-    let s = "; a comment";
-    let mut lexer = Lexer::new(s);
-    assert_next_token(&mut lexer, &Token::Comment(s.to_string()));
-}
+    #[test]
+    fn lexer_finds_booleans() {
+        let mut lexer = Lexer::new("#t #f");
+        assert_next_token(&mut lexer, &Token::Boolean(true));
+        assert_next_token(&mut lexer, &Token::Boolean(false));
+    }
 
-#[test]
-fn lexer_finds_strings() {
-    let mut lexer = Lexer::new("\"\"");
-    assert_next_token(&mut lexer, &Token::String("\"\"".to_string()));
-    let mut lexer = Lexer::new("\"abc\"");
-    assert_next_token(&mut lexer, &Token::String("\"abc\"".to_string()));
-}
+    #[test]
+    fn lexer_finds_comments() {
+        let s = "; a comment";
+        let mut lexer = Lexer::new(s);
+        assert_next_token(&mut lexer, &Token::Comment(s.to_string()));
+    }
 
-fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
-    let lex = lexer.next().unwrap();
-    assert_eq!(lex.token, *expected);
+    #[test]
+    fn lexer_finds_strings() {
+        let mut lexer = Lexer::new("\"\"");
+        assert_next_token(&mut lexer, &Token::String("\"\"".to_string()));
+        let mut lexer = Lexer::new("\"abc\"");
+        assert_next_token(&mut lexer, &Token::String("\"abc\"".to_string()));
+    }
+
+    fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
+        let lex = lexer.next().unwrap();
+        assert_eq!(lex.token, *expected);
+    }
 }
