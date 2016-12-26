@@ -89,6 +89,9 @@ impl Lexer {
         else if c.is_right_paren() {
             *token = Some(Token::RightParen(c.to_string()));
         }
+        else if c.is_dot() {
+            *token = Some(Token::Dot);
+        }
         else if c.is_hash() {
             self.state = State::Hash;
             self.advance();
@@ -205,6 +208,11 @@ mod tests {
     fn lexer_finds_parens() {
         check_single_token("(", Token::LeftParen(String::from("(")));
         check_single_token(")", Token::RightParen(String::from(")")));
+    }
+
+    #[test]
+    fn lexer_finds_dots() {
+        check_single_token(".", Token::Dot);
     }
 
     #[test]

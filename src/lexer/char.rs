@@ -8,6 +8,7 @@ pub trait Lexable {
     fn is_left_paren(&self) -> bool;
     fn is_right_paren(&self) -> bool;
     fn is_hash(&self) -> bool;
+    fn is_dot(&self) -> bool;
     fn is_string_quote(&self) -> bool;
     fn is_newline(&self) -> bool;
     fn is_eof(&self) -> bool;
@@ -30,6 +31,10 @@ impl Lexable for char {
 
     fn is_hash(&self) -> bool {
         *self == '#'
+    }
+
+    fn is_dot(&self) -> bool {
+        *self == '.'
     }
     
     fn is_string_quote(&self) -> bool {

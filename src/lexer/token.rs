@@ -7,6 +7,7 @@
 pub enum Token {
     LeftParen(String),
     RightParen(String),
+    Dot,
     Identifier(String),
     Boolean(bool),
     String(String),
