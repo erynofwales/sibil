@@ -17,6 +17,7 @@ use self::token::Token;
 enum State {
     Initial,
     Identifier,
+    Dot,
     Hash,
     Comment,
     String,
@@ -90,7 +91,8 @@ impl Lexer {
             *token = Some(Token::RightParen(c.to_string()));
         }
         else if c.is_dot() {
-            *token = Some(Token::Dot);
+            self.state = State::Dot;
+            self.advance();
         }
         else if c.is_hash() {
             self.state = State::Hash;
@@ -134,6 +136,16 @@ impl Lexer {
         }
         else if c.is_identifier_delimiter() {
             *token = Some(Token::Identifier(self.value()));
+            self.retract();
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
+    fn state_dot(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_identifier_delimiter() {
+            *token = Some(Token::Dot);
             self.retract();
         }
         else {
@@ -195,6 +207,7 @@ impl Iterator for Lexer {
             match self.state {
                 State::Initial => self.state_initial(c, &mut token),
                 State::Identifier => self.state_identifier(c, &mut token),
+                State::Dot => self.state_dot(c, &mut token),
                 State::Hash => self.state_hash(c, &mut token),
                 State::String => self.state_string(c, &mut token),
                 State::Comment => self.state_comment(c, &mut token),
@@ -229,6 +242,11 @@ mod tests {
     #[test]
     fn lexer_finds_dots() {
         check_single_token(".", Token::Dot);
+
+        let mut lexer = Lexer::new("abc . abc");
+        assert_next_token(&mut lexer, &Token::Identifier(String::from("abc")));
+        assert_next_token(&mut lexer, &Token::Dot);
+        assert_next_token(&mut lexer, &Token::Identifier(String::from("abc")));
     }
 
     #[test]
