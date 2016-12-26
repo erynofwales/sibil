@@ -6,6 +6,7 @@
 #[derive(PartialEq)]
 pub enum Token {
     LeftParen(String),
+    LeftVectorParen,
     RightParen(String),
     Dot,
     Identifier(String),

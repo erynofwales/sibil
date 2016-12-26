@@ -139,6 +139,10 @@ impl Lexer {
             self.advance();
             *token = Some(Token::Boolean(c.is_boolean_true()));
         }
+        else if c.is_left_paren() {
+            self.advance();
+            *token = Some(Token::LeftVectorParen);
+        }
     }
 
     fn state_string(&mut self, c: char, token: &mut Option<Token>) {
@@ -208,6 +212,7 @@ mod tests {
     fn lexer_finds_parens() {
         check_single_token("(", Token::LeftParen(String::from("(")));
         check_single_token(")", Token::RightParen(String::from(")")));
+        check_single_token("#(", Token::LeftVectorParen);
     }
 
     #[test]
