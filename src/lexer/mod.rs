@@ -200,38 +200,36 @@ mod tests {
 
     #[test]
     fn lexer_finds_parens() {
-        let mut lexer = Lexer::new("()");
-        assert_next_token(&mut lexer, &Token::LeftParen("(".to_string()));
-        assert_next_token(&mut lexer, &Token::RightParen(")".to_string()));
+        check_single_token("(", Token::LeftParen(String::from("(")));
+        check_single_token(")", Token::RightParen(String::from(")")));
     }
 
     #[test]
     fn lexer_finds_identifiers() {
-        let s = "abc";
-        let mut lexer = Lexer::new(s);
-        assert_next_token(&mut lexer, &Token::Identifier(s.to_string()));
+        check_single_token("abc", Token::Identifier(String::from("abc")));
     }
 
     #[test]
     fn lexer_finds_booleans() {
-        let mut lexer = Lexer::new("#t #f");
-        assert_next_token(&mut lexer, &Token::Boolean(true));
-        assert_next_token(&mut lexer, &Token::Boolean(false));
+        check_single_token("#t", Token::Boolean(true));
+        check_single_token("#f", Token::Boolean(false));
     }
 
     #[test]
     fn lexer_finds_comments() {
         let s = "; a comment";
-        let mut lexer = Lexer::new(s);
-        assert_next_token(&mut lexer, &Token::Comment(s.to_string()));
+        check_single_token(s, Token::Comment(String::from(s)));
     }
 
     #[test]
     fn lexer_finds_strings() {
-        let mut lexer = Lexer::new("\"\"");
-        assert_next_token(&mut lexer, &Token::String("\"\"".to_string()));
-        let mut lexer = Lexer::new("\"abc\"");
-        assert_next_token(&mut lexer, &Token::String("\"abc\"".to_string()));
+        check_single_token("\"\"", Token::String(String::from("\"\"")));
+        check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
+    }
+
+    fn check_single_token(input: &str, expected: Token) {
+        let mut lexer = Lexer::new(input);
+        assert_next_token(&mut lexer, &expected);
     }
 
     fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
