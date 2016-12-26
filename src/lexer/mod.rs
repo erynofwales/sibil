@@ -191,6 +191,7 @@ impl Iterator for Lexer {
                 None => '\0',
             };
             println!("{:?}! c='{}'", self.state, c);
+            let previous_forward = self.forward;
             match self.state {
                 State::Initial => self.state_initial(c, &mut token),
                 State::Identifier => self.state_identifier(c, &mut token),
@@ -198,6 +199,7 @@ impl Iterator for Lexer {
                 State::String => self.state_string(c, &mut token),
                 State::Comment => self.state_comment(c, &mut token),
             }
+            assert!(token.is_some() || self.forward != previous_forward, "No lexing progress made!");
         }
         self.advance_begin();
         match token {
