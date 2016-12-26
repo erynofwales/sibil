@@ -120,6 +120,10 @@ impl Lexer {
             self.state = State::Comment;
             self.advance();
         }
+
+        else {
+            assert!(false, "Invalid token character: {}", c);
+        }
     }
 
     /// Handle self.state == State::Identifier
@@ -132,6 +136,9 @@ impl Lexer {
             *token = Some(Token::Identifier(self.value()));
             self.retract();
         }
+        else {
+            assert!(false, "Invalid token character: {}", c);
+        }
     }
 
     fn state_hash(&mut self, c: char, token: &mut Option<Token>) {
@@ -143,6 +150,9 @@ impl Lexer {
             self.advance();
             *token = Some(Token::LeftVectorParen);
         }
+        else {
+            assert!(false, "Invalid token character: {}", c);
+        }
     }
 
     fn state_string(&mut self, c: char, token: &mut Option<Token>) {
@@ -151,18 +161,23 @@ impl Lexer {
             *token = Some(Token::String(self.value()));
         }
         else {
+            assert!(false, "Invalid token character: {}", c);
         }
     }
 
     fn state_comment(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_newline() {
             self.handle_newline();
+            self.advance();
             *token = Some(Token::Comment(self.value()));
         }
         else if c.is_eof() {
             *token = Some(Token::Comment(self.value()));
+            self.advance();
         }
-        self.advance();
+        else {
+            assert!(false, "Invalid token character: {}", c);
+        }
     }
 }
 
