@@ -229,6 +229,11 @@ impl Lexer {
             self.state = State::Hash;
             self.advance();
         }
+        else if let Some(sign) = Sign::from_char(c) {
+            self.number_builder.sign(sign);
+            self.state = State::NumberSign;
+            self.advance();
+        }
         else if c.is_digit(self.number_builder.radix_value()) {
             self.number_builder.extend_value(c);
             self.state = State::Number;
@@ -450,6 +455,12 @@ mod tests {
     #[test]
     fn finds_oct_numbers() {
         check_single_token("#o45", Token::Number(Number::from_int(0o45)));
+    }
+
+    #[test]
+    fn finds_exact_numbers() {
+        check_single_token("#e45", Token::Number(Number::from_int(45)));
+        check_single_token("#e-45", Token::Number(Number::from_int(-45)));
     }
 
     #[test]
