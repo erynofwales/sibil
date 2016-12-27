@@ -18,6 +18,8 @@ use self::str::RelativeIndexable;
 use self::token::Lex;
 use self::token::Token;
 
+type StateResult = Result<Option<Token>, String>;
+
 #[derive(Debug)]
 enum State {
     Comment,
