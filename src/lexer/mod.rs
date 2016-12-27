@@ -206,14 +206,14 @@ impl Lexer {
         Ok(None)
     }
 
-    fn state_hash(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_hash(&mut self, c: char) -> StateResult {
         if c.is_boolean_true() || c.is_boolean_false() {
-            *token = Some(Token::Boolean(c.is_boolean_true()));
             self.advance();
+            return self.token_result(Token::Boolean(c.is_boolean_true()));
         }
         else if c.is_left_paren() {
-            *token = Some(Token::LeftVectorParen);
             self.advance();
+            return self.token_result(Token::LeftVectorParen);
         }
         else if let Some(radix) = Radix::from_char(c) {
             self.number_builder.radix(radix);
@@ -226,8 +226,9 @@ impl Lexer {
             self.advance();
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            self.generic_error(c);
         }
+        Ok(None)
     }
 
     fn state_number(&mut self, c: char, token: &mut Option<Token>) {
@@ -377,7 +378,7 @@ impl Iterator for Lexer {
                 State::Initial => self.state_initial(c),
                 State::Identifier => self.state_identifier(c),
                 State::Dot => self.state_dot(c),
-                State::Hash => self.state_hash(c, &mut token),
+                State::Hash => self.state_hash(c),
                 State::Number => self.state_number(c, &mut token),
                 State::NumberExactness => self.state_number_exactness(c, &mut token),
                 State::NumberDecimal => self.state_number_decimal(c, &mut token),
