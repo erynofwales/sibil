@@ -101,6 +101,10 @@ impl Lexer {
     fn error_string(&self, message: String) -> String {
         format!("{}:{}: {}", self.line, self.line_offset, message)
     }
+
+    fn token_result(&self, token: Token) -> StateResult {
+        Ok(Some(token))
+    }
 }
 
 impl Lexer {
