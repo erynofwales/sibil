@@ -11,6 +11,7 @@ mod str;
 use self::char::Lexable;
 use self::number::NumberBuilder;
 use self::number::Radix;
+use self::number::Sign;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
 use self::token::Lex;
@@ -110,7 +111,7 @@ impl Lexer {
             self.advance();
         }
 
-        else if c.is_identifier_single() {
+        else if let Some(sign) = Sign::from_char(c) {
             *token = Some(Token::Identifier(c.to_string()));
         }
         else if c.is_identifier_initial() {

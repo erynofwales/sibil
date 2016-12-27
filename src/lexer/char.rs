@@ -15,7 +15,6 @@ pub trait Lexable {
 
     fn is_identifier_initial(&self) -> bool;
     fn is_identifier_subsequent(&self) -> bool;
-    fn is_identifier_single(&self) -> bool;
     fn is_identifier_delimiter(&self) -> bool;
 
     fn is_boolean_true(&self) -> bool;
@@ -71,10 +70,6 @@ impl Lexable for char {
 
     fn is_identifier_subsequent(&self) -> bool {
         charset::identifier_subsequents().contains(&self)
-    }
-
-    fn is_identifier_single(&self) -> bool {
-        charset::identifier_singles().contains(&self)
     }
 
     fn is_identifier_delimiter(&self) -> bool {

@@ -41,7 +41,3 @@ pub fn identifier_subsequents() -> CharSet {
     subsequents.extend(extras.iter());
     subsequents
 }
-
-pub fn identifier_singles() -> CharSet {
-    CharSet::from_iter("+-".chars())
-}
