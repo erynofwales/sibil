@@ -470,6 +470,16 @@ mod tests {
         check_single_token("#h4A65", Token::Number(Number::from_int(0x4A65)));
     }
 
+    #[test]
+    fn lexes_simple_sexpression() {
+        let mut lexer = Lexer::new("(+ 3.4 6.8)");
+        assert_next_token(&mut lexer, &Token::LeftParen(String::from("(")));
+        assert_next_token(&mut lexer, &Token::Identifier(String::from("+")));
+        assert_next_token(&mut lexer, &Token::Number(Number::new(3.4)));
+        assert_next_token(&mut lexer, &Token::Number(Number::new(6.8)));
+        assert_next_token(&mut lexer, &Token::RightParen(String::from(")")));
+    }
+
     fn check_single_token(input: &str, expected: Token) {
         let mut lexer = Lexer::new(input);
         assert_next_token(&mut lexer, &expected);
