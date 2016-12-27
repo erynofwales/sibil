@@ -105,6 +105,10 @@ impl Lexer {
     fn token_result(&self, token: Token) -> StateResult {
         Ok(Some(token))
     }
+
+    fn generic_error(c: char) -> StateResult {
+        Err(self.error_string(format!("Invalid token character: {}", c)));
+    }
 }
 
 impl Lexer {
@@ -163,25 +167,26 @@ impl Lexer {
         }
 
         else {
-            return Err(self.error_string(format!("Invalid token character: {}", c)));
+            return self.generic_error(c);
         }
 
         Ok(None)
     }
 
     /// Handle self.state == State::Identifier
-    fn state_identifier(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_identifier(&mut self, c: char) -> StateResult {
         if c.is_identifier_subsequent() {
             // Stay in Identifier state.
             self.advance();
         }
         else if c.is_identifier_delimiter() {
-            *token = Some(Token::Identifier(self.value()));
+            self.token_result(Token::Identifier(self.value()));
             self.retract();
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
     fn state_dot(&mut self, c: char, token: &mut Option<Token>) {
@@ -369,7 +374,7 @@ impl Iterator for Lexer {
             let previous_forward = self.forward;
             match self.state {
                 State::Initial => self.state_initial(c),
-                State::Identifier => self.state_identifier(c, &mut token),
+                State::Identifier => self.state_identifier(c),
                 State::Dot => self.state_dot(c, &mut token),
                 State::Hash => self.state_hash(c, &mut token),
                 State::Number => self.state_number(c, &mut token),
