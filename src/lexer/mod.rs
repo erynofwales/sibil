@@ -385,14 +385,14 @@ mod tests {
     use super::token::*;
 
     #[test]
-    fn lexer_finds_parens() {
+    fn finds_parens() {
         check_single_token("(", Token::LeftParen(String::from("(")));
         check_single_token(")", Token::RightParen(String::from(")")));
         check_single_token("#(", Token::LeftVectorParen);
     }
 
     #[test]
-    fn lexer_finds_dots() {
+    fn finds_dots() {
         check_single_token(".", Token::Dot);
 
         let mut lexer = Lexer::new("abc . abc");
@@ -402,26 +402,28 @@ mod tests {
     }
 
     #[test]
-    fn lexer_finds_identifiers() {
-        check_single_token("abc", Token::Identifier(String::from("abc")));
-        check_single_token("+", Token::Identifier(String::from("+")));
-        check_single_token("-", Token::Identifier(String::from("-")));
+    fn finds_identifiers() {
+        let tok = |s: &str| { check_single_token(s, Token::Identifier(String::from(s))); };
+        tok("abc");
+        tok("number?");
+        tok("+");
+        tok("-");
     }
 
     #[test]
-    fn lexer_finds_booleans() {
+    fn finds_booleans() {
         check_single_token("#t", Token::Boolean(true));
         check_single_token("#f", Token::Boolean(false));
     }
 
     #[test]
-    fn lexer_finds_comments() {
+    fn finds_comments() {
         let s = "; a comment";
         check_single_token(s, Token::Comment(String::from(s)));
     }
 
     #[test]
-    fn lexer_finds_strings() {
+    fn finds_strings() {
         check_single_token("\"\"", Token::String(String::from("\"\"")));
         check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
     }
