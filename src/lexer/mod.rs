@@ -20,6 +20,10 @@ use self::token::Token;
 
 type StateResult = Result<Option<Token>, String>;
 
+trait HasResult {
+    fn has_token(&self) -> bool;
+}
+
 #[derive(Debug)]
 enum State {
     Comment,
@@ -180,8 +184,9 @@ impl Lexer {
             self.advance();
         }
         else if c.is_identifier_delimiter() {
-            self.token_result(Token::Identifier(self.value()));
+            let value = self.value();
             self.retract();
+            return self.token_result(Token::Identifier(value));
         }
         else {
             return self.generic_error(c);
@@ -189,6 +194,7 @@ impl Lexer {
         Ok(None)
     }
 
+    /// Handle self.state == State::Dot
     fn state_dot(&mut self, c: char) -> StateResult {
         if c.is_identifier_delimiter() {
             self.retract();
@@ -201,11 +207,12 @@ impl Lexer {
             self.advance();
         }
         else {
-            self.generic_error(c);
+            return self.generic_error(c);
         }
         Ok(None)
     }
 
+    /// Handle self.state == State::Hash
     fn state_hash(&mut self, c: char) -> StateResult {
         if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
@@ -226,12 +233,13 @@ impl Lexer {
             self.advance();
         }
         else {
-            self.generic_error(c);
+            return self.generic_error(c);
         }
         Ok(None)
     }
 
-    fn state_number(&mut self, c: char, token: &mut Option<Token>) {
+    /// Handle self.state == State::Number
+    fn state_number(&mut self, c: char) -> StateResult {
         if c.is_digit(self.number_builder.radix_value()) {
             self.number_builder.extend_value(c);
             self.advance();
@@ -241,15 +249,16 @@ impl Lexer {
             self.advance();
         }
         else if c.is_identifier_delimiter() {
-            *token = Some(Token::Number(self.number_builder.resolve()));
             self.retract();
+            return self.token_result(Token::Number(self.number_builder.resolve()));
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
-    fn state_number_exactness(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_number_exactness(&mut self, c: char) -> StateResult {
         if c.is_hash() {
             self.state = State::Hash;
             self.advance();
@@ -265,25 +274,27 @@ impl Lexer {
             self.advance();
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
-    fn state_number_decimal(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_number_decimal(&mut self, c: char) -> StateResult {
         if c.is_digit(Radix::Dec.value()) {
             self.number_builder.extend_decimal_value(c);
             self.advance();
         }
         else if c.is_identifier_delimiter() {
-            *token = Some(Token::Number(self.number_builder.resolve()));
             self.retract();
+            return self.token_result(Token::Number(self.number_builder.resolve()));
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
-    fn state_number_radix(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_number_radix(&mut self, c: char) -> StateResult {
         if c.is_digit(self.number_builder.radix_value()) {
             self.number_builder.extend_value(c);
             self.state = State::Number;
@@ -303,11 +314,12 @@ impl Lexer {
             self.advance();
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
-    fn state_number_sign(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_number_sign(&mut self, c: char) -> StateResult {
         if c.is_digit(self.number_builder.radix_value()) {
             self.number_builder.extend_value(c);
             self.state = State::Number;
@@ -318,42 +330,46 @@ impl Lexer {
             self.advance();
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
-    fn state_sign(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_sign(&mut self, c: char) -> StateResult {
         if c.is_digit(Radix::Dec.value()) {
             self.number_builder.extend_value(c);
             self.state = State::Number;
             self.advance();
         }
         else if c.is_identifier_delimiter() {
-            *token = Some(Token::Identifier(self.value()));
+            let value = self.value();
             self.retract();
+            return self.token_result(Token::Identifier(value));
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            return self.generic_error(c);
         }
+        Ok(None)
     }
 
-    fn state_string(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_string(&mut self, c: char) -> StateResult {
         self.advance();
         if c.is_string_quote() {
-            *token = Some(Token::String(self.value()));
+            return self.token_result(Token::String(self.value()));
         }
+        Ok(None)
     }
 
-    fn state_comment(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_comment(&mut self, c: char) -> StateResult {
         if c.is_newline() {
             self.handle_newline();
-            *token = Some(Token::Comment(self.value()));
+            return self.token_result(Token::Comment(self.value()));
         }
         else if c.is_eof() {
-            *token = Some(Token::Comment(self.value()));
+            return self.token_result(Token::Comment(self.value()));
         }
-        // Consume all characters.
         self.advance();
+        Ok(None)
     }
 }
 
@@ -374,26 +390,42 @@ impl Iterator for Lexer {
             };
             println!("{:?}! c='{}'", self.state, c);
             let previous_forward = self.forward;
-            match self.state {
+            let result = match self.state {
                 State::Initial => self.state_initial(c),
                 State::Identifier => self.state_identifier(c),
                 State::Dot => self.state_dot(c),
                 State::Hash => self.state_hash(c),
-                State::Number => self.state_number(c, &mut token),
-                State::NumberExactness => self.state_number_exactness(c, &mut token),
-                State::NumberDecimal => self.state_number_decimal(c, &mut token),
-                State::NumberRadix => self.state_number_radix(c, &mut token),
-                State::NumberSign => self.state_number_sign(c, &mut token),
-                State::Sign => self.state_sign(c, &mut token),
-                State::String => self.state_string(c, &mut token),
-                State::Comment => self.state_comment(c, &mut token),
+                State::Number => self.state_number(c),
+                State::NumberExactness => self.state_number_exactness(c),
+                State::NumberDecimal => self.state_number_decimal(c),
+                State::NumberRadix => self.state_number_radix(c),
+                State::NumberSign => self.state_number_sign(c),
+                State::Sign => self.state_sign(c),
+                State::String => self.state_string(c),
+                State::Comment => self.state_comment(c),
+            };
+            assert!(result.has_token() || self.forward != previous_forward, "No lexing progress made!");
+            if result.has_token() {
+                token = result.ok().unwrap();
+                break;
             }
-            assert!(token.is_some() || self.forward != previous_forward, "No lexing progress made!");
         }
         self.advance_begin();
         match token {
             Some(t) => Some(Lex::new(t, self.line, self.line_offset)),
             None => None,
+        }
+    }
+}
+
+impl HasResult for StateResult {
+    fn has_token(&self) -> bool {
+        match *self {
+            Ok(ref token) => match *token {
+                Some(_) => true,
+                None => false,
+            },
+            Err(_) => false
         }
     }
 }
