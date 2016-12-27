@@ -14,12 +14,16 @@ impl Number {
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }
 
+#[derive(PartialEq, Debug)]
+pub enum Sign { Pos, Neg }
+
 #[derive(Debug)]
 pub struct NumberBuilder {
     exact: bool,
     radix: Radix,
+    sign: Sign,
     value: f64,
-    point: u16,
+    point: u32,
 }
 
 impl NumberBuilder {
@@ -27,29 +31,25 @@ impl NumberBuilder {
         NumberBuilder {
             exact: false,
             radix: Radix::Dec,
+            sign: Sign::Pos,
             value: 0.0,
             point: 0,
         }
     }
 
-    pub fn exact<'a>(&'a mut self, ex: bool) -> &'a mut Self {
+    pub fn exact<'a>(&'a mut self, ex: bool) -> &'a mut NumberBuilder {
         self.exact = ex;
         self
     }
 
-    pub fn radix<'a>(&'a mut self, r: Radix) -> &'a mut Self {
+    pub fn radix<'a>(&'a mut self, r: Radix) -> &'a mut NumberBuilder {
         self.radix = r;
         self
     }
 
-    pub fn resolve(&self) -> Number {
-        // TODO: Convert fields to Number type.
-        let value = if self.point == 0 {
-            self.value
-        } else {
-            self.value / (self.point * 10) as f64
-        };
-        Number { value: value }
+    pub fn sign<'a>(&'a mut self, s: Sign) -> &'a mut NumberBuilder {
+        self.sign = s;
+        self
     }
 
     pub fn extend_value<'a>(&'a mut self, digit: char) -> &'a mut Self {
@@ -65,7 +65,19 @@ impl NumberBuilder {
     pub fn extend_decimal_value<'a>(&'a mut self, digit: char) -> &'a mut Self {
         self.extend_value(digit);
         self.point += 1;
+        println!("value = {}, point = {}", self.value, self.point);
         self
+    }
+
+    pub fn resolve(&self) -> Number {
+        // TODO: Convert fields to Number type.
+        let value = if self.point == 0 {
+            self.value
+        } else {
+            self.value / 10u32.pow(self.point) as f64
+        };
+        let value = if self.sign == Sign::Neg { value * -1.0 } else { value };
+        Number { value: value }
     }
 
     pub fn radix_value(&self) -> u32 {
@@ -90,5 +102,37 @@ impl Radix {
             Radix::Dec => 10.0,
             Radix::Hex => 16.0,
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn builds_integers() {
+        let mut b = NumberBuilder::new();
+        b.extend_value('3');
+        assert_eq!(b.resolve().value, 3.0);
+        b.extend_value('4');
+        assert_eq!(b.resolve().value, 34.0);
+    }
+
+    #[test]
+    fn builds_negative_integers() {
+        let num = NumberBuilder::new().sign(Sign::Neg).extend_value('3').resolve();
+        assert_eq!(num.value, -3.0);
+    }
+
+    #[test]
+    fn builds_decimals() {
+        let mut b = NumberBuilder::new();
+        b.extend_value('5');
+        assert_eq!(b.resolve().value, 5.0);
+        b.extend_decimal_value('3');
+        assert_eq!(b.resolve().value, 5.3);
+        b.extend_decimal_value('4');
+        assert_eq!(b.resolve().value, 5.34);
     }
 }
