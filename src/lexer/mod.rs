@@ -106,8 +106,8 @@ impl Lexer {
         Ok(Some(token))
     }
 
-    fn generic_error(c: char) -> StateResult {
-        Err(self.error_string(format!("Invalid token character: {}", c)));
+    fn generic_error(&self, c: char) -> StateResult {
+        Err(self.error_string(format!("Invalid token character: {}", c)))
     }
 }
 
