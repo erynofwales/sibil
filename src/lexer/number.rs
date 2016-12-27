@@ -6,6 +6,10 @@
 pub struct Number { value: f64, }
 
 impl Number {
+    pub fn from_int(value: i64) -> Number {
+        Number { value: value as f64 }
+    }
+
     pub fn new(value: f64) -> Number {
         Number { value: value }
     }
@@ -91,6 +95,16 @@ impl NumberBuilder {
 }
 
 impl Radix {
+    pub fn from_char(c: char) -> Option<Radix> {
+        match c {
+            'b' => Some(Radix::Bin),
+            'o' => Some(Radix::Oct),
+            'd' => Some(Radix::Dec),
+            'h' => Some(Radix::Hex),
+            _ => None,
+        }
+    }
+
     pub fn value(&self) -> u32 {
         match *self {
             Radix::Bin => 2,
@@ -105,6 +119,15 @@ impl Radix {
     }
 }
 
+impl Sign {
+    pub fn from_char(c: char) -> Option<Sign> {
+        match c {
+            '+' => Some(Sign::Pos),
+            '-' => Some(Sign::Neg),
+            _ => None,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -126,7 +149,7 @@ mod tests {
     }
 
     #[test]
-    fn builds_decimals() {
+    fn builds_pointy_numbers() {
         let mut b = NumberBuilder::new();
         b.extend_value('5');
         assert_eq!(b.resolve().value, 5.0);
