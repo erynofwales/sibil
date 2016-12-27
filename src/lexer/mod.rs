@@ -9,6 +9,7 @@ mod number;
 mod str;
 
 use self::char::Lexable;
+use self::number::Exactness;
 use self::number::NumberBuilder;
 use self::number::Radix;
 use self::number::Sign;
@@ -25,7 +26,11 @@ enum State {
     Dot,
     Hash,
     Number,
+    NumberExactness,
     NumberDecimal,
+    NumberRadix,
+    NumberSign,
+    Sign,
     String,
 }
 
@@ -112,7 +117,10 @@ impl Lexer {
         }
 
         else if let Some(sign) = Sign::from_char(c) {
-            *token = Some(Token::Identifier(c.to_string()));
+            self.number_builder = NumberBuilder::new();
+            self.number_builder.sign(sign);
+            self.state = State::Sign;
+            self.advance();
         }
         else if c.is_identifier_initial() {
             self.state = State::Identifier;
@@ -146,7 +154,7 @@ impl Lexer {
     /// Handle self.state == State::Identifier
     fn state_identifier(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_identifier_subsequent() {
-            // State in Identifier state.
+            // Stay in Identifier state.
             self.advance();
         }
         else if c.is_identifier_delimiter() {
@@ -176,12 +184,22 @@ impl Lexer {
 
     fn state_hash(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_boolean_true() || c.is_boolean_false() {
-            self.advance();
             *token = Some(Token::Boolean(c.is_boolean_true()));
+            self.advance();
         }
         else if c.is_left_paren() {
-            self.advance();
             *token = Some(Token::LeftVectorParen);
+            self.advance();
+        }
+        else if let Some(radix) = Radix::from_char(c) {
+            self.number_builder.radix(radix);
+            self.state = State::NumberRadix;
+            self.advance();
+        }
+        else if let Some(exactness) = Exactness::from_char(c) {
+            self.number_builder.exact(exactness);
+            self.state = State::NumberExactness;
+            self.advance();
         }
         else {
             assert!(false, "Invalid token character: '{}'", c);
@@ -206,6 +224,21 @@ impl Lexer {
         }
     }
 
+    fn state_number_exactness(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_hash() {
+            self.state = State::Hash;
+            self.advance();
+        }
+        else if c.is_digit(self.number_builder.radix_value()) {
+            self.number_builder.extend_value(c);
+            self.state = State::Number;
+            self.advance();
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
     fn state_number_decimal(&mut self, c: char, token: &mut Option<Token>) {
         if c.is_digit(Radix::Dec.value()) {
             self.number_builder.extend_decimal_value(c);
@@ -213,6 +246,60 @@ impl Lexer {
         }
         else if c.is_identifier_delimiter() {
             *token = Some(Token::Number(self.number_builder.resolve()));
+            self.retract();
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
+    fn state_number_radix(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_digit(self.number_builder.radix_value()) {
+            self.number_builder.extend_value(c);
+            self.state = State::Number;
+            self.advance();
+        }
+        else if c.is_dot() {
+            self.state = State::NumberDecimal;
+            self.advance();
+        }
+        else if c.is_hash() {
+            self.state = State::Hash;
+            self.advance();
+        }
+        else if let Some(sign) = Sign::from_char(c) {
+            self.number_builder.sign(sign);
+            self.state = State::NumberSign;
+            self.advance();
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
+    fn state_number_sign(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_digit(self.number_builder.radix_value()) {
+            self.number_builder.extend_value(c);
+            self.state = State::Number;
+            self.advance();
+        }
+        else if c.is_dot() {
+            self.state = State::NumberDecimal;
+            self.advance();
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
+    fn state_sign(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_digit(Radix::Dec.value()) {
+            self.number_builder.extend_value(c);
+            self.state = State::Number;
+            self.advance();
+        }
+        else if c.is_identifier_delimiter() {
+            *token = Some(Token::Identifier(self.value()));
             self.retract();
         }
         else {
@@ -263,7 +350,11 @@ impl Iterator for Lexer {
                 State::Dot => self.state_dot(c, &mut token),
                 State::Hash => self.state_hash(c, &mut token),
                 State::Number => self.state_number(c, &mut token),
+                State::NumberExactness => self.state_number_exactness(c, &mut token),
                 State::NumberDecimal => self.state_number_decimal(c, &mut token),
+                State::NumberRadix => self.state_number_radix(c, &mut token),
+                State::NumberSign => self.state_number_sign(c, &mut token),
+                State::Sign => self.state_sign(c, &mut token),
                 State::String => self.state_string(c, &mut token),
                 State::Comment => self.state_comment(c, &mut token),
             }
@@ -331,10 +422,39 @@ mod tests {
     }
 
     #[test]
-    fn lexer_finds_numbers() {
-        check_single_token("34", Token::Number(Number::new(34.0)));
+    fn finds_numbers() {
         check_single_token(".34", Token::Number(Number::new(0.34)));
         check_single_token("0.34", Token::Number(Number::new(0.34)));
+    }
+
+    #[test]
+    fn finds_negative_numbers() {
+        check_single_token("-3", Token::Number(Number::from_int(-3)));
+        check_single_token("-0", Token::Number(Number::from_int(-0)));
+        check_single_token("-0.56", Token::Number(Number::new(-0.56)));
+        check_single_token("-3.14159", Token::Number(Number::new(-3.14159)));
+    }
+
+    #[test]
+    fn finds_bin_numbers() {
+        check_single_token("#b0", Token::Number(Number::from_int(0b0)));
+        check_single_token("#b01011", Token::Number(Number::from_int(0b01011)));
+    }
+
+    #[test]
+    fn finds_dec_numbers() {
+        check_single_token("34", Token::Number(Number::new(34.0)));
+        check_single_token("#d89", Token::Number(Number::from_int(89)));
+    }
+
+    #[test]
+    fn finds_oct_numbers() {
+        check_single_token("#o45", Token::Number(Number::from_int(0o45)));
+    }
+
+    #[test]
+    fn finds_hex_numbers() {
+        check_single_token("#h4A65", Token::Number(Number::from_int(0x4A65)));
     }
 
     fn check_single_token(input: &str, expected: Token) {

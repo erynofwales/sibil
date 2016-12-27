@@ -21,9 +21,12 @@ pub enum Radix { Bin, Oct, Dec, Hex }
 #[derive(PartialEq, Debug)]
 pub enum Sign { Pos, Neg }
 
+#[derive(PartialEq, Debug)]
+pub enum Exactness { Exact, Inexact }
+
 #[derive(Debug)]
 pub struct NumberBuilder {
-    exact: bool,
+    exact: Exactness,
     radix: Radix,
     sign: Sign,
     value: f64,
@@ -33,7 +36,7 @@ pub struct NumberBuilder {
 impl NumberBuilder {
     pub fn new() -> NumberBuilder {
         NumberBuilder {
-            exact: false,
+            exact: Exactness::Inexact,
             radix: Radix::Dec,
             sign: Sign::Pos,
             value: 0.0,
@@ -41,7 +44,7 @@ impl NumberBuilder {
         }
     }
 
-    pub fn exact<'a>(&'a mut self, ex: bool) -> &'a mut NumberBuilder {
+    pub fn exact<'a>(&'a mut self, ex: Exactness) -> &'a mut NumberBuilder {
         self.exact = ex;
         self
     }
@@ -124,6 +127,16 @@ impl Sign {
         match c {
             '+' => Some(Sign::Pos),
             '-' => Some(Sign::Neg),
+            _ => None,
+        }
+    }
+}
+
+impl Exactness {
+    pub fn from_char(c: char) -> Option<Exactness> {
+        match c {
+            'i' => Some(Exactness::Inexact),
+            'e' => Some(Exactness::Exact),
             _ => None,
         }
     }
