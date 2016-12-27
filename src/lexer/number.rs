@@ -54,7 +54,7 @@ impl NumberBuilder {
 
     pub fn extend_value<'a>(&'a mut self, digit: char) -> &'a mut Self {
         if let Some(place) = NumberBuilder::place_value(digit) {
-            self.value = self.radix.value() * self.value + place;
+            self.value = self.radix.float_value() * self.value + place;
         }
         else {
             // TODO: Indicate an error.
@@ -71,17 +71,13 @@ impl NumberBuilder {
 
     pub fn resolve(&self) -> Number {
         // TODO: Convert fields to Number type.
-        let value = if self.point == 0 {
-            self.value
-        } else {
-            self.value / 10u32.pow(self.point) as f64
-        };
+        let value = if self.point > 0 { self.value / 10u32.pow(self.point) as f64 } else { self.value };
         let value = if self.sign == Sign::Neg { value * -1.0 } else { value };
         Number { value: value }
     }
 
     pub fn radix_value(&self) -> u32 {
-        self.radix.value() as u32
+        self.radix.value()
     }
 
     fn place_value(digit: char) -> Option<f64> {
@@ -95,13 +91,17 @@ impl NumberBuilder {
 }
 
 impl Radix {
-    fn value(&self) -> f64 {
+    pub fn value(&self) -> u32 {
         match *self {
-            Radix::Bin => 2.0,
-            Radix::Oct => 8.0,
-            Radix::Dec => 10.0,
-            Radix::Hex => 16.0,
+            Radix::Bin => 2,
+            Radix::Oct => 8,
+            Radix::Dec => 10,
+            Radix::Hex => 16,
         }
+    }
+
+    pub fn float_value(&self) -> f64 {
+        self.value() as f64
     }
 }
 

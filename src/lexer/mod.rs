@@ -10,6 +10,7 @@ mod str;
 
 use self::char::Lexable;
 use self::number::NumberBuilder;
+use self::number::Radix;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
 use self::token::Lex;
@@ -192,7 +193,6 @@ impl Lexer {
             self.advance();
         }
         else if c.is_dot() {
-            self.number_builder.extend_decimal_value(c);
             self.state = State::NumberDecimal;
             self.advance();
         }
@@ -206,7 +206,7 @@ impl Lexer {
     }
 
     fn state_number_decimal(&mut self, c: char, token: &mut Option<Token>) {
-        if c.is_digit(self.number_builder.radix_value()) {
+        if c.is_digit(Radix::Dec.value()) {
             self.number_builder.extend_decimal_value(c);
             self.advance();
         }
