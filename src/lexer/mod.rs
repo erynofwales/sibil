@@ -5,9 +5,11 @@
 pub mod token;
 mod char;
 mod charset;
+mod number;
 mod str;
 
 use self::char::Lexable;
+use self::number::NumberBuilder;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
 use self::token::Lex;
@@ -15,11 +17,13 @@ use self::token::Token;
 
 #[derive(Debug)]
 enum State {
+    Comment,
     Initial,
     Identifier,
     Dot,
     Hash,
-    Comment,
+    Number,
+    NumberDecimal,
     String,
 }
 
@@ -29,6 +33,7 @@ pub struct Lexer {
     forward: usize,
     line: u32,
     state: State,
+    number_builder: NumberBuilder,
 }
 
 impl Lexer {
@@ -39,6 +44,7 @@ impl Lexer {
             forward: 0,
             line: 1,
             state: State::Initial,
+            number_builder: NumberBuilder::new(),
         }
     }
 }
@@ -111,6 +117,13 @@ impl Lexer {
             self.advance();
         }
 
+        else if c.is_digit(10) {
+            self.number_builder = NumberBuilder::new();
+            self.number_builder.extend_value(c);
+            self.state = State::Number;
+            self.advance();
+        }
+
         else if c.is_whitespace() {
             if c.is_newline() {
                 self.handle_newline();
@@ -148,6 +161,12 @@ impl Lexer {
             *token = Some(Token::Dot);
             self.retract();
         }
+        else if c.is_digit(10) {
+            self.number_builder = NumberBuilder::new();
+            self.number_builder.extend_decimal_value(c);
+            self.state = State::NumberDecimal;
+            self.advance();
+        }
         else {
             assert!(false, "Invalid token character: '{}'", c);
         }
@@ -161,6 +180,39 @@ impl Lexer {
         else if c.is_left_paren() {
             self.advance();
             *token = Some(Token::LeftVectorParen);
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
+    fn state_number(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_digit(self.number_builder.radix_value()) {
+            self.number_builder.extend_value(c);
+            self.advance();
+        }
+        else if c.is_dot() {
+            self.number_builder.extend_decimal_value(c);
+            self.state = State::NumberDecimal;
+            self.advance();
+        }
+        else if c.is_identifier_delimiter() {
+            *token = Some(Token::Number(self.number_builder.resolve()));
+            self.retract();
+        }
+        else {
+            assert!(false, "Invalid token character: '{}'", c);
+        }
+    }
+
+    fn state_number_decimal(&mut self, c: char, token: &mut Option<Token>) {
+        if c.is_digit(self.number_builder.radix_value()) {
+            self.number_builder.extend_decimal_value(c);
+            self.advance();
+        }
+        else if c.is_identifier_delimiter() {
+            *token = Some(Token::Number(self.number_builder.resolve()));
+            self.retract();
         }
         else {
             assert!(false, "Invalid token character: '{}'", c);
@@ -209,6 +261,8 @@ impl Iterator for Lexer {
                 State::Identifier => self.state_identifier(c, &mut token),
                 State::Dot => self.state_dot(c, &mut token),
                 State::Hash => self.state_hash(c, &mut token),
+                State::Number => self.state_number(c, &mut token),
+                State::NumberDecimal => self.state_number_decimal(c, &mut token),
                 State::String => self.state_string(c, &mut token),
                 State::Comment => self.state_comment(c, &mut token),
             }
@@ -230,6 +284,7 @@ impl Iterator for Lexer {
 mod tests {
     use std::iter::Iterator;
     use super::*;
+    use super::number::*;
     use super::token::*;
 
     #[test]
@@ -272,6 +327,13 @@ mod tests {
     fn lexer_finds_strings() {
         check_single_token("\"\"", Token::String(String::from("\"\"")));
         check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
+    }
+
+    #[test]
+    fn lexer_finds_numbers() {
+        check_single_token("34", Token::Number(Number::new(34.0)));
+        check_single_token(".34", Token::Number(Number::new(0.34)));
+        check_single_token("0.34", Token::Number(Number::new(0.34)));
     }
 
     fn check_single_token(input: &str, expected: Token) {

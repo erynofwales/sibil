@@ -2,8 +2,13 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-struct Number {
-    value: f64,
+#[derive(PartialEq, Debug)]
+pub struct Number { value: f64, }
+
+impl Number {
+    pub fn new(value: f64) -> Number {
+        Number { value: value }
+    }
 }
 
 #[derive(Debug)]
@@ -14,6 +19,7 @@ pub struct NumberBuilder {
     exact: bool,
     radix: Radix,
     value: f64,
+    point: u16,
 }
 
 impl NumberBuilder {
@@ -22,6 +28,7 @@ impl NumberBuilder {
             exact: false,
             radix: Radix::Dec,
             value: 0.0,
+            point: 0,
         }
     }
 
@@ -37,7 +44,12 @@ impl NumberBuilder {
 
     pub fn resolve(&self) -> Number {
         // TODO: Convert fields to Number type.
-        Number { value: 0.0 }
+        let value = if self.point == 0 {
+            self.value
+        } else {
+            self.value / (self.point * 10) as f64
+        };
+        Number { value: value }
     }
 
     pub fn extend_value<'a>(&'a mut self, digit: char) -> &'a mut Self {
@@ -47,6 +59,12 @@ impl NumberBuilder {
         else {
             // TODO: Indicate an error.
         }
+        self
+    }
+
+    pub fn extend_decimal_value<'a>(&'a mut self, digit: char) -> &'a mut Self {
+        self.extend_value(digit);
+        self.point += 1;
         self
     }
 

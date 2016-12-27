@@ -2,17 +2,19 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+use lexer::number::Number;
+
+#[derive(PartialEq, Debug)]
 pub enum Token {
-    LeftParen(String),
-    LeftVectorParen,
-    RightParen(String),
+    Boolean(bool),
+    Comment(String),
     Dot,
     Identifier(String),
-    Boolean(bool),
+    LeftParen(String),
+    LeftVectorParen,
+    Number(Number),
+    RightParen(String),
     String(String),
-    Comment(String),
 }
 
 /// A Lex is a Token extracted from a specific position in an input. It contains useful information about the token's
