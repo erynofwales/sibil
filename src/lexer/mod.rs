@@ -112,12 +112,12 @@ impl Lexer {
     // https://doc.rust-lang.org/1.14.0/core/result/enum.Result.html
 
     /// Handle self.state == State::Initial
-    fn state_initial(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_initial(&mut self, c: char) -> StateResult {
         if c.is_left_paren() {
-            *token = Some(Token::LeftParen(c.to_string()));
+            return self.token_result(Token::LeftParen(c.to_string()));
         }
         else if c.is_right_paren() {
-            *token = Some(Token::RightParen(c.to_string()));
+            return self.token_result(Token::RightParen(c.to_string()));
         }
         else if c.is_dot() {
             self.state = State::Dot;
@@ -163,8 +163,10 @@ impl Lexer {
         }
 
         else {
-            assert!(false, "Invalid token character: {}", c);
+            return Err(self.error_string(format!("Invalid token character: {}", c)));
         }
+
+        Ok(None)
     }
 
     /// Handle self.state == State::Identifier
@@ -366,7 +368,7 @@ impl Iterator for Lexer {
             println!("{:?}! c='{}'", self.state, c);
             let previous_forward = self.forward;
             match self.state {
-                State::Initial => self.state_initial(c, &mut token),
+                State::Initial => self.state_initial(c),
                 State::Identifier => self.state_identifier(c, &mut token),
                 State::Dot => self.state_dot(c, &mut token),
                 State::Hash => self.state_hash(c, &mut token),
