@@ -409,6 +409,9 @@ impl Iterator for Lexer {
                 token = result.ok().unwrap();
                 break;
             }
+            else if result.is_err() {
+                assert!(false, "{}", result.err().unwrap());
+            }
         }
         self.advance_begin();
         match token {
