@@ -97,6 +97,10 @@ impl Lexer {
     fn value(&self) -> String {
         self.input[self.begin .. self.forward].to_string()
     }
+
+    fn error_string(&self, message: &str) -> String {
+        format!("{}:{}: {}", self.line, self.line_offset, message)
+    }
 }
 
 impl Lexer {
