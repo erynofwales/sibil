@@ -22,10 +22,12 @@ pub enum Token {
 #[derive(Debug)]
 pub struct Lex {
     pub token: Token,
+    pub line: usize,
+    pub offset: usize,
 }
 
 impl Lex {
-    pub fn new(token: Token) -> Lex {
-        Lex { token: token }
+    pub fn new(token: Token, line: usize, offset: usize) -> Lex {
+        Lex { token: token, line: line, offset: offset }
     }
 }
