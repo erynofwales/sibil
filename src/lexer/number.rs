@@ -87,8 +87,8 @@ impl NumberBuilder {
     fn place_value(digit: char) -> Option<f64> {
         match digit {
             '0' ... '9' => Some((digit as u32 - '0' as u32) as f64),
-            'a' ... 'f' => Some((digit as u32 - 'a' as u32) as f64),
-            'A' ... 'F' => Some((digit as u32 - 'A' as u32) as f64),
+            'a' ... 'f' => Some((digit as u32 - 'a' as u32 + 10) as f64),
+            'A' ... 'F' => Some((digit as u32 - 'A' as u32 + 10) as f64),
             _ => None,
         }
     }
@@ -157,5 +157,16 @@ mod tests {
         assert_eq!(b.resolve().value, 5.3);
         b.extend_decimal_value('4');
         assert_eq!(b.resolve().value, 5.34);
+    }
+
+    #[test]
+    fn builds_hex() {
+        let mut b = NumberBuilder::new();
+        b.radix(Radix::Hex).extend_value('4');
+        assert_eq!(b.resolve().value, 0x4 as f64);
+        b.extend_value('A');
+        assert_eq!(b.resolve().value, 0x4A as f64);
+        b.extend_value('6');
+        assert_eq!(b.resolve().value, 0x4A6 as f64);
     }
 }
