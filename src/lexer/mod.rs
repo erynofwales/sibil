@@ -189,10 +189,10 @@ impl Lexer {
         Ok(None)
     }
 
-    fn state_dot(&mut self, c: char, token: &mut Option<Token>) {
+    fn state_dot(&mut self, c: char) -> StateResult {
         if c.is_identifier_delimiter() {
-            *token = Some(Token::Dot);
             self.retract();
+            return self.token_result(Token::Dot);
         }
         else if c.is_digit(10) {
             self.number_builder = NumberBuilder::new();
@@ -201,8 +201,9 @@ impl Lexer {
             self.advance();
         }
         else {
-            assert!(false, "Invalid token character: '{}'", c);
+            self.generic_error(c);
         }
+        Ok(None)
     }
 
     fn state_hash(&mut self, c: char, token: &mut Option<Token>) {
@@ -375,7 +376,7 @@ impl Iterator for Lexer {
             match self.state {
                 State::Initial => self.state_initial(c),
                 State::Identifier => self.state_identifier(c),
-                State::Dot => self.state_dot(c, &mut token),
+                State::Dot => self.state_dot(c),
                 State::Hash => self.state_hash(c, &mut token),
                 State::Number => self.state_number(c, &mut token),
                 State::NumberExactness => self.state_number_exactness(c, &mut token),
