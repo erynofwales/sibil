@@ -52,6 +52,7 @@ impl Lexer {
             begin: 0,
             forward: 0,
             line: 1,
+            line_char: 1,
             state: State::Initial,
             number_builder: NumberBuilder::new(),
         }
@@ -67,12 +68,15 @@ impl Lexer {
     /// Advance the forward pointer to the next character.
     fn advance(&mut self) {
         self.forward = self.input.index_after(self.forward);
+        self.line_char += 1;
         println!("> forward={}", self.forward);
     }
 
     /// Retract the forward pointer to the previous character.
     fn retract(&mut self) {
         self.forward = self.input.index_before(self.forward);
+        self.line_char -= 1;
+        assert!(self.line_char >= 1, "Invalid line character count: {}", self.line_char);
         println!("< forward={}", self.forward);
     }
 
@@ -83,8 +87,10 @@ impl Lexer {
         println!("> begin={}, forward={}", self.begin, self.forward);
     }
 
+    /// Update lexer state when it encounters a newline.
     fn handle_newline(&mut self) {
         self.line += 1;
+        self.line_char = 1;
     }
 
     /// Get the substring between the two input indexes. This is the value to give to a new Token instance.
