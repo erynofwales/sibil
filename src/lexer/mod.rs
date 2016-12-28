@@ -57,6 +57,7 @@ pub struct Lexer {
     line_offset: usize,
     state: State,
     number_builder: NumberBuilder,
+    string_value: String,
 }
 
 impl Lexer {
@@ -69,6 +70,7 @@ impl Lexer {
             line_offset: 1,
             state: State::Initial,
             number_builder: NumberBuilder::new(),
+            string_value: String::new(),
         }
     }
 }
@@ -145,6 +147,7 @@ impl Lexer {
             return self.token_result(Token::Quote);
         }
         else if c.is_string_quote() {
+            self.string_value = String::from("");
             self.state = State::String;
             self.advance();
         }
@@ -431,22 +434,29 @@ impl Lexer {
     fn state_string(&mut self, c: char) -> StateResult {
         self.advance();
         if c.is_string_quote() {
-            return self.token_result(Token::String(self.value()));
+            return self.token_result(Token::String(self.string_value.clone()));
         }
         else if c.is_string_escape_leader() {
             self.state = State::StringEscape;
+        }
+        else {
+            self.string_value.push(c);
         }
         Ok(None)
     }
 
     fn state_string_escape(&mut self, c: char) -> StateResult {
-        if c.is_string_escaped() {
-            self.state = State::String;
-            self.advance();
-        }
-        else {
-            return Err(self.error_string(format!("Invalid string escape character: {}", c)));
-        }
+        let char_to_push = match c {
+            '0' => '\0',
+            'n' => '\n',
+            't' => '\t',
+            '"' => '"',
+            '\\' => '\\',
+            _ => return Err(self.error_string(format!("Invalid string escape character: {}", c))),
+        };
+        self.string_value.push(char_to_push);
+        self.state = State::String;
+        self.advance();
         Ok(None)
     }
 
@@ -652,8 +662,9 @@ mod tests {
 
     #[test]
     fn finds_escaped_characters_in_strings() {
-        check_single_token("\"\\\\\"", Token::String(String::from("\"\\\\\"")));
-        check_single_token("\"\\\"\"", Token::String(String::from("\"\\\"\"")));
+        check_single_token("\"\\\\\"", Token::String(String::from("\\")));
+        check_single_token("\"\\\"\"", Token::String(String::from("\"")));
+        check_single_token("\"\\n\"", Token::String(String::from("\n")));
     }
 
     #[test]
@@ -705,13 +716,12 @@ mod tests {
 
     #[test]
     fn finds_strings() {
-        check_single_token("\"\"", Token::String(String::from("\"\"")));
-        check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
+        check_single_token("\"\"", Token::String(String::from("")));
+        check_single_token("\"abc\"", Token::String(String::from("abc")));
     }
 
     #[test]
     fn lexes_simple_expression() {
-        let mut lexer = Lexer::new("(+ 3.4 6.8)");
         check_tokens("(+ 3.4 6.8)", vec![
                      Token::LeftParen(String::from("(")),
                      Token::Identifier(String::from("+")),
