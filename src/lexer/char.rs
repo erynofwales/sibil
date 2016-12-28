@@ -44,7 +44,7 @@ impl Lexable for char {
     }
 
     fn is_quote(&self) -> bool {
-        *self == '''
+        *self == '\''
     }
 
     fn is_string_quote(&self) -> bool {

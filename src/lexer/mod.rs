@@ -499,12 +499,6 @@ mod tests {
     }
 
     #[test]
-    fn finds_strings() {
-        check_single_token("\"\"", Token::String(String::from("\"\"")));
-        check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
-    }
-
-    #[test]
     fn finds_escaped_characters_in_strings() {
         check_single_token("\"\\\\\"", Token::String(String::from("\"\\\\\"")));
         check_single_token("\"\\\"\"", Token::String(String::from("\"\\\"\"")));
@@ -553,6 +547,17 @@ mod tests {
     }
 
     #[test]
+    fn finds_quote() {
+        check_single_token("'", Token::Quote);
+    }
+
+    #[test]
+    fn finds_strings() {
+        check_single_token("\"\"", Token::String(String::from("\"\"")));
+        check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
+    }
+
+    #[test]
     fn lexes_simple_expression() {
         let mut lexer = Lexer::new("(+ 3.4 6.8)");
         assert_next_token(&mut lexer, &Token::LeftParen(String::from("(")));
@@ -560,6 +565,13 @@ mod tests {
         assert_next_token(&mut lexer, &Token::Number(Number::new(3.4)));
         assert_next_token(&mut lexer, &Token::Number(Number::new(6.8)));
         assert_next_token(&mut lexer, &Token::RightParen(String::from(")")));
+    }
+
+    #[test]
+    fn lexes_quoted_identifier() {
+        let mut lexer = Lexer::new("'abc");
+        assert_next_token(&mut lexer, &Token::Quote);
+        assert_next_token(&mut lexer, &Token::Identifier(String::from("abc")));
     }
 
     fn check_single_token(input: &str, expected: Token) {
