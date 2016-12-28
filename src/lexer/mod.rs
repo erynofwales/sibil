@@ -712,23 +712,36 @@ mod tests {
     #[test]
     fn lexes_simple_expression() {
         let mut lexer = Lexer::new("(+ 3.4 6.8)");
-        assert_next_token(&mut lexer, &Token::LeftParen(String::from("(")));
-        assert_next_token(&mut lexer, &Token::Identifier(String::from("+")));
-        assert_next_token(&mut lexer, &Token::Number(Number::new(3.4)));
-        assert_next_token(&mut lexer, &Token::Number(Number::new(6.8)));
-        assert_next_token(&mut lexer, &Token::RightParen(String::from(")")));
+        check_tokens("(+ 3.4 6.8)", vec![
+                     Token::LeftParen(String::from("(")),
+                     Token::Identifier(String::from("+")),
+                     Token::Number(Number::new(3.4)),
+                     Token::Number(Number::new(6.8)),
+                     Token::RightParen(String::from(")"))]);
     }
 
     #[test]
     fn lexes_quoted_identifier() {
-        let mut lexer = Lexer::new("'abc");
-        assert_next_token(&mut lexer, &Token::Quote);
-        assert_next_token(&mut lexer, &Token::Identifier(String::from("abc")));
+        check_tokens("'abc", vec![Token::Quote, Token::Identifier(String::from("abc"))]);
     }
 
     fn check_single_token(input: &str, expected: Token) {
         let mut lexer = Lexer::new(input);
         assert_next_token(&mut lexer, &expected);
+    }
+
+    fn check_tokens(input: &str, expected: Vec<Token>) {
+        let lexer = Lexer::new(input);
+        let mut expected_iter = expected.iter();
+        for lex in lexer {
+            if let Some(expected_token) = expected_iter.next() {
+                assert_eq!(lex.token, *expected_token);
+            }
+            else {
+                assert!(false, "Found a token we didn't expect: {:?}", lex.token);
+            }
+        }
+        // TODO: Check that all expected tokens are consumed.
     }
 
     fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
