@@ -38,6 +38,7 @@ enum State {
     NumberSign,
     Sign,
     String,
+    StringEscape,
 }
 
 pub struct Lexer {
@@ -357,6 +358,20 @@ impl Lexer {
         if c.is_string_quote() {
             return self.token_result(Token::String(self.value()));
         }
+        else if c.is_string_escape_leader() {
+            self.state = State::StringEscape;
+        }
+        Ok(None)
+    }
+
+    fn state_string_escape(&mut self, c: char) -> StateResult {
+        if c.is_string_escaped() {
+            self.state = State::String;
+            self.advance();
+        }
+        else {
+            return Err(self.error_string(format!("Invalid string escape character: {}", c)));
+        }
         Ok(None)
     }
 
@@ -402,6 +417,7 @@ impl Iterator for Lexer {
                 State::NumberSign => self.state_number_sign(c),
                 State::Sign => self.state_sign(c),
                 State::String => self.state_string(c),
+                State::StringEscape => self.state_string_escape(c),
                 State::Comment => self.state_comment(c),
             };
             assert!(result.has_token() || self.forward != previous_forward, "No lexing progress made!");
@@ -486,6 +502,12 @@ mod tests {
     fn finds_strings() {
         check_single_token("\"\"", Token::String(String::from("\"\"")));
         check_single_token("\"abc\"", Token::String(String::from("\"abc\"")));
+    }
+
+    #[test]
+    fn finds_escaped_characters_in_strings() {
+        check_single_token("\"\\\\\"", Token::String(String::from("\"\\\\\"")));
+        check_single_token("\"\\\"\"", Token::String(String::from("\"\\\"\"")));
     }
 
     #[test]
