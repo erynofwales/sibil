@@ -553,7 +553,7 @@ mod tests {
     }
 
     #[test]
-    fn lexes_simple_sexpression() {
+    fn lexes_simple_expression() {
         let mut lexer = Lexer::new("(+ 3.4 6.8)");
         assert_next_token(&mut lexer, &Token::LeftParen(String::from("(")));
         assert_next_token(&mut lexer, &Token::Identifier(String::from("+")));
