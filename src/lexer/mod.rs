@@ -133,6 +133,9 @@ impl Lexer {
             self.state = State::Hash;
             self.advance();
         }
+        else if c.is_quote() {
+            return self.token_result(Token::Quote);
+        }
         else if c.is_string_quote() {
             self.state = State::String;
             self.advance();

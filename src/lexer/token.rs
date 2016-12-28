@@ -13,6 +13,7 @@ pub enum Token {
     LeftParen(String),
     LeftVectorParen,
     Number(Number),
+    Quote,
     RightParen(String),
     String(String),
 }

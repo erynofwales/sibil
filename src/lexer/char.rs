@@ -9,6 +9,7 @@ pub trait Lexable {
     fn is_right_paren(&self) -> bool;
     fn is_hash(&self) -> bool;
     fn is_dot(&self) -> bool;
+    fn is_quote(&self) -> bool;
     fn is_string_quote(&self) -> bool;
     fn is_string_escape_leader(&self) -> bool;
     fn is_string_escaped(&self) -> bool;
@@ -40,6 +41,10 @@ impl Lexable for char {
 
     fn is_dot(&self) -> bool {
         *self == '.'
+    }
+
+    fn is_quote(&self) -> bool {
+        *self == '''
     }
 
     fn is_string_quote(&self) -> bool {
