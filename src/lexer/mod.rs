@@ -117,9 +117,6 @@ impl Lexer {
 }
 
 impl Lexer {
-    // TODO: Use std::result::Result for these state_* methods.
-    // https://doc.rust-lang.org/1.14.0/core/result/enum.Result.html
-
     /// Handle self.state == State::Initial
     fn state_initial(&mut self, c: char) -> StateResult {
         if c.is_left_paren() {
