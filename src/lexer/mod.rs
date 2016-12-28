@@ -26,6 +26,9 @@ trait HasResult {
 
 #[derive(Debug)]
 enum State {
+    Character,
+    CharacterNewline(NewlineState),
+    CharacterSpace(SpaceState),
     Comment,
     Initial,
     Identifier,
@@ -40,6 +43,11 @@ enum State {
     String,
     StringEscape,
 }
+
+#[derive(Clone, PartialEq, Debug)]
+enum NewlineState { N, Ne, New, Newl, Newli, Newlin, Newline }
+#[derive(Clone, PartialEq, Debug)]
+enum SpaceState { S, Sp, Spa, Spac, Space }
 
 pub struct Lexer {
     input: String,
@@ -195,6 +203,69 @@ impl Lexer {
         Ok(None)
     }
 
+    /// Handle self.state == State::Character
+    fn state_character(&mut self, c: char) -> StateResult {
+        self.advance();
+        match c {
+            'n' => self.state = State::CharacterNewline(NewlineState::N),
+            's' => self.state = State::CharacterSpace(SpaceState::S),
+            _ => return self.token_result(Token::Character(c)),
+        }
+        Ok(None)
+    }
+
+    /// Handle self.state == State::CharacterNewline
+    fn state_character_newline(&mut self, c: char) -> StateResult {
+        let substate = match self.state {
+            State::CharacterNewline(ref substate) => Some(substate.clone()),
+            _ => None,
+        }.unwrap();
+
+        // Assume we'll advance...
+        self.advance();
+        if substate == NewlineState::N && (c.is_identifier_delimiter() || c.is_eof()) {
+            return self.token_result(Token::Character('n'));
+        }
+        if let Some(next) = substate.next(c) {
+            match next {
+                NewlineState::Newline => return self.token_result(Token::Character('\n')),
+                _ => self.state = State::CharacterNewline(next),
+            }
+        }
+        else {
+            // ... but retract if we failed.
+            self.retract();
+            return Err(self.error_string(format!("Invalid character while building #\\newline: '{}'", c)));
+        }
+        Ok(None)
+    }
+
+    /// Handle self.state == State::CharacterNewline
+    fn state_character_space(&mut self, c: char) -> StateResult {
+        let substate = match self.state {
+            State::CharacterSpace(ref substate) => Some(substate.clone()),
+            _ => None,
+        }.unwrap();
+
+        // Assume we'll advance...
+        self.advance();
+        if substate == SpaceState::S && (c.is_identifier_delimiter() || c.is_eof()) {
+            return self.token_result(Token::Character('s'));
+        }
+        if let Some(next) = substate.next(c) {
+            match next {
+                SpaceState::Space => return self.token_result(Token::Character(' ')),
+                _ => self.state = State::CharacterSpace(next),
+            }
+        }
+        else {
+            // ... but retract if we failed.
+            self.retract();
+            return Err(self.error_string(format!("Invalid character while building #\\space: '{}'", c)));
+        }
+        Ok(None)
+    }
+
     /// Handle self.state == State::Dot
     fn state_dot(&mut self, c: char) -> StateResult {
         if c.is_identifier_delimiter() {
@@ -222,6 +293,10 @@ impl Lexer {
         else if c.is_left_paren() {
             self.advance();
             return self.token_result(Token::LeftVectorParen);
+        }
+        else if c.is_character_leader() {
+            self.state = State::Character;
+            self.advance();
         }
         else if let Some(radix) = Radix::from_char(c) {
             self.number_builder.radix(radix);
@@ -406,19 +481,22 @@ impl Iterator for Lexer {
             println!("{:?}! c='{}'", self.state, c);
             let previous_forward = self.forward;
             let result = match self.state {
-                State::Initial => self.state_initial(c),
-                State::Identifier => self.state_identifier(c),
+                State::Character => self.state_character(c),
+                State::CharacterNewline(_) => self.state_character_newline(c),
+                State::CharacterSpace(_) => self.state_character_space(c),
+                State::Comment => self.state_comment(c),
                 State::Dot => self.state_dot(c),
                 State::Hash => self.state_hash(c),
+                State::Identifier => self.state_identifier(c),
+                State::Initial => self.state_initial(c),
                 State::Number => self.state_number(c),
-                State::NumberExactness => self.state_number_exactness(c),
                 State::NumberDecimal => self.state_number_decimal(c),
+                State::NumberExactness => self.state_number_exactness(c),
                 State::NumberRadix => self.state_number_radix(c),
                 State::NumberSign => self.state_number_sign(c),
                 State::Sign => self.state_sign(c),
                 State::String => self.state_string(c),
                 State::StringEscape => self.state_string_escape(c),
-                State::Comment => self.state_comment(c),
             };
             assert!(result.has_token() || self.forward != previous_forward, "No lexing progress made!");
             if result.has_token() {
@@ -449,6 +527,63 @@ impl HasResult for StateResult {
     }
 }
 
+impl NewlineState {
+    fn next(&self, c: char) -> Option<NewlineState> {
+        match *self {
+            NewlineState::N => match c {
+                'e' => Some(NewlineState::Ne),
+                _ => None,
+            },
+            NewlineState::Ne => match c {
+                'w' => Some(NewlineState::New),
+                _ => None,
+            },
+            NewlineState::New => match c {
+                'l' => Some(NewlineState::Newl),
+                _ => None,
+            },
+            NewlineState::Newl => match c {
+                'i' => Some(NewlineState::Newli),
+                _ => None,
+            },
+            NewlineState::Newli => match c {
+                'n' => Some(NewlineState::Newlin),
+                _ => None,
+            },
+            NewlineState::Newlin => match c {
+                'e' => Some(NewlineState::Newline),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+}
+
+impl SpaceState {
+    fn next(&self, c: char) -> Option<SpaceState> {
+        match *self {
+            SpaceState::S => match c {
+                'p' => Some(SpaceState::Sp),
+                _ => None,
+            },
+            SpaceState::Sp => match c {
+                'a' => Some(SpaceState::Spa),
+                _ => None,
+            },
+            SpaceState::Spa => match c {
+                'c' => Some(SpaceState::Spac),
+                _ => None,
+            },
+            SpaceState::Spac => match c {
+                'e' => Some(SpaceState::Space),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+}
+
+
 //
 // UNIT TESTING
 //
@@ -465,6 +600,23 @@ mod tests {
         check_single_token("(", Token::LeftParen(String::from("(")));
         check_single_token(")", Token::RightParen(String::from(")")));
         check_single_token("#(", Token::LeftVectorParen);
+    }
+
+    #[test]
+    fn finds_characters() {
+        check_single_token("#\\a", Token::Character('a'));
+        check_single_token("#\\n", Token::Character('n'));
+        check_single_token("#\\s", Token::Character('s'));
+    }
+
+    #[test]
+    fn finds_characters_newline() {
+        check_single_token("#\\newline", Token::Character('\n'));
+    }
+
+    #[test]
+    fn finds_characters_space() {
+        check_single_token("#\\space", Token::Character(' '));
     }
 
     #[test]

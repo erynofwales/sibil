@@ -5,11 +5,12 @@
 use lexer::charset;
 
 pub trait Lexable {
+    fn is_character_leader(&self) -> bool;
+    fn is_dot(&self) -> bool;
+    fn is_hash(&self) -> bool;
+    fn is_quote(&self) -> bool;
     fn is_left_paren(&self) -> bool;
     fn is_right_paren(&self) -> bool;
-    fn is_hash(&self) -> bool;
-    fn is_dot(&self) -> bool;
-    fn is_quote(&self) -> bool;
     fn is_string_quote(&self) -> bool;
     fn is_string_escape_leader(&self) -> bool;
     fn is_string_escaped(&self) -> bool;
@@ -35,12 +36,16 @@ impl Lexable for char {
         *self == ')'
     }
 
-    fn is_hash(&self) -> bool {
-        *self == '#'
+    fn is_character_leader(&self) -> bool {
+        *self == '\\'
     }
 
     fn is_dot(&self) -> bool {
         *self == '.'
+    }
+
+    fn is_hash(&self) -> bool {
+        *self == '#'
     }
 
     fn is_quote(&self) -> bool {

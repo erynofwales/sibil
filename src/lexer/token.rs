@@ -7,6 +7,7 @@ use lexer::number::Number;
 #[derive(PartialEq, Debug)]
 pub enum Token {
     Boolean(bool),
+    Character(char),
     Comment(String),
     Dot,
     Identifier(String),
