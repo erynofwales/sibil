@@ -2,18 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-#[derive(PartialEq, Debug)]
-pub struct Number { value: f64, }
-
-impl Number {
-    pub fn from_int(value: i64) -> Number {
-        Number { value: value as f64 }
-    }
-
-    pub fn new(value: f64) -> Number {
-        Number { value: value }
-    }
-}
+use types::number::Number;
 
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }
@@ -80,7 +69,7 @@ impl NumberBuilder {
         // TODO: Convert fields to Number type.
         let value = if self.point > 0 { self.value / 10u32.pow(self.point) as f64 } else { self.value };
         let value = if self.sign == Sign::Neg { value * -1.0 } else { value };
-        Number { value: value }
+        Number::from_float(value)
     }
 
     pub fn radix_value(&self) -> u32 {

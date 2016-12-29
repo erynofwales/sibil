@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use lexer::number::Number;
+use types::number::Number;
 
 #[derive(PartialEq, Debug)]
 pub enum Token {
