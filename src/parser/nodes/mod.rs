@@ -5,20 +5,13 @@
 use std::fmt;
 
 pub use self::constant::Constant;
+pub use self::program::Program;
 
 mod constant;
+mod expression;
 mod program;
 
-use self::constant::ConstantValue;
-
-trait Expression {}
-impl fmt::Debug for Expression {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Expression")
-    }
-}
-impl TreeDebug for Expression {}
-impl<T: constant::ConstantValue> Expression for Constant<T> {}
+use self::expression::Expression;
 
 /// Conveniently print out a node in the tree
 trait TreeDebug: fmt::Debug {

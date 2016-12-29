@@ -5,12 +5,19 @@
 use std::fmt;
 
 use super::TreeDebug;
-use super::Expression;
+use super::expression::Expression;
 
 pub struct Program {
     forms: Vec<Box<Expression>>,
 }
 
+impl Program {
+    pub fn new() -> Program {
+        Program { forms: Vec::new() }
+    }
+}
+
+/*
 impl fmt::Debug for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.tree_fmt(f, 0)
@@ -30,3 +37,4 @@ impl TreeDebug for Program {
         result
     }
 }
+*/
