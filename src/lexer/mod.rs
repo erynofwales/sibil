@@ -600,6 +600,7 @@ impl SpaceState {
 
 #[cfg(test)]
 mod tests {
+    use types::Number;
     use std::iter::Iterator;
     use super::*;
     use super::number::*;
@@ -669,16 +670,16 @@ mod tests {
 
     #[test]
     fn finds_numbers() {
-        check_single_token(".34", Token::Number(Number::new(0.34)));
-        check_single_token("0.34", Token::Number(Number::new(0.34)));
+        check_single_token(".34", Token::Number(Number::from_float(0.34)));
+        check_single_token("0.34", Token::Number(Number::from_float(0.34)));
     }
 
     #[test]
     fn finds_negative_numbers() {
         check_single_token("-3", Token::Number(Number::from_int(-3)));
         check_single_token("-0", Token::Number(Number::from_int(-0)));
-        check_single_token("-0.56", Token::Number(Number::new(-0.56)));
-        check_single_token("-3.14159", Token::Number(Number::new(-3.14159)));
+        check_single_token("-0.56", Token::Number(Number::from_float(-0.56)));
+        check_single_token("-3.14159", Token::Number(Number::from_float(-3.14159)));
     }
 
     #[test]
@@ -689,7 +690,7 @@ mod tests {
 
     #[test]
     fn finds_dec_numbers() {
-        check_single_token("34", Token::Number(Number::new(34.0)));
+        check_single_token("34", Token::Number(Number::from_float(34.0)));
         check_single_token("#d89", Token::Number(Number::from_int(89)));
     }
 
@@ -725,8 +726,8 @@ mod tests {
         check_tokens("(+ 3.4 6.8)", vec![
                      Token::LeftParen(String::from("(")),
                      Token::Identifier(String::from("+")),
-                     Token::Number(Number::new(3.4)),
-                     Token::Number(Number::new(6.8)),
+                     Token::Number(Number::from_float(3.4)),
+                     Token::Number(Number::from_float(6.8)),
                      Token::RightParen(String::from(")"))]);
     }
 
