@@ -2,4 +2,5 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+pub mod boolean;
 pub mod number;
