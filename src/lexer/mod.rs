@@ -49,6 +49,10 @@ enum NewlineState { N, Ne, New, Newl, Newli, Newlin, Newline }
 #[derive(Clone, PartialEq, Debug)]
 enum SpaceState { S, Sp, Spa, Spac, Space }
 
+pub fn lex(input: &str) -> Lexer {
+    Lexer::new(&input)
+}
+
 pub struct Lexer {
     input: String,
     begin: usize,
