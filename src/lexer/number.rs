@@ -133,7 +133,6 @@ impl Exactness {
 
 #[cfg(test)]
 mod tests {
-    use types::Number;
     use super::*;
 
     #[test]

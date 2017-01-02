@@ -7,13 +7,11 @@
 /// Scheme numbers are complex, literally.
 
 #[derive(PartialEq, Debug)]
-pub struct Number { pub value: f64 }
+pub struct Number {
+    pub value: f64
+}
 
 impl Number {
-    pub fn new() -> Number {
-        Number { value: 0.0 }
-    }
-
     pub fn from_int(v: i64) -> Number {
         Number { value: v as f64 }
     }

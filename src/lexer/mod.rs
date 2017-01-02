@@ -603,7 +603,6 @@ mod tests {
     use types::Number;
     use std::iter::Iterator;
     use super::*;
-    use super::number::*;
     use super::token::*;
 
     #[test]
