@@ -8,6 +8,51 @@ mod charset;
 mod number;
 mod str;
 
+mod named_char {
+    use std::collections::HashSet;
+
+    const ALARM: &'static str = "alarm";
+    const BACKSPACE: &'static str = "backspace";
+    const DELETE: &'static str = "delete";
+    const ESCAPE: &'static str = "escape";
+    const NEWLINE: &'static str = "newline";
+    const NULL: &'static str = "null";
+    const RETURN: &'static str = "return";
+    const SPACE: &'static str = "space";
+    const TAB: &'static str = "tab";
+
+    pub fn set() -> HashSet<&'static str> {
+        let mut set: HashSet<&'static str> = HashSet::new();
+        set.insert(ALARM);
+        set.insert(BACKSPACE);
+        set.insert(DELETE);
+        set.insert(ESCAPE);
+        set.insert(NEWLINE);
+        set.insert(NULL);
+        set.insert(RETURN);
+        set.insert(SPACE);
+        set.insert(TAB);
+        set
+    }
+
+    pub fn char_named_by(named: &str) -> char {
+        match named {
+            ALARM => '\x07',
+            BACKSPACE => '\x08',
+            DELETE => '\x7F',
+            ESCAPE => '\x1B',
+            NEWLINE => '\n',
+            NULL => '\0',
+            RETURN => '\r',
+            SPACE => ' ',
+            TAB => '\t',
+            _ => panic!("char_named_by called with invalid named char string")
+        }
+    }
+}
+
+use std::collections::HashSet;
+
 use self::char::Lexable;
 use self::number::Exactness;
 use self::number::NumberBuilder;
@@ -26,9 +71,8 @@ trait HasResult {
 
 #[derive(Debug)]
 enum State {
-    Character,
-    CharacterNewline(NewlineState),
-    CharacterSpace(SpaceState),
+    Char,
+    NamedChar(HashSet<&'static str>, String),
     Comment,
     Initial,
     Identifier,
@@ -43,11 +87,6 @@ enum State {
     String,
     StringEscape,
 }
-
-#[derive(Clone, PartialEq, Debug)]
-enum NewlineState { N, Ne, New, Newl, Newli, Newlin, Newline }
-#[derive(Clone, PartialEq, Debug)]
-enum SpaceState { S, Sp, Spa, Spac, Space }
 
 pub fn lex(input: &str) -> Lexer {
     Lexer::new(&input)
@@ -210,67 +249,67 @@ impl Lexer {
         Ok(None)
     }
 
-    /// Handle self.state == State::Character
-    fn state_character(&mut self, c: char) -> StateResult {
+    /// Handle self.state == State::Char
+    fn state_char(&mut self, c: char) -> StateResult {
         self.advance();
-        match c {
-            'n' => self.state = State::CharacterNewline(NewlineState::N),
-            's' => self.state = State::CharacterSpace(SpaceState::S),
-            _ => return self.token_result(Token::Character(c)),
+        let lower_c = c.to_lowercase().collect::<String>();
+        let mut candidates: HashSet<&str> = HashSet::new();
+        for c in named_char::set().iter() {
+            if c.starts_with(&lower_c) {
+                candidates.insert(c);
+            }
+        }
+        if candidates.len() > 0 {
+            self.state = State::NamedChar(candidates, lower_c);
+        } else {
+            return self.token_result(Token::Character(c));
         }
         Ok(None)
     }
 
-    /// Handle self.state == State::CharacterNewline
-    fn state_character_newline(&mut self, c: char) -> StateResult {
-        let substate = match self.state {
-            State::CharacterNewline(ref substate) => Some(substate.clone()),
-            _ => None,
-        }.unwrap();
+    /// Handle self.state == State::NamedChar
+    fn state_named_char(&mut self, c: char) -> StateResult {
+        let (candidates, mut progress) = match self.state {
+            State::NamedChar(ref candidates, ref progress) => (candidates.clone(), progress.clone()),
+            _ => panic!("Called state_named_char without being in NamedChar state")
+        };
 
-        // Assume we'll advance...
-        self.advance();
-        if substate == NewlineState::N && (c.is_identifier_delimiter() || c.is_eof()) {
-            return self.token_result(Token::Character('n'));
-        }
-        if let Some(next) = substate.next(c) {
-            match next {
-                NewlineState::Newline => return self.token_result(Token::Character('\n')),
-                _ => self.state = State::CharacterNewline(next),
+        if c.is_identifier_delimiter() || c.is_eof() {
+            if progress.len() == 1 {
+                self.retract();
+                return self.token_result(Token::Character(progress.chars().next().unwrap()));
+            }
+            else {
+                return self.generic_error(c);
             }
         }
-        else {
-            // ... but retract if we failed.
-            self.retract();
-            return Err(self.error_string(format!("Invalid character while building #\\newline: '{}'", c)));
-        }
-        Ok(None)
-    }
 
-    /// Handle self.state == State::CharacterNewline
-    fn state_character_space(&mut self, c: char) -> StateResult {
-        let substate = match self.state {
-            State::CharacterSpace(ref substate) => Some(substate.clone()),
-            _ => None,
-        }.unwrap();
+        progress.push(c);
 
-        // Assume we'll advance...
-        self.advance();
-        if substate == SpaceState::S && (c.is_identifier_delimiter() || c.is_eof()) {
-            return self.token_result(Token::Character('s'));
-        }
-        if let Some(next) = substate.next(c) {
-            match next {
-                SpaceState::Space => return self.token_result(Token::Character(' ')),
-                _ => self.state = State::CharacterSpace(next),
+        let candidates: HashSet<&str> = {
+            let filtered = candidates.iter().filter(|c| c.starts_with(&progress)).map(|c| *c);
+            filtered.collect()
+        };
+
+        if candidates.len() == 1 {
+            let candidate = *candidates.iter().next().unwrap();
+            if candidate == &progress {
+                self.token_result(Token::Character(named_char::char_named_by(&progress)))
+            }
+            else {
+                self.state = State::NamedChar(candidates, progress);
+                self.advance();
+                Ok(None)
             }
         }
-        else {
-            // ... but retract if we failed.
-            self.retract();
-            return Err(self.error_string(format!("Invalid character while building #\\space: '{}'", c)));
+        else if candidates.len() > 1 {
+            self.state = State::NamedChar(candidates, progress);
+            self.advance();
+            Ok(None)
         }
-        Ok(None)
+        else {
+            self.generic_error(c)
+        }
     }
 
     /// Handle self.state == State::Dot
@@ -302,7 +341,7 @@ impl Lexer {
             return self.token_result(Token::LeftVectorParen);
         }
         else if c.is_character_leader() {
-            self.state = State::Character;
+            self.state = State::Char;
             self.advance();
         }
         else if let Some(radix) = Radix::from_char(c) {
@@ -495,9 +534,8 @@ impl Iterator for Lexer {
             println!("{:?}! c='{}'", self.state, c);
             let previous_forward = self.forward;
             let result = match self.state {
-                State::Character => self.state_character(c),
-                State::CharacterNewline(_) => self.state_character_newline(c),
-                State::CharacterSpace(_) => self.state_character_space(c),
+                State::Char=> self.state_char(c),
+                State::NamedChar(_, _) => self.state_named_char(c),
                 State::Comment => self.state_comment(c),
                 State::Dot => self.state_dot(c),
                 State::Hash => self.state_hash(c),
@@ -540,63 +578,6 @@ impl HasResult for StateResult {
         }
     }
 }
-
-impl NewlineState {
-    fn next(&self, c: char) -> Option<NewlineState> {
-        match *self {
-            NewlineState::N => match c {
-                'e' => Some(NewlineState::Ne),
-                _ => None,
-            },
-            NewlineState::Ne => match c {
-                'w' => Some(NewlineState::New),
-                _ => None,
-            },
-            NewlineState::New => match c {
-                'l' => Some(NewlineState::Newl),
-                _ => None,
-            },
-            NewlineState::Newl => match c {
-                'i' => Some(NewlineState::Newli),
-                _ => None,
-            },
-            NewlineState::Newli => match c {
-                'n' => Some(NewlineState::Newlin),
-                _ => None,
-            },
-            NewlineState::Newlin => match c {
-                'e' => Some(NewlineState::Newline),
-                _ => None,
-            },
-            _ => None,
-        }
-    }
-}
-
-impl SpaceState {
-    fn next(&self, c: char) -> Option<SpaceState> {
-        match *self {
-            SpaceState::S => match c {
-                'p' => Some(SpaceState::Sp),
-                _ => None,
-            },
-            SpaceState::Sp => match c {
-                'a' => Some(SpaceState::Spa),
-                _ => None,
-            },
-            SpaceState::Spa => match c {
-                'c' => Some(SpaceState::Spac),
-                _ => None,
-            },
-            SpaceState::Spac => match c {
-                'e' => Some(SpaceState::Space),
-                _ => None,
-            },
-            _ => None,
-        }
-    }
-}
-
 
 //
 // UNIT TESTING
