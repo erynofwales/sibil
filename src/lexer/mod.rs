@@ -526,7 +526,7 @@ impl Iterator for Lexer {
         }
         let mut token: Option<Token> = None;
         println!("Lexing '{}'", &self.input[self.begin ..]);
-        while token.is_none() {
+        loop {
             let c = match self.input.char_at(self.forward) {
                 Some(c) => c,
                 None => '\0',
@@ -605,12 +605,9 @@ mod tests {
     }
 
     #[test]
-    fn finds_characters_newline() {
+    fn finds_named_characters() {
         check_single_token("#\\newline", Token::Character('\n'));
-    }
-
-    #[test]
-    fn finds_characters_space() {
+        check_single_token("#\\null", Token::Character('\0'));
         check_single_token("#\\space", Token::Character(' '));
     }
 
