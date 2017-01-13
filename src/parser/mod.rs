@@ -4,8 +4,11 @@
 
 mod nodes;
 
+use lexer::Lex;
 use lexer::Lexer;
+use lexer::Token;
 use self::nodes::Program;
+use self::nodes::Expression;
 
 pub struct Parser {
     lexer: Lexer,
@@ -16,9 +19,25 @@ impl Parser {
         Parser { lexer: lexer }
     }
 
-    pub fn parse(&mut self) -> Program {
-        Program { }
+    pub fn parse(&mut self) -> Result<Program, Error> {
+        Ok(self.parse_program())
     }
+}
+
+impl Parser {
+    fn parse_program(&mut self) -> Program {
+        let mut forms: Vec<Expression> = Vec::new();
+        while let Some(lex) = self.lexer.next() {
+            println!("{:?}", lex);
+        }
+        forms.push(Expression::EOF);
+        Program::new(forms)
+    }
+}
+
+pub struct Error {
+    lex: Lexer,
+    desc: String,
 }
 
 #[cfg(test)]
