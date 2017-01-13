@@ -4,7 +4,7 @@
 
 use types::number::Number;
 
-#[derive(PartialEq, Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     Boolean(bool),
     Character(char),
