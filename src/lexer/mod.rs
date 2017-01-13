@@ -3,6 +3,9 @@
  */
 
 pub mod token;
+pub use self::token::Lex;
+pub use self::token::Token;
+
 mod char;
 mod charset;
 mod number;
@@ -60,8 +63,6 @@ use self::number::Radix;
 use self::number::Sign;
 use self::str::CharAt;
 use self::str::RelativeIndexable;
-use self::token::Lex;
-use self::token::Token;
 
 type StateResult = Result<Option<Token>, String>;
 
