@@ -28,7 +28,12 @@ impl Parser {
     fn parse_program(&mut self) -> Program {
         let mut forms: Vec<Expression> = Vec::new();
         while let Some(lex) = self.lexer.next() {
-            println!("{:?}", lex);
+            let form = match lex.token {
+                _ => {
+                    println!("{:?}", lex.token);
+                    lex.token
+                },
+            };
         }
         forms.push(Expression::EOF);
         Program::new(forms)
