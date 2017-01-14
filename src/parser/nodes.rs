@@ -3,8 +3,9 @@
  */
 
 use std::fmt;
+use std::ops::Deref;
 
-use lexer;
+use lexer::Token;
 use types;
 
 pub struct Program {
@@ -20,7 +21,7 @@ impl Program {
 pub enum Expression {
     EOF,
     Atom(Box<types::Value>),
-    List { left: lexer::Token, expr: Vec<Box<Expression>>, right: lexer::Token },
+    List { left: Token, expr: Vec<Box<Expression>>, right: Token },
 }
 
 impl fmt::Debug for Expression {
@@ -28,7 +29,7 @@ impl fmt::Debug for Expression {
         match *self {
             Expression::EOF => write!(f, "EOF"),
             Expression::Atom(ref value) => write!(f, "Atom{{ {:?} }}", value),
-            Expression::List{ left: ref lt, expr: ref expr, right: ref rt } => {
+            Expression::List{ left: ref lt, ref expr, right: ref rt } => {
                 write!(f, "{:?} {:?} {:?}", lt, expr, rt)
             },
         }
