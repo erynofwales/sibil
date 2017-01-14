@@ -589,7 +589,6 @@ mod tests {
     use types::Number;
     use std::iter::Iterator;
     use super::*;
-    use super::token::*;
 
     #[test]
     fn finds_parens() {
