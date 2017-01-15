@@ -8,6 +8,7 @@ use std::ops::Deref;
 use lexer::Token;
 use types;
 
+#[derive(Debug, PartialEq)]
 pub struct Program {
     forms: Vec<Expression>
 }
