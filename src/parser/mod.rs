@@ -54,6 +54,6 @@ mod tests {
     #[test]
     fn parses_empty_input() {
         let mut parser = Parser::new(Lexer::new(""));
-        assert_eq!(parser.parse(), Program::new());
+        assert_eq!(parser.parse().ok().unwrap(), Program::new(vec![Expression::EOF]));
     }
 }
