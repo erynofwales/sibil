@@ -35,3 +35,43 @@ impl fmt::Debug for Expression {
         }
     }
 }
+
+impl PartialEq for Expression {
+    fn eq(&self, other: &Expression) -> bool {
+        match *self {
+            Expression::EOF => self.eq_eof(other),
+            Expression::Atom(ref value) => self.eq_atom(other, value.deref()),
+            Expression::List { ref left, ref expr, ref right } => {
+                self.eq_list(other, left, expr, right)
+            },
+        }
+    }
+}
+
+impl Expression {
+    fn eq_eof(&self, other: &Expression) -> bool {
+        match *other {
+            Expression::EOF => true,
+            _ => false,
+        }
+    }
+
+    fn eq_atom(&self, other: &Expression, value: &types::Value) -> bool {
+        match *other {
+            Expression::Atom(ref ovalue) => value == ovalue.deref(),
+            _ => false,
+        }
+    }
+
+    fn eq_list(&self, other: &Expression, left: &Token, expr: &Vec<Box<Expression>>, right: &Token) -> bool {
+        match *other {
+            Expression::List { left: ref olt, expr: ref oexpr, right: ref ort } => {
+                let left_eq = left == olt;
+                let right_eq = right == ort;
+                let expr_eq = expr == oexpr;
+                left_eq && expr_eq && right_eq
+            },
+            _ => false,
+        }
+    }
+}
