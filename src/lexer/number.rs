@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use types::number::Number;
+use types::Number;
 
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }

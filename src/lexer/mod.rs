@@ -13,6 +13,7 @@ mod str;
 
 mod named_char {
     use std::collections::HashSet;
+    use types::Character;
 
     const ALARM: &'static str = "alarm";
     const BACKSPACE: &'static str = "backspace";
@@ -38,8 +39,8 @@ mod named_char {
         set
     }
 
-    pub fn char_named_by(named: &str) -> char {
-        match named {
+    pub fn char_named_by(named: &str) -> Character {
+        Character::new(match named {
             ALARM => '\x07',
             BACKSPACE => '\x08',
             DELETE => '\x7F',
@@ -50,12 +51,13 @@ mod named_char {
             SPACE => ' ',
             TAB => '\t',
             _ => panic!("char_named_by called with invalid named char string")
-        }
+        })
     }
 }
 
 use std::collections::HashSet;
 
+use types::{Boolean, Character, Number};
 use self::char::Lexable;
 use self::number::Exactness;
 use self::number::NumberBuilder;
@@ -263,7 +265,7 @@ impl Lexer {
         if candidates.len() > 0 {
             self.state = State::NamedChar(candidates, lower_c);
         } else {
-            return self.token_result(Token::Character(c));
+            return self.token_result(Token::Character(Character::new(c)));
         }
         Ok(None)
     }
@@ -278,7 +280,7 @@ impl Lexer {
         if c.is_identifier_delimiter() || c.is_eof() {
             if progress.len() == 1 {
                 self.retract();
-                return self.token_result(Token::Character(progress.chars().next().unwrap()));
+                return self.token_result(Token::Character(Character::new(progress.chars().next().unwrap())));
             }
             else {
                 return self.generic_error(c);
@@ -335,7 +337,7 @@ impl Lexer {
     fn state_hash(&mut self, c: char) -> StateResult {
         if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
-            return self.token_result(Token::Boolean(c.is_boolean_true()));
+            return self.token_result(Token::Boolean(Boolean::new(c.is_boolean_true())));
         }
         else if c.is_left_paren() {
             self.advance();
@@ -586,7 +588,7 @@ impl HasResult for StateResult {
 
 #[cfg(test)]
 mod tests {
-    use types::Number;
+    use types::{Boolean, Character, Number};
     use std::iter::Iterator;
     use super::*;
 
@@ -599,16 +601,16 @@ mod tests {
 
     #[test]
     fn finds_characters() {
-        check_single_token("#\\a", Token::Character('a'));
-        check_single_token("#\\n", Token::Character('n'));
-        check_single_token("#\\s", Token::Character('s'));
+        check_single_token("#\\a", Token::Character(Character::new('a')));
+        check_single_token("#\\n", Token::Character(Character::new('n')));
+        check_single_token("#\\s", Token::Character(Character::new('s')));
     }
 
     #[test]
     fn finds_named_characters() {
-        check_single_token("#\\newline", Token::Character('\n'));
-        check_single_token("#\\null", Token::Character('\0'));
-        check_single_token("#\\space", Token::Character(' '));
+        check_single_token("#\\newline", Token::Character(Character::new('\n')));
+        check_single_token("#\\null", Token::Character(Character::new('\0')));
+        check_single_token("#\\space", Token::Character(Character::new(' ')));
     }
 
     #[test]
@@ -632,8 +634,8 @@ mod tests {
 
     #[test]
     fn finds_booleans() {
-        check_single_token("#t", Token::Boolean(true));
-        check_single_token("#f", Token::Boolean(false));
+        check_single_token("#t", Token::Boolean(Boolean::new(true)));
+        check_single_token("#f", Token::Boolean(Boolean::new(false)));
     }
 
     #[test]

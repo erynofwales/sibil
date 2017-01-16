@@ -12,8 +12,16 @@ pub mod number;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Boolean(bool);
 
+impl Boolean {
+    pub fn new(v: bool) -> Boolean { Boolean(v) }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Character(char);
+
+impl Character {
+    pub fn new(v: char) -> Character { Character(v) }
+}
 
 pub trait Value: Debug + ValueEq {
     fn as_value(&self) -> &Value;
