@@ -21,7 +21,8 @@ impl Program {
 
 pub enum Expression {
     EOF,
-    Atom(Box<types::Value>),
+    Identifier(String),
+    Literal(Box<types::Value>),
     List { left: Token, expr: Vec<Box<Expression>>, right: Token },
 }
 
@@ -29,7 +30,8 @@ impl fmt::Debug for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Expression::EOF => write!(f, "EOF"),
-            Expression::Atom(ref value) => write!(f, "Atom{{ {:?} }}", value),
+            Expression::Identifier(ref id) => write!(f, "Id{{{:?}}}", id),
+            Expression::Literal(ref value) => write!(f, "Literal{{{:?}}}", value),
             Expression::List{ left: ref lt, ref expr, right: ref rt } => {
                 write!(f, "{:?} {:?} {:?}", lt, expr, rt)
             },
@@ -41,7 +43,8 @@ impl PartialEq for Expression {
     fn eq(&self, other: &Expression) -> bool {
         match *self {
             Expression::EOF => self.eq_eof(other),
-            Expression::Atom(ref value) => self.eq_atom(other, value.deref()),
+            Expression::Identifier(ref id) => self.eq_identifier(other, id),
+            Expression::Literal(ref value) => self.eq_literal(other, value.deref()),
             Expression::List { ref left, ref expr, ref right } => {
                 self.eq_list(other, left, expr, right)
             },
@@ -57,9 +60,16 @@ impl Expression {
         }
     }
 
-    fn eq_atom(&self, other: &Expression, value: &types::Value) -> bool {
+    fn eq_identifier(&self, other: &Expression, id: &str) -> bool {
         match *other {
-            Expression::Atom(ref ovalue) => value == ovalue.deref(),
+            Expression::Identifier(ref oid) => id == oid,
+            _ => false,
+        }
+    }
+
+    fn eq_literal(&self, other: &Expression, value: &types::Value) -> bool {
+        match *other {
+            Expression::Literal(ref ovalue) => value == ovalue.deref(),
             _ => false,
         }
     }

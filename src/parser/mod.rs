@@ -45,8 +45,8 @@ impl Parser {
     fn parse_expression(&mut self) -> Result<Expression, Error> {
         if let Some(next) = self.lexer.next() {
             match next.token {
-                Token::Boolean(value) => Ok(Expression::Atom(Box::new(value))),
-                Token::Character(value) => Ok(Expression::Atom(Box::new(value))),
+                Token::Boolean(value) => Ok(Expression::Literal(Box::new(value))),
+                Token::Character(value) => Ok(Expression::Literal(Box::new(value))),
                 _ => Err(Error { lex: next, desc: "Invalid token".to_string() })
             }
         }
