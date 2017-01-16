@@ -20,28 +20,44 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Result<Program, Error> {
-        Ok(self.parse_program())
+        self.parse_program()
     }
 }
 
 impl Parser {
-    fn parse_program(&mut self) -> Program {
+    fn parse_program(&mut self) -> Result<Program, Error> {
         let mut forms: Vec<Expression> = Vec::new();
-        while let Some(lex) = self.lexer.next() {
-            let form = match lex.token {
-                _ => {
-                    println!("{:?}", lex.token);
-                    lex.token
+        loop {
+            match self.parse_expression() {
+                Ok(expr) => {
+                    let is_eof = expr == Expression::EOF;
+                    forms.push(expr);
+                    if is_eof {
+                        break;
+                    }
                 },
-            };
+                Err(error) => panic!("PARSE ERROR: error = {}, lex = {:?}", error.desc, error.lex)
+            }
         }
-        forms.push(Expression::EOF);
-        Program::new(forms)
+        Ok(Program::new(forms))
+    }
+
+    fn parse_expression(&mut self) -> Result<Expression, Error> {
+        if let Some(next) = self.lexer.next() {
+            match next.token {
+                Token::Boolean(value) => Ok(Expression::Atom(Box::new(value))),
+                Token::Character(value) => Ok(Expression::Atom(Box::new(value))),
+                _ => Err(Error { lex: next, desc: "Invalid token".to_string() })
+            }
+        }
+        else {
+            Ok(Expression::EOF)
+        }
     }
 }
 
 pub struct Error {
-    lex: Lexer,
+    lex: Lex,
     desc: String,
 }
 
@@ -50,10 +66,17 @@ mod tests {
     use super::*;
     use super::nodes::*;
     use lexer::Lexer;
+    use types::Boolean;
 
     #[test]
     fn parses_empty_input() {
         let mut parser = Parser::new(Lexer::new(""));
         assert_eq!(parser.parse().ok().unwrap(), Program::new(vec![Expression::EOF]));
+    }
+
+    #[test]
+    fn parses_single_boolean() {
+        let mut parser = Parser::new(Lexer::new("#t"));
+        assert_eq!(parser.parse().ok().unwrap(), Program::new(vec![Expression::Atom(Box::new(Boolean::new(true))), Expression::EOF]));
     }
 }
