@@ -4,11 +4,21 @@
 
 mod nodes;
 
+use std::fmt;
+
+use lexer::lex;
 use lexer::Lex;
 use lexer::Lexer;
 use lexer::Token;
 use self::nodes::Program;
 use self::nodes::Expression;
+
+type ParseResult = Result<Program, Error>;
+
+pub fn parse(input: &str) -> ParseResult {
+    let mut parser = Parser::new(lex(input));
+    parser.parse()
+}
 
 pub struct Parser {
     lexer: Lexer,
@@ -19,13 +29,13 @@ impl Parser {
         Parser { lexer: lexer }
     }
 
-    pub fn parse(&mut self) -> Result<Program, Error> {
+    pub fn parse(&mut self) -> ParseResult {
         self.parse_program()
     }
 }
 
 impl Parser {
-    fn parse_program(&mut self) -> Result<Program, Error> {
+    fn parse_program(&mut self) -> ParseResult {
         let mut forms: Vec<Expression> = Vec::new();
         loop {
             match self.parse_expression() {
@@ -36,7 +46,7 @@ impl Parser {
                         break;
                     }
                 },
-                Err(error) => panic!("PARSE ERROR: error = {}, lex = {:?}", error.desc, error.lex)
+                Err(error) => return Err(error),
             }
         }
         Ok(Program::new(forms))
@@ -61,22 +71,44 @@ pub struct Error {
     desc: String,
 }
 
+impl fmt::Debug for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "PARSE ERROR: {}\n  token = {:?}", self.desc, self.lex)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use super::nodes::*;
     use lexer::Lexer;
+    use lexer::Token;
     use types::Boolean;
 
     #[test]
     fn parses_empty_input() {
-        let mut parser = Parser::new(Lexer::new(""));
-        assert_eq!(parser.parse().ok().unwrap(), Program::new(vec![Expression::EOF]));
+        let r = parse("");
+        assert_eq!(r.unwrap(), Program::new(vec![Expression::EOF]));
     }
 
     #[test]
     fn parses_single_boolean() {
-        let mut parser = Parser::new(Lexer::new("#t"));
-        assert_eq!(parser.parse().ok().unwrap(), Program::new(vec![Expression::Atom(Box::new(Boolean::new(true))), Expression::EOF]));
+        let r = parse("#t");
+        assert_eq!(r.unwrap(), Program::new(vec![Expression::Literal(Box::new(Boolean::new(true))), Expression::EOF]));
+    }
+    
+    #[test]
+    fn parses_single_expression() {
+        let r = parse("(a)");
+        let list = list("(", vec![Box::new(Expression::Identifier("a".to_string()))], ")");
+        assert_eq!(r.unwrap(), Program::new(vec![list, Expression::EOF]));
+    }
+
+    fn list(left: &str, expr: Vec<Box<Expression>>, right: &str) -> Expression {
+        Expression::List {
+            left: Token::LeftParen(left.to_string()),
+            expr: expr,
+            right: Token::RightParen(right.to_string())
+        }
     }
 }
