@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn parses_single_expression() {
         let r = parse("(a)");
-        let list = list("(", vec![Box::new(Expression::Identifier("a".to_string()))], ")");
+        let list = list("(", vec![Box::new(Expression::Id("a".to_string()))], ")");
         assert_eq!(r.unwrap(), Program::new(vec![list, Expression::EOF]));
     }
 
