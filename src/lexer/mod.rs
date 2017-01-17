@@ -78,7 +78,7 @@ enum State {
     NamedChar(HashSet<&'static str>, String),
     Comment,
     Initial,
-    Identifier,
+    Id,
     Dot,
     Hash,
     Number,
@@ -176,10 +176,10 @@ impl Lexer {
     /// Handle self.state == State::Initial
     fn state_initial(&mut self, c: char) -> StateResult {
         if c.is_left_paren() {
-            return self.token_result(Token::LeftParen(c.to_string()));
+            return self.token_result(Token::LeftParen);
         }
         else if c.is_right_paren() {
-            return self.token_result(Token::RightParen(c.to_string()));
+            return self.token_result(Token::RightParen);
         }
         else if c.is_dot() {
             self.state = State::Dot;
@@ -205,7 +205,7 @@ impl Lexer {
             self.advance();
         }
         else if c.is_identifier_initial() {
-            self.state = State::Identifier;
+            self.state = State::Id;
             self.advance();
         }
 
@@ -235,16 +235,16 @@ impl Lexer {
         Ok(None)
     }
 
-    /// Handle self.state == State::Identifier
+    /// Handle self.state == State::Id
     fn state_identifier(&mut self, c: char) -> StateResult {
         if c.is_identifier_subsequent() {
-            // Stay in Identifier state.
+            // Stay in Id state.
             self.advance();
         }
         else if c.is_identifier_delimiter() {
             let value = self.value();
             self.retract();
-            return self.token_result(Token::Identifier(value));
+            return self.token_result(Token::Id(value));
         }
         else {
             return self.generic_error(c);
@@ -469,7 +469,7 @@ impl Lexer {
         else if c.is_identifier_delimiter() {
             let value = self.value();
             self.retract();
-            return self.token_result(Token::Identifier(value));
+            return self.token_result(Token::Id(value));
         }
         else {
             return self.generic_error(c);
@@ -542,7 +542,7 @@ impl Iterator for Lexer {
                 State::Comment => self.state_comment(c),
                 State::Dot => self.state_dot(c),
                 State::Hash => self.state_hash(c),
-                State::Identifier => self.state_identifier(c),
+                State::Id => self.state_identifier(c),
                 State::Initial => self.state_initial(c),
                 State::Number => self.state_number(c),
                 State::NumberDecimal => self.state_number_decimal(c),
@@ -594,8 +594,8 @@ mod tests {
 
     #[test]
     fn finds_parens() {
-        check_single_token("(", Token::LeftParen(String::from("(")));
-        check_single_token(")", Token::RightParen(String::from(")")));
+        check_single_token("(", Token::LeftParen);
+        check_single_token(")", Token::RightParen);
         check_single_token("#(", Token::LeftVectorParen);
     }
 
@@ -618,14 +618,14 @@ mod tests {
         check_single_token(".", Token::Dot);
 
         let mut lexer = Lexer::new("abc . abc");
-        assert_next_token(&mut lexer, &Token::Identifier(String::from("abc")));
+        assert_next_token(&mut lexer, &Token::Id(String::from("abc")));
         assert_next_token(&mut lexer, &Token::Dot);
-        assert_next_token(&mut lexer, &Token::Identifier(String::from("abc")));
+        assert_next_token(&mut lexer, &Token::Id(String::from("abc")));
     }
 
     #[test]
     fn finds_identifiers() {
-        let tok = |s: &str| { check_single_token(s, Token::Identifier(String::from(s))); };
+        let tok = |s: &str| { check_single_token(s, Token::Id(String::from(s))); };
         tok("abc");
         tok("number?");
         tok("+");
@@ -707,16 +707,16 @@ mod tests {
     #[test]
     fn lexes_simple_expression() {
         check_tokens("(+ 3.4 6.8)", vec![
-                     Token::LeftParen(String::from("(")),
-                     Token::Identifier(String::from("+")),
+                     Token::LeftParen,
+                     Token::Id(String::from("+")),
                      Token::Number(Number::from_float(3.4)),
                      Token::Number(Number::from_float(6.8)),
-                     Token::RightParen(String::from(")"))]);
+                     Token::RightParen]);
     }
 
     #[test]
     fn lexes_quoted_identifier() {
-        check_tokens("'abc", vec![Token::Quote, Token::Identifier(String::from("abc"))]);
+        check_tokens("'abc", vec![Token::Quote, Token::Id(String::from("abc"))]);
     }
 
     fn check_single_token(input: &str, expected: Token) {

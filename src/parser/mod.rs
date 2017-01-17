@@ -100,15 +100,15 @@ mod tests {
     #[test]
     fn parses_single_expression() {
         let r = parse("(a)");
-        let list = list("(", vec![Box::new(Expression::Id("a".to_string()))], ")");
+        let list = list(vec![Box::new(Expression::Id("a".to_string()))]);
         assert_eq!(r.unwrap(), Program::new(vec![list, Expression::EOF]));
     }
 
-    fn list(left: &str, expr: Vec<Box<Expression>>, right: &str) -> Expression {
+    fn list(expr: Vec<Box<Expression>>) -> Expression {
         Expression::List {
-            left: Token::LeftParen(left.to_string()),
+            left: Token::LeftParen,
             expr: expr,
-            right: Token::RightParen(right.to_string())
+            right: Token::RightParen,
         }
     }
 }

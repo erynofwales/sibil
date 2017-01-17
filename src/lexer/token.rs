@@ -10,12 +10,12 @@ pub enum Token {
     Character(Character),
     Comment(String),
     Dot,
-    Identifier(String),
-    LeftParen(String),
+    Id(String),
+    LeftParen,
     LeftVectorParen,
     Number(Number),
     Quote,
-    RightParen(String),
+    RightParen,
     String(String),
 }
 
