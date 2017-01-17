@@ -57,7 +57,7 @@ impl Parser {
             match next.token {
                 Token::Boolean(value) => Ok(Expression::Literal(Box::new(value))),
                 Token::Character(value) => Ok(Expression::Literal(Box::new(value))),
-                _ => Err(Error { lex: next, desc: "Invalid token".to_string() })
+                _ => Err(Error::new(next, "Invalid token"))
             }
         }
         else {
@@ -69,6 +69,12 @@ impl Parser {
 pub struct Error {
     lex: Lex,
     desc: String,
+}
+
+impl Error {
+    pub fn new(lex: Lex, desc: &str) -> Error {
+        Error { lex: lex, desc: desc.to_string() }
+    }
 }
 
 impl fmt::Debug for Error {
