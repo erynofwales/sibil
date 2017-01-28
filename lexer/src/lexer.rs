@@ -480,7 +480,7 @@ impl Iterator for Lexer {
                 Some(c) => c,
                 None => '\0',
             };
-            println!("{:?}! c='{}'", self.state, c);
+            println!("state={:?} c='{}'", self.state, c);
             let previous_forward = self.forward;
             let result = match self.state {
                 State::Char=> self.state_char(c),
