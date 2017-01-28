@@ -19,17 +19,21 @@ pub enum Token {
     String(String),
 }
 
-/// A Lex is a Token extracted from a specific position in an input stream. It
-/// contains useful information about the token's place.
+/// A Lex is a Token extracted from a specific position in an input string. It contains useful
+/// information about the token's place in that input.
 #[derive(Debug)]
 pub struct Lex {
-    pub token: Token,
-    pub line: usize,
-    pub offset: usize,
+    token: Token,
+    line: usize,
+    offset: usize,
 }
 
 impl Lex {
     pub fn new(token: Token, line: usize, offset: usize) -> Lex {
         Lex { token: token, line: line, offset: offset }
     }
+
+    pub fn token(&self) -> &Token { &self.token }
+    pub fn line(&self) -> usize { self.line }
+    pub fn offset(&self) -> usize { self.offset }
 }
