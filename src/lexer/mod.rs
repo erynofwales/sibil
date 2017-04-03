@@ -588,7 +588,7 @@ impl HasResult for StateResult {
 
 #[cfg(test)]
 mod tests {
-    use types::{Boolean, Character, Number};
+    use types::{Bool, Char, Number};
     use std::iter::Iterator;
     use super::*;
 
@@ -601,16 +601,16 @@ mod tests {
 
     #[test]
     fn finds_characters() {
-        check_single_token("#\\a", Token::Character(Character::new('a')));
-        check_single_token("#\\n", Token::Character(Character::new('n')));
-        check_single_token("#\\s", Token::Character(Character::new('s')));
+        check_single_token("#\\a", Token::Character(Char::new('a')));
+        check_single_token("#\\n", Token::Character(Char::new('n')));
+        check_single_token("#\\s", Token::Character(Char::new('s')));
     }
 
     #[test]
     fn finds_named_characters() {
-        check_single_token("#\\newline", Token::Character(Character::new('\n')));
-        check_single_token("#\\null", Token::Character(Character::new('\0')));
-        check_single_token("#\\space", Token::Character(Character::new(' ')));
+        check_single_token("#\\newline", Token::Character(Char::new('\n')));
+        check_single_token("#\\null", Token::Character(Char::new('\0')));
+        check_single_token("#\\space", Token::Character(Char::new(' ')));
     }
 
     #[test]
@@ -634,8 +634,8 @@ mod tests {
 
     #[test]
     fn finds_booleans() {
-        check_single_token("#t", Token::Boolean(Boolean::new(true)));
-        check_single_token("#f", Token::Boolean(Boolean::new(false)));
+        check_single_token("#t", Token::Boolean(Bool::new(true)));
+        check_single_token("#f", Token::Boolean(Bool::new(false)));
     }
 
     #[test]
