@@ -5,7 +5,7 @@
 use std::fmt::Debug;
 use std::any::Any;
 
-pub trait Value: Debug + ValueEq {
+pub trait Value: Debug + ValueEq + IsBool + IsChar {
     fn as_value(&self) -> &Value;
 }
 
@@ -22,3 +22,10 @@ impl<'lhs,'rhs> PartialEq<Value+'rhs> for Value+'lhs {
     }
 }
 
+pub trait IsBool {
+    fn is_bool(&self) -> bool { false }
+}
+
+pub trait IsChar {
+    fn is_char(&self) -> bool { false }
+}
