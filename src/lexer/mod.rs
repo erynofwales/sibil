@@ -529,7 +529,7 @@ impl Iterator for Lexer {
         }
         let mut token: Option<Token> = None;
         println!("Lexing '{}'", &self.input[self.begin ..]);
-        loop {
+        while token.is_none() {
             let c = match self.input.char_at(self.forward) {
                 Some(c) => c,
                 None => '\0',
@@ -556,7 +556,6 @@ impl Iterator for Lexer {
             assert!(result.has_token() || self.forward != previous_forward, "No lexing progress made!");
             if result.has_token() {
                 token = result.ok().unwrap();
-                break;
             }
             else if result.is_err() {
                 assert!(false, "{}", result.err().unwrap());
