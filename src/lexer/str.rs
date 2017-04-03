@@ -62,37 +62,42 @@ impl CharAt for str {
     }
 }
 
-#[test]
-fn index_before_is_well_behaved_for_ascii() {
-    let s = "abc";
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    // Sanity
-    assert_eq!(s.index_before(0), 0);
-    assert_eq!(s.index_before(2), 1);
+    #[test]
+    fn index_before_is_well_behaved_for_ascii() {
+        let s = "abc";
 
-    // An index beyond the string bounds returns the index of the last character in the string.
-    {
-        let idx = s.index_before(4);
-        assert_eq!(idx, 2);
-        assert!(s.is_char_boundary(idx));
-        let last_char = &s[idx ..];
-        assert_eq!(last_char.len(), 1);
-        assert_eq!(last_char.chars().nth(0), Some('c'));
+        // Sanity
+        assert_eq!(s.index_before(0), 0);
+        assert_eq!(s.index_before(2), 1);
+
+        // An index beyond the string bounds returns the index of the last character in the string.
+        {
+            let idx = s.index_before(4);
+            assert_eq!(idx, 2);
+            assert!(s.is_char_boundary(idx));
+            let last_char = &s[idx ..];
+            assert_eq!(last_char.len(), 1);
+            assert_eq!(last_char.chars().nth(0), Some('c'));
+        }
     }
-}
 
-#[test]
-fn index_after_is_well_behaved_for_ascii() {
-    let s = "abc";
+    #[test]
+    fn index_after_is_well_behaved_for_ascii() {
+        let s = "abc";
 
-    // Sanity
-    assert_eq!(s.index_after(0), 1);
-    assert_eq!(s.index_after(2), 3);
+        // Sanity
+        assert_eq!(s.index_after(0), 1);
+        assert_eq!(s.index_after(2), 3);
 
-    // An index beyond the string bounds returns the length of the string
-    {
-        let idx = s.index_after(4);
-        assert_eq!(idx, s.len());
-        assert!(s.is_char_boundary(idx));
+        // An index beyond the string bounds returns the length of the string
+        {
+            let idx = s.index_after(4);
+            assert_eq!(idx, s.len());
+            assert!(s.is_char_boundary(idx));
+        }
     }
 }
