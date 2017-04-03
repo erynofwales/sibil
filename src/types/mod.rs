@@ -1,68 +1,16 @@
-/* mod.rs
+/* types/mod.rs
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use std::fmt::Debug;
-use std::any::Any;
-
+pub use self::bool::Bool;
+pub use self::char::Char;
 pub use self::number::Number;
+use self::value::Value;
 
+pub mod bool;
+pub mod char;
 pub mod number;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Boolean(bool);
-
-impl Boolean {
-    pub fn new(v: bool) -> Boolean { Boolean(v) }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Character(char);
-
-impl Character {
-    pub fn new(v: char) -> Character { Character(v) }
-}
-
-pub trait Value: Debug + ValueEq {
-    fn as_value(&self) -> &Value;
-}
-
-/// A trait on value types that makes it easier to compare values of disparate types. The methods
-/// provided by this trait are used by the PartialEq implementation on Values.
-pub trait ValueEq {
-    fn eq(&self, other: &Value) -> bool;
-    fn as_any(&self) -> &Any;
-}
-
-impl<'lhs,'rhs> PartialEq<Value+'rhs> for Value+'lhs {
-    fn eq(&self, other: &(Value+'rhs)) -> bool {
-        ValueEq::eq(self, other)
-    }
-}
-
-impl Value for Boolean {
-    fn as_value(&self) -> &Value { self }
-}
-
-impl ValueEq for Boolean {
-    fn eq(&self, other: &Value) -> bool {
-        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
-    }
-
-    fn as_any(&self) -> &Any { self }
-}
-
-impl Value for Character {
-    fn as_value(&self) -> &Value { self }
-}
-
-impl ValueEq for Character {
-    fn eq(&self, other: &Value) -> bool {
-        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
-    }
-
-    fn as_any(&self) -> &Any { self }
-}
+mod value;
 
 #[cfg(test)]
 mod tests {
@@ -70,19 +18,19 @@ mod tests {
 
     #[test]
     fn booleans_are_equal() {
-        assert_eq!(Boolean(true), Boolean(true));
-        assert_eq!(Boolean(false), Boolean(false));
-        assert_ne!(Boolean(true), Boolean(false));
+        assert_eq!(Bool(true), Bool(true));
+        assert_eq!(Bool(false), Bool(false));
+        assert_ne!(Bool(true), Bool(false));
     }
 
     #[test]
     fn equal_chars_are_equal() {
-        assert_eq!(Character('a'), Character('a'));
-        assert_eq!(Character('a').as_value(), Character('a').as_value());
+        assert_eq!(Char('a'), Char('a'));
+        assert_eq!(Char('a').as_value(), Char('a').as_value());
     }
 
     #[test]
     fn booleans_and_chars_are_not_equal() {
-        assert_ne!(Boolean(true).as_value(), Character('a').as_value());
+        assert_ne!(Bool(true).as_value(), Char('a').as_value());
     }
 }
