@@ -35,10 +35,20 @@ impl IsChar for Bool {
 #[cfg(test)]
 mod tests {
     use super::Bool;
-    use types::value::{IsBool, IsChar};
+    use types::value::{IsBool, IsChar, Value};
 
     #[test]
-    fn chars_are_bools() {
+    fn equal_bools_are_equal() {
+        assert_eq!(Bool(true), Bool(true));
+        assert_eq!(Bool(false), Bool(false));
+        assert_ne!(Bool(true), Bool(false));
+
+        assert_eq!(Bool(true).as_value(), Bool(true).as_value());
+        assert_ne!(Bool(true).as_value(), Bool(false).as_value());
+    }
+
+    #[test]
+    fn bools_are_bools() {
         assert_eq!(Bool(false).is_bool(), true);
     }
 

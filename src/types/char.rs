@@ -35,7 +35,14 @@ impl IsChar for Char {
 #[cfg(test)]
 mod tests {
     use super::Char;
-    use types::value::{IsBool, IsChar};
+    use types::value::{IsBool, IsChar, Value};
+
+    #[test]
+    fn equal_chars_are_equal() {
+        assert_eq!(Char('a'), Char('a'));
+        assert_eq!(Char('a').as_value(), Char('a').as_value());
+        assert_ne!(Char('a').as_value(), Char('b').as_value());
+    }
 
     #[test]
     fn chars_are_chars() {
