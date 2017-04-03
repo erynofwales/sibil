@@ -2,15 +2,15 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-pub use self::bool::Bool;
-pub use self::char::Char;
-pub use self::number::Number;
-use self::value::Value;
-
 pub mod bool;
 pub mod char;
 pub mod number;
-mod value;
+pub mod value;
+
+pub use self::bool::Bool;
+pub use self::char::Char;
+pub use self::number::Number;
+pub use self::value::Value;
 
 #[cfg(test)]
 mod tests {

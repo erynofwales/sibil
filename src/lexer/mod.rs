@@ -13,7 +13,7 @@ mod str;
 
 mod named_char {
     use std::collections::HashSet;
-    use types::Character;
+    use types::Char;
 
     const ALARM: &'static str = "alarm";
     const BACKSPACE: &'static str = "backspace";
@@ -39,8 +39,8 @@ mod named_char {
         set
     }
 
-    pub fn char_named_by(named: &str) -> Character {
-        Character::new(match named {
+    pub fn char_named_by(named: &str) -> Char {
+        Char::new(match named {
             ALARM => '\x07',
             BACKSPACE => '\x08',
             DELETE => '\x7F',
@@ -57,7 +57,7 @@ mod named_char {
 
 use std::collections::HashSet;
 
-use types::{Boolean, Character, Number};
+use types::{Bool, Char};
 use self::char::Lexable;
 use self::number::Exactness;
 use self::number::NumberBuilder;
@@ -265,7 +265,7 @@ impl Lexer {
         if candidates.len() > 0 {
             self.state = State::NamedChar(candidates, lower_c);
         } else {
-            return self.token_result(Token::Character(Character::new(c)));
+            return self.token_result(Token::Character(Char::new(c)));
         }
         Ok(None)
     }
@@ -280,7 +280,7 @@ impl Lexer {
         if c.is_identifier_delimiter() || c.is_eof() {
             if progress.len() == 1 {
                 self.retract();
-                return self.token_result(Token::Character(Character::new(progress.chars().next().unwrap())));
+                return self.token_result(Token::Character(Char::new(progress.chars().next().unwrap())));
             }
             else {
                 return self.generic_error(c);
@@ -337,7 +337,7 @@ impl Lexer {
     fn state_hash(&mut self, c: char) -> StateResult {
         if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
-            return self.token_result(Token::Boolean(Boolean::new(c.is_boolean_true())));
+            return self.token_result(Token::Boolean(Bool::new(c.is_boolean_true())));
         }
         else if c.is_left_paren() {
             self.advance();

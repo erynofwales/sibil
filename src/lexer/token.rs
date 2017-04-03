@@ -2,12 +2,12 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use types::*;
+use types::{Bool, Char, Number};
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    Boolean(Boolean),
-    Character(Character),
+    Boolean(Bool),
+    Character(Char),
     Comment(String),
     Dot,
     Id(String),
