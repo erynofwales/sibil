@@ -553,7 +553,7 @@ impl Iterator for Lexer {
                 State::String => self.state_string(c),
                 State::StringEscape => self.state_string_escape(c),
             };
-            assert!(result.has_token() || self.forward != previous_forward, "No lexing progress made!");
+            debug_assert!(result.has_token() || self.forward != previous_forward, "No lexing progress made!");
             if result.has_token() {
                 token = result.ok().unwrap();
             }
