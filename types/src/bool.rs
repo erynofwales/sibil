@@ -5,15 +5,13 @@
 use std::any::Any;
 use super::value::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Bool(pub bool);
-
-impl Bool {
-    pub fn new(v: bool) -> Bool { Bool(v) }
-}
 
 impl Value for Bool {
     fn as_value(&self) -> &Value { self }
+
+    fn is_bool(&self) -> bool { true }
 }
 
 impl ValueEq for Bool {
@@ -24,18 +22,10 @@ impl ValueEq for Bool {
     fn as_any(&self) -> &Any { self }
 }
 
-impl IsBool for Bool {
-    fn is_bool(&self) -> bool { true }
-}
-
-impl IsChar for Bool {
-    fn is_char(&self) -> bool { false }
-}
-
 #[cfg(test)]
 mod tests {
     use super::Bool;
-    use types::value::{IsBool, IsChar, Value};
+    use value::*;
 
     #[test]
     fn equal_bools_are_equal() {
@@ -50,6 +40,7 @@ mod tests {
     #[test]
     fn bools_are_bools() {
         assert_eq!(Bool(false).is_bool(), true);
+        assert_eq!(Bool(false).is_char(), false);
     }
 
     #[test]

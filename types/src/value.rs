@@ -5,8 +5,13 @@
 use std::fmt::Debug;
 use std::any::Any;
 
-pub trait Value: Debug + ValueEq + IsBool + IsChar {
+pub trait Value: Debug + ValueEq {
     fn as_value(&self) -> &Value;
+
+    /// Should return `true` if this Value is a Bool.
+    fn is_bool(&self) -> bool { false }
+    /// Should return `true` if this Value is a Char.
+    fn is_char(&self) -> bool { false }
 }
 
 /// A trait on value types that makes it easier to compare values of disparate types. The methods
@@ -20,12 +25,4 @@ impl<'lhs,'rhs> PartialEq<Value+'rhs> for Value+'lhs {
     fn eq(&self, other: &(Value+'rhs)) -> bool {
         ValueEq::eq(self, other)
     }
-}
-
-pub trait IsBool {
-    fn is_bool(&self) -> bool { false }
-}
-
-pub trait IsChar {
-    fn is_char(&self) -> bool { false }
 }
