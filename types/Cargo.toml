@@ -1,0 +1,6 @@
+[package]
+name = "sibiltypes"
+version = "0.1.0"
+authors = ["Eryn Wells <eryn@erynwells.me>"]
+
+[dependencies]
