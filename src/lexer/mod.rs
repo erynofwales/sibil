@@ -652,6 +652,7 @@ mod tests {
 
     #[test]
     fn finds_numbers() {
+        check_single_token("34", Token::Number(Number::from_float(34.0)));
         check_single_token(".34", Token::Number(Number::from_float(0.34)));
         check_single_token("0.34", Token::Number(Number::from_float(0.34)));
     }
