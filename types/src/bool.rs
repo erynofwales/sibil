@@ -3,16 +3,21 @@
  */
 
 use std::any::Any;
-use super::value::*;
+use value::*;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Bool(pub bool);
 
 impl Value for Bool {
     fn as_value(&self) -> &Value { self }
+}
 
+impl IsBool for Bool {
     fn is_bool(&self) -> bool { true }
 }
+
+impl IsChar for Bool { }
+impl IsNumber for Bool { }
 
 impl ValueEq for Bool {
     fn eq(&self, other: &Value) -> bool {

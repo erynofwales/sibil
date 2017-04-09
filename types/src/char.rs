@@ -10,9 +10,14 @@ pub struct Char(pub char);
 
 impl Value for Char {
     fn as_value(&self) -> &Value { self }
+}
 
+impl IsChar for Char {
     fn is_char(&self) -> bool { true }
 }
+
+impl IsBool for Char { }
+impl IsNumber for Char { }
 
 impl ValueEq for Char {
     fn eq(&self, other: &Value) -> bool {
