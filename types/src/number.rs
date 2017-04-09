@@ -6,55 +6,19 @@
 ///
 /// Scheme numbers are complex, literally.
 
-#[derive(PartialEq, Debug)]
-pub struct Number {
-    pub value: f64
+type Int = i64;
+type Flt = f64;
+
+trait Number {
+    fn is_number(&self) -> bool { true }
+    fn is_complex(&self) -> bool { false }
+    fn is_real(&self) -> bool { false }
+    fn is_rational(&self) -> bool { false }
+    fn is_integer(&self) -> bool { false }
 }
 
-impl Number {
-    pub fn from_int(v: i64) -> Number {
-        Number { value: v as f64 }
-    }
+struct Integer(Int);
+struct Rational(Int, Int);
+struct Real(Flt);
+struct Complex<'a>(&'a Number, &'a Number);
 
-    pub fn from_float(v: f64) -> Number {
-        Number { value: v }
-    }
-}
-
-/*
-pub trait Number {
-    fn new() -> Number;
-    fn from_int(v: i64);
-    fn from_float(v: f64);
-}
-
-pub trait Exact {
-    fn exact() -> bool;
-}
-
-type Integer = i64;
-
-impl Exact for Integer {
-    fn exact() -> bool { true }
-}
-
-#[derive(PartialEq, Debug)]
-pub struct Rational { numer: i64, denom: i64 }
-
-impl Exact for Rational {
-    fn exact() -> bool { true }
-}
-
-type Real = f64;
-
-impl Exact for Real {
-    fn exact() -> bool { false }
-}
-
-#[derive(PartialEq, Debug)]
-pub struct Complex { real: f64, imag: f64 }
-
-impl Exact for Complex {
-    fn exact() -> bool { false }
-}
-*/
