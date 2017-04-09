@@ -1,5 +1,6 @@
 mod bool;
 mod char;
+mod number;
 mod value;
 
 #[cfg(test)]
