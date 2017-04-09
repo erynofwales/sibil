@@ -43,10 +43,6 @@ mod tests {
     fn chars_are_chars() {
         assert_eq!(Char('a').is_char(), true);
         assert_eq!(Char('a').is_bool(), false);
-    }
-
-    #[test]
-    fn chars_are_not_bools() {
-        assert_eq!(Char('a').is_bool(), false);
+        assert_eq!(Char('a').is_number(), false);
     }
 }

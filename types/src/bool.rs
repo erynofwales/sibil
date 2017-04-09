@@ -46,10 +46,6 @@ mod tests {
     fn bools_are_bools() {
         assert_eq!(Bool(false).is_bool(), true);
         assert_eq!(Bool(false).is_char(), false);
-    }
-
-    #[test]
-    fn bools_are_not_chars() {
-        assert_eq!(Bool(false).is_char(), false);
+        assert_eq!(Bool(false).is_number(), false);
     }
 }
