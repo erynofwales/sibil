@@ -24,6 +24,14 @@ type Flt = f64;
 trait Number: Debug + IsBool + IsChar + IsNumber + Value {
     /// Convert a Number to the next lowest type in Scheme's number pyramid, if possible.
     fn convert_down(&self) -> Option<Box<Number>>;
+
+    /// Should return `true` if this Number is represented exactly. This should be an inverse of
+    /// `is_inexact()`.
+    fn is_exact(&self) -> bool { false }
+
+    /// Should return `true` if this Number is not represented exactly. This should be an inverse
+    /// of `is_exact()`.
+    fn is_inexact(&self) -> bool { !self.is_exact() }
 }
 
 impl Value for Box<Number> {

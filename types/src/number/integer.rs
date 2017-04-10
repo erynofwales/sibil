@@ -11,6 +11,8 @@ pub struct Integer(pub Int);
 
 impl Number for Integer {
     fn convert_down(&self) -> Option<Box<Number>> { None }
+
+    fn is_exact(&self) -> bool { true }
 }
 
 impl Value for Integer {
@@ -35,6 +37,7 @@ impl ValueEq for Integer {
 #[cfg(test)]
 mod tests {
     use super::Integer;
+    use number::*;
     use value::*;
 
     #[test]
@@ -51,5 +54,11 @@ mod tests {
         assert_eq!(Integer(4).is_number(), true);
         assert_eq!(Integer(6).is_char(), false);
         assert_eq!(Integer(6).is_bool(), false);
+    }
+
+    #[test]
+    fn integers_are_exact() {
+        assert!(Integer(4).is_exact());
+        assert!(!Integer(4).is_inexact());
     }
 }

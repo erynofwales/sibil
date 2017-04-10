@@ -18,6 +18,8 @@ impl Number for Rational {
             None
         }
     }
+
+    fn is_exact(&self) -> bool { true }
 }
 
 impl Value for Rational {
@@ -76,5 +78,11 @@ mod tests {
     fn rationals_should_not_reduce_to_integers_where_impossible() {
         let rational_as_integer = Rational(3, 2).convert_down();
         assert!(rational_as_integer.is_none());
+    }
+
+    #[test]
+    fn rationals_are_exact() {
+        assert!(Rational(4, 2).is_exact());
+        assert!(!Rational(4, 2).is_inexact());
     }
 }
