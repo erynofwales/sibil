@@ -57,11 +57,13 @@ mod tests {
 
     #[test]
     fn rationals_are_rationals() {
-        assert_eq!(Rational(4, 3).is_rational(), true);
-        assert_eq!(Rational(4, 3).is_integer(), false);
-        assert_eq!(Rational(4, 3).is_number(), true);
-        assert_eq!(Rational(6, 8).is_char(), false);
-        assert_eq!(Rational(6, 9).is_bool(), false);
+        assert!(Rational(4, 3).is_complex());
+        assert!(Rational(4, 3).is_real());
+        assert!(Rational(4, 3).is_rational());
+        assert!(!Rational(4, 3).is_integer());
+        assert!(Rational(4, 3).is_number());
+        assert!(!Rational(6, 8).is_char());
+        assert!(!Rational(6, 9).is_bool());
     }
 
     #[test]

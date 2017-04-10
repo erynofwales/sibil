@@ -50,10 +50,13 @@ mod tests {
 
     #[test]
     fn integers_are_integers() {
-        assert_eq!(Integer(4).is_integer(), true);
-        assert_eq!(Integer(4).is_number(), true);
-        assert_eq!(Integer(6).is_char(), false);
-        assert_eq!(Integer(6).is_bool(), false);
+        assert!(Integer(4).is_complex());
+        assert!(Integer(4).is_real());
+        assert!(Integer(4).is_rational());
+        assert!(Integer(4).is_integer());
+        assert!(Integer(4).is_number());
+        assert!(!Integer(6).is_char());
+        assert!(!Integer(6).is_bool());
     }
 
     #[test]
