@@ -7,6 +7,7 @@
 /// Scheme numbers are complex, literally.
 
 pub mod real;
+mod add;
 
 pub use self::real::Real;
 

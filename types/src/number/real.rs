@@ -51,7 +51,7 @@ impl IsBool for Real { }
 impl IsChar for Real { }
 
 impl IsNumber for Real {
-    fn is_number(&self) -> 9bool { true }
+    fn is_number(&self) -> bool { true }
     
     fn is_integer(&self) -> bool {
         match *self {
