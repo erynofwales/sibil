@@ -7,9 +7,11 @@
 /// Scheme numbers are complex, literally.
 
 pub mod real;
+pub mod complex;
 mod add;
 
 pub use self::real::Real;
+pub use self::complex::Complex;
 
 use std::any::Any;
 use std::fmt::Debug;
@@ -45,15 +47,4 @@ impl ValueEq for Box<Number> {
         self.deref().eq(other)
     }
     fn as_any(&self) -> &Any { self }
-}
-
-
-#[derive(Debug, PartialEq)]
-struct Complex {
-    real: Real,
-    imag: Real
-}
-
-impl IsNumber for Complex {
-    fn is_complex(&self) -> bool { true }
 }
