@@ -6,11 +6,9 @@
 ///
 /// Scheme numbers are complex, literally.
 
-pub mod integer;
-pub mod rational;
+pub mod real;
 
-pub use self::integer::Integer;
-pub use self::rational::Rational;
+pub use self::real::Real;
 
 use std::any::Any;
 use std::fmt::Debug;
@@ -24,7 +22,9 @@ type Flt = f64;
 trait Number: Debug + IsBool + IsChar + IsNumber + Value {
     /// Convert a Number to the next lowest type in Scheme's number pyramid, if possible.
     fn convert_down(&self) -> Option<Box<Number>>;
+}
 
+trait IsExact {
     /// Should return `true` if this Number is represented exactly. This should be an inverse of
     /// `is_inexact()`.
     fn is_exact(&self) -> bool { false }
@@ -49,6 +49,13 @@ impl ValueEq for Box<Number> {
     fn as_any(&self) -> &Any { self }
 }
 
-struct Real(Flt);
-struct Complex<'a>(&'a Number, &'a Number);
 
+#[derive(Debug, PartialEq)]
+struct Complex {
+    real: Real,
+    imag: Real
+}
+
+impl IsNumber for Complex {
+    fn is_complex(&self) -> bool { true }
+}
