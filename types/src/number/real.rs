@@ -3,11 +3,10 @@
  */
 
 use std::any::Any;
-use std::ops::{Add, Sub, Mul, Div};
 use super::*;
 use value::*;
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Real {
     Integer(Int),
     Rational(Int, Int),
@@ -16,32 +15,11 @@ pub enum Real {
 
 impl PartialEq for Real {
     fn eq(&self, other: &Real) -> bool {
-        match *other {
-            Real::Integer(v) => self.eq_integer(v),
-            Real::Rational(p, q) => self.eq_rational(p, q),
-            Real::Irrational(v) => self.eq_irrational(v)
-        }
-    }
-}
-
-impl Real {
-    fn eq_integer(&self, v_other: Int) -> bool {
-        match *self {
-            Real::Integer(v) => v == v_other,
-            _ => false
-        }
-    }
-
-    fn eq_rational(&self, p_other: Int, q_other: Int) -> bool {
-        match *self {
-            Real::Rational(p, q) => p == p_other && q == q_other,
-            _ => false
-        }
-    }
-
-    fn eq_irrational(&self, v_other: Flt) -> bool {
-        match *self {
-            Real::Irrational(v) => v == v_other,
+        // TODO: Make comparing different variants possible.
+        match (self, other) {
+            (&Real::Integer(v), &Real::Integer(ov)) => v == ov,
+            (&Real::Rational(p, q), &Real::Rational(op, oq)) => p == op && q == oq,
+            (&Real::Irrational(v), &Real::Irrational(ov)) => v == ov,
             _ => false
         }
     }
