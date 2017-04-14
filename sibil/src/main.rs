@@ -1,5 +1,6 @@
+extern crate sibiltypes;
+
 mod lexer;
-mod types;
 
 use lexer::lex;
 
