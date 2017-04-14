@@ -3,7 +3,8 @@
  */
 
 use std::ops::Add;
-use super::Real;
+use number::Real;
+use number::math::*;
 
 impl Add for Real {
     type Output = Real;
@@ -11,6 +12,15 @@ impl Add for Real {
     fn add(self, other: Real) -> Real {
         match (self, other) {
             (Real::Integer(v), Real::Integer(ov)) => Real::Integer(v + ov),
+            (Real::Rational(p, q), Real::Rational(op, oq)) => {
+                if q == oq {
+                    Real::Rational(p + op, q)
+                }
+                else {
+                    let lcm = q.lcm(oq);
+                    Real::Rational(1, 1)
+                }
+            },
             (Real::Irrational(v), Real::Irrational(ov)) => Real::Irrational(v + ov),
             // TODO: The rest.
             _ => Real::Integer(0)
