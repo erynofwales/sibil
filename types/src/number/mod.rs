@@ -23,29 +23,41 @@ use super::value::*;
 type Int = i64;
 type Flt = f64;
 
-trait Number: Debug + IsBool + IsChar + IsNumber + Value { }
-
-trait IsExact {
-    /// Should return `true` if this Number is represented exactly. This should be an inverse of
-    /// `is_inexact()`.
-    fn is_exact(&self) -> bool { false }
-
-    /// Should return `true` if this Number is not represented exactly. This should be an inverse
-    /// of `is_exact()`.
-    fn is_inexact(&self) -> bool { !self.is_exact() }
+// TODO: Implement PartialEq myself cause there are some weird nuances to comparing numbers.
+#[derive(Debug, PartialEq)]
+pub struct Number {
+    real: Real,
+    imag: Option<Real>,
+    exact: bool,
 }
 
-impl Value for Box<Number> {
-    fn as_value(&self) -> &Value { self.deref().as_value() }
+impl Number {
+    fn new(real: Real, imag: Option<Real>, exact: bool) -> Number {
+        Number {
+            real: real.reduce(),
+            imag: imag.map(|n| n.reduce()),
+            exact: exact,
+        }
+    }
+
+    pub fn from_int(value: Int, exact: bool) -> Number {
+        Number::new(Real::Integer(value), None, exact)
+    }
+
+    pub fn is_exact(&self) -> bool { self.exact }
 }
 
-impl IsBool for Box<Number> { }
-impl IsChar for Box<Number> { }
-impl IsNumber for Box<Number> { }
+impl Value for Number {
+    fn as_value(&self) -> &Value { self }
+}
 
-impl ValueEq for Box<Number> {
+impl ValueEq for Number {
     fn eq(&self, other: &Value) -> bool {
-        self.deref().eq(other)
+        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
     }
     fn as_any(&self) -> &Any { self }
 }
+
+impl IsBool for Number { }
+impl IsChar for Number { }
+impl IsNumber for Number { }
