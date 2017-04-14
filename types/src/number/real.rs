@@ -4,6 +4,7 @@
 
 use std::any::Any;
 use super::*;
+use number::math::*;
 use value::*;
 
 #[derive(Clone, Copy, Debug)]
@@ -11,6 +12,53 @@ pub enum Real {
     Integer(Int),
     Rational(Int, Int),
     Irrational(Flt)
+}
+
+impl Real {
+    /// Reduce a rational.
+    pub fn reduce(self) -> Real {
+        match self {
+            Real::Rational(p, q) => {
+                let gcd = p.gcd(q);
+                Real::Rational(p / gcd, q / gcd)
+            },
+            _ => self
+        }
+    }
+
+    /// Promote a Real to the next highest type.
+    fn promote(self) -> Real {
+        match self {
+            Real::Integer(v) => Real::Rational(v, 1),
+            Real::Rational(p, q) => Real::Irrational(p as Flt / q as Flt),
+            Real::Irrational(_) => self
+        }
+    }
+
+    /// Demote a Real to the next lowest type, if possible.
+    fn demote(self) -> Option<Real> {
+        match self {
+            Real::Integer(v) => None,
+            Real::Rational(p, q) => if q == 1 {
+                Some(Real::Integer(p))
+            }
+            else {
+                None
+            },
+            // TODO: Convert an irrational into a fraction.
+            Real::Irrational(mut v) => {
+                let whole_part = v.trunc();
+                let mut p = v.fract();
+                let mut q = 1.0;
+                while p.fract() != 0.0 {
+                    p *= 10.0;
+                    q *= 10.0;
+                }
+                p += whole_part * q;
+                Some(Real::Rational(p as Int, q as Int).reduce())
+            }
+        }
+    }
 }
 
 impl PartialEq for Real {
@@ -25,143 +73,82 @@ impl PartialEq for Real {
     }
 }
 
-impl IsBool for Real { }
-impl IsChar for Real { }
-
-impl IsNumber for Real {
-    fn is_number(&self) -> bool { true }
-    
-    fn is_integer(&self) -> bool {
-        match *self {
-            Real::Integer(_) => true,
-            _ => false
-        }
-    }
-
-    fn is_rational(&self) -> bool {
-        match *self {
-            Real::Irrational(_) => false,
-            _ => true,
-        }
-    }
-
-    fn is_real(&self) -> bool { true }
-}
-
-impl IsExact for Real {
-    fn is_exact(&self) -> bool { self.is_rational() }
-}
-
-impl Value for Real {
-    fn as_value(&self) -> &Value { self }
-}
-
-impl ValueEq for Real {
-    fn eq(&self, other: &Value) -> bool {
-        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
-    }
-
-    fn as_any(&self) -> &Any { self }
-}
-
 #[cfg(test)]
 mod tests {
-    use number::Real;
-    use value::*;
-
-    #[test]
-    fn reals_are_numbers() {
-        assert!(Real::Integer(3).is_number());
-        assert!(Real::Integer(3).as_value().is_number());
-    }
-
-    #[test]
-    fn reals_are_not_other_values() {
-        assert!(!Real::Integer(3).is_bool());
-        assert!(!Real::Integer(3).is_char());
-        assert!(!Real::Integer(3).as_value().is_bool());
-        assert!(!Real::Integer(3).as_value().is_char());
-    }
-
     mod integers {
-        use number::*;
-        use value::*;
+        use number::real::*;
 
         #[test]
         fn are_equal() {
             assert_eq!(Real::Integer(3), Real::Integer(3));
             assert_ne!(Real::Integer(12), Real::Integer(9));
-            assert_eq!(Real::Integer(4).as_value(), Real::Integer(4).as_value());
-            assert_ne!(Real::Integer(5).as_value(), Real::Integer(7).as_value());
         }
 
         #[test]
-        fn are_correctly_placed_in_the_number_pyramid() {
-            assert!(Real::Integer(4).is_complex());
-            assert!(Real::Integer(4).is_real());
-            assert!(Real::Integer(4).is_rational());
-            assert!(Real::Integer(4).is_integer());
-            assert!(Real::Integer(4).is_number());
+        fn reduce_to_themselves() {
+            assert_eq!(Real::Integer(4).reduce(), Real::Integer(4));
         }
-        
+
         #[test]
-        fn are_exact() {
-            assert!(Real::Integer(3).is_exact());
-            assert!(!Real::Integer(3).is_inexact());
+        fn promote_to_rationals() {
+            assert_eq!(Real::Integer(6).promote(), Real::Rational(6, 1));
+        }
+
+        #[test]
+        fn demote_to_nothing() {
+            assert_eq!(Real::Integer(6).demote(), None);
         }
     }
 
     mod rationals {
-        use number::*;
-        use value::*;
+        use number::real::*;
 
         #[test]
         fn are_equal() {
             assert_eq!(Real::Rational(3, 2), Real::Rational(3, 2));
             assert_ne!(Real::Rational(12, 4), Real::Rational(9, 7));
-            assert_eq!(Real::Rational(4, 5).as_value(), Real::Rational(4, 5).as_value());
-            assert_ne!(Real::Rational(5, 6).as_value(), Real::Rational(7, 6).as_value());
         }
 
         #[test]
-        fn are_correctly_placed_in_the_number_pyramid() {
-            assert!(Real::Rational(4, 3).is_complex());
-            assert!(Real::Rational(4, 3).is_real());
-            assert!(Real::Rational(4, 3).is_rational());
-            assert!(!Real::Rational(4, 3).is_integer());
+        fn reduce_correctly() {
+            assert_eq!(Real::Rational(2, 4).reduce(), Real::Rational(1, 2));
         }
 
         #[test]
-        fn are_exact() {
-            assert!(Real::Rational(3, 5).is_exact());
-            assert!(!Real::Rational(3, 5).is_inexact());
+        fn promote_to_irrationals() {
+            assert_eq!(Real::Rational(3, 2).promote(), Real::Irrational(1.5));
+        }
+
+        #[test]
+        fn demote_to_integers_if_possible() {
+            assert_eq!(Real::Rational(3, 2).demote(), None);
+            assert_eq!(Real::Rational(4, 1).demote(), Some(Real::Integer(4)));
         }
     }
 
     mod irrationals {
-        use number::*;
-        use value::*;
+        use number::real::*;
 
         #[test]
         fn are_equal() {
             assert_eq!(Real::Irrational(3.2), Real::Irrational(3.2));
             assert_ne!(Real::Irrational(12.0), Real::Irrational(9.0));
-            assert_eq!(Real::Irrational(4.0).as_value(), Real::Irrational(4.0).as_value());
-            assert_ne!(Real::Irrational(5.0).as_value(), Real::Irrational(7.0).as_value());
         }
 
         #[test]
-        fn are_correctly_placed_in_the_number_pyramid() {
-            assert!(Real::Irrational(4.0).is_complex());
-            assert!(Real::Irrational(4.0).is_real());
-            assert!(!Real::Irrational(4.0).is_rational());
-            assert!(!Real::Irrational(4.0).is_integer());
+        fn reduce_to_themselves() {
+            assert_eq!(Real::Irrational(3.2).reduce(), Real::Irrational(3.2));
         }
 
         #[test]
-        fn are_inexact() {
-            assert!(Real::Irrational(3.0).is_inexact());
-            assert!(!Real::Irrational(3.0).is_exact());
+        fn promote_to_themselves() {
+            assert_eq!(Real::Irrational(3.2).promote(), Real::Irrational(3.2));
+        }
+
+        #[test]
+        fn demote_to_rationals() {
+            assert_eq!(Real::Irrational(3.2).demote(), Some(Real::Rational(16, 5)));
+            assert_eq!(Real::Irrational(3.5).demote(), Some(Real::Rational(7, 2)));
         }
     }
 }
