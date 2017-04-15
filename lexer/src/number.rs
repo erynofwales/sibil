@@ -15,7 +15,7 @@ pub enum Exactness { Exact, Inexact }
 
 #[derive(Debug)]
 pub struct NumberBuilder {
-    exact: Exactness,
+    exact: Option<Exactness>,
     radix: Radix,
     sign: Sign,
     value: f64,
@@ -25,7 +25,7 @@ pub struct NumberBuilder {
 impl NumberBuilder {
     pub fn new() -> NumberBuilder {
         NumberBuilder {
-            exact: Exactness::Inexact,
+            exact: None,
             radix: Radix::Dec,
             sign: Sign::Pos,
             value: 0.0,
@@ -34,7 +34,7 @@ impl NumberBuilder {
     }
 
     pub fn exact<'a>(&'a mut self, ex: Exactness) -> &'a mut NumberBuilder {
-        self.exact = ex;
+        self.exact = Some(ex);
         self
     }
 
@@ -80,7 +80,8 @@ impl NumberBuilder {
             value
         };
         // TODO: Use an integer if we can.
-        Number::from_float(value, self.exact == Exactness::Exact)
+        let exact = self.point == 0 || self.exact == Some(Exactness::Exact);
+        Number::from_float(value, exact)
     }
 
     pub fn radix_value(&self) -> u32 {
