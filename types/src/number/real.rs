@@ -2,6 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use std::fmt;
 use super::*;
 use number::math::*;
 
@@ -107,6 +108,16 @@ impl PartialEq for Real {
             (&Real::Rational(p, q), &Real::Rational(op, oq)) => p == op && q == oq,
             (&Real::Irrational(v), &Real::Irrational(ov)) => v == ov,
             _ => false
+        }
+    }
+}
+
+impl fmt::Display for Real {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Real::Integer(v) => write!(f, "{}", v),
+            Real::Rational(p, q) => write!(f, "{}/{}", p, q),
+            Real::Irrational(v) => write!(f, "{}", v),
         }
     }
 }
