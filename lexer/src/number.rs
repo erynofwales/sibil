@@ -61,7 +61,6 @@ impl NumberBuilder {
     pub fn extend_decimal_value<'a>(&'a mut self, digit: char) -> &'a mut Self {
         self.extend_value(digit);
         self.point += 1;
-        println!("value = {}, point = {}", self.value, self.point);
         self
     }
 
