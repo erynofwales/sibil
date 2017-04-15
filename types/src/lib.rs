@@ -1,6 +1,6 @@
+pub mod number;
 mod bool;
 mod char;
-mod number;
 mod value;
 
 pub use bool::Bool;
