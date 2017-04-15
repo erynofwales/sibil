@@ -24,13 +24,19 @@ impl Real {
     ///
     /// assert_eq!(Real::Integer(12).reduce(), Real::Integer(12));
     /// assert_eq!(Real::Rational(2, 4).reduce(), Real::Rational(1, 2));
+    /// assert_eq!(Real::Rational(3, 7).reduce(), Real::Rational(3, 7));
     /// assert_eq!(Real::Irrational(2.4).reduce(), Real::Irrational(2.4));
     /// ```
     pub fn reduce(self) -> Real {
         match self {
             Real::Rational(p, q) => {
                 let gcd = p.gcd(q);
-                Real::Rational(p / gcd, q / gcd)
+                if gcd == 1 {
+                    self
+                }
+                else {
+                    Real::Rational(p / gcd, q / gcd)
+                }
             },
             _ => self
         }
@@ -75,6 +81,23 @@ impl Real {
     }
 
     /// Demote a Real to the next lowest type, if possible.
+    ///
+    /// # Examples
+    ///
+    /// Integers can't reduce.
+    ///
+    /// ```
+    /// use sibiltypes::number::Real;
+    /// assert!(Real::Integer(3).demote_once().is_none());
+    /// ```
+    ///
+    /// Rationals can be demoted in certain cases.
+    ///
+    /// ```
+    /// use sibiltypes::number::Real;
+    /// assert_eq!(Real::Rational(4, 1).demote_once(), Some(Real::Integer(4)));
+    /// assert!(Real::Rational(4, 7).demote_once().is_none());
+    /// ```
     pub fn demote_once(self) -> Option<Real> {
         match self {
             Real::Integer(_) => None,
@@ -84,17 +107,10 @@ impl Real {
             else {
                 None
             },
-            // TODO: Convert an irrational into a fraction.
             Real::Irrational(v) => {
-                let whole_part = v.trunc();
-                let mut p = v.fract();
-                let mut q = 1.0;
-                while p.fract() != 0.0 {
-                    p *= 10.0;
-                    q *= 10.0;
-                }
-                p += whole_part * q;
-                Some(Real::Rational(p as Int, q as Int).reduce())
+                let (p, q) = v.to_rational();
+                // No need to reduce here since p/q is already reduced.
+                Some(Real::Rational(p, q))
             }
         }
     }
