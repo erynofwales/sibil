@@ -20,7 +20,6 @@ impl Add for Real {
                     let lcm = q.lcm(oq);
                     let numer = (p * (lcm / q)) + (op * (lcm / oq));
                     let denom = lcm;
-                    println!("lcm = {}, numer = {}, denom = {}", lcm, numer, denom);
                     Real::Rational(numer, denom)
                 }.reduce()
             },
