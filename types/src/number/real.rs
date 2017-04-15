@@ -13,7 +13,18 @@ pub enum Real {
 }
 
 impl Real {
-    /// Reduce a rational.
+    /// Reduce a fraction to its lowest denominator. For non-Rational values,
+    /// this method returns an unmodified value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sibiltypes::number::Real;
+    ///
+    /// assert_eq!(Real::Integer(12).reduce(), Real::Integer(12));
+    /// assert_eq!(Real::Rational(2, 4).reduce(), Real::Rational(1, 2));
+    /// assert_eq!(Real::Irrational(2.4).reduce(), Real::Irrational(2.4));
+    /// ```
     pub fn reduce(self) -> Real {
         match self {
             Real::Rational(p, q) => {
@@ -25,6 +36,16 @@ impl Real {
     }
 
     /// Promote a Real to the next highest type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sibiltypes::number::Real;
+    /// 
+    /// assert_eq!(Real::Integer(5).promote_once(), Real::Rational(5, 1));
+    /// assert_eq!(Real::Rational(3, 5).promote_once(), Real::Irrational(0.6));
+    /// assert_eq!(Real::Irrational(5.65).promote_once(), Real::Irrational(5.65));
+    /// ```
     pub fn promote_once(self) -> Real {
         match self {
             Real::Integer(v) => Real::Rational(v, 1),
@@ -38,11 +59,11 @@ impl Real {
     /// # Examples
     ///
     /// ```
-    /// use number::real::Real;
+    /// use sibiltypes::number::Real;
     ///
     /// assert_eq!(Real::Integer(3).demote(), Real::Integer(3));
     /// assert_eq!(Real::Rational(3, 1).demote(), Real::Integer(3));
-    /// assert_eq!(Real::Irrational(3.2).demote(), Real::Rational(32, 100));
+    /// assert_eq!(Real::Irrational(3.2).demote(), Real::Rational(16, 5));
     /// assert_eq!(Real::Irrational(3.0).demote(), Real::Integer(3));
     /// ```
     pub fn demote(self) -> Real {
