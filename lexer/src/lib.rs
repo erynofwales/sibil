@@ -8,10 +8,18 @@ mod number;
 mod str;
 mod token;
 
+pub use lexer::Lexer;
+pub use token::Token;
+
+pub fn lex(input: &str) -> Lexer {
+    Lexer::new(&input)
+}
+
 #[cfg(test)]
 mod tests {
     use sibiltypes::{Bool, Char, Number};
     use std::iter::Iterator;
+    use super::lex;
     use lexer::Lexer;
     use token::Token;
 
@@ -82,6 +90,12 @@ mod tests {
     }
 
     #[test]
+    fn finds_rational_numbers() {
+        check_single_token("3/2", Token::Number(Number::from_quotient(3, 2, true)));
+        check_single_token("-3/2", Token::Number(Number::from_quotient(-3, 2, true)));
+    }
+
+    #[test]
     fn finds_negative_numbers() {
         check_single_token("-3", Token::Number(Number::from_int(-3, true)));
         check_single_token("-0", Token::Number(Number::from_int(-0, true)));
@@ -110,6 +124,7 @@ mod tests {
     fn finds_exact_numbers() {
         check_single_token("#e45", Token::Number(Number::from_int(45, true)));
         check_single_token("#e-45", Token::Number(Number::from_int(-45, true)));
+        check_single_token("#e4.5", Token::Number(Number::from_float(4.5, true)));
     }
 
     #[test]
@@ -149,7 +164,7 @@ mod tests {
     }
 
     fn check_tokens(input: &str, expected: Vec<Token>) {
-        let lexer = Lexer::new(input);
+        let lexer = lex(input);
         let mut expected_iter = expected.iter();
         for lex in lexer {
             if let Some(expected_token) = expected_iter.next() {

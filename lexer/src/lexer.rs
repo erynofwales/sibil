@@ -41,10 +41,6 @@ enum State {
     StringEscape,
 }
 
-pub fn lex(input: &str) -> Lexer {
-    Lexer::new(&input)
-}
-
 pub struct Lexer {
     input: String,
     begin: usize,
