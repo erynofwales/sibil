@@ -3,6 +3,10 @@ mod char;
 mod number;
 mod value;
 
+pub use bool::Bool;
+pub use char::Char;
+pub use number::Number;
+
 #[cfg(test)]
 mod tests {
     use bool::Bool;

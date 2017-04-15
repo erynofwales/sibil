@@ -15,10 +15,7 @@ pub use self::real::Real;
 pub use self::complex::Complex;
 
 use std::any::Any;
-use std::fmt::Debug;
-use std::ops::Deref;
-
-use super::value::*;
+use value::*;
 
 type Int = i64;
 type Flt = f64;
@@ -44,6 +41,29 @@ impl Number {
         Number::new(Real::Integer(value), None, exact)
     }
 
+    pub fn from_quotient(p: Int, q: Int, exact: bool) -> Number {
+        let real = if exact {
+            // Make an exact rational an integer if possible.
+            Real::Rational(p, q).demote()
+        }
+        else {
+            // Make an inexact rational an irrational.
+            Real::Rational(p, q).promote_once()
+        };
+        Number::new(real, None, exact)
+    }
+
+    pub fn from_float(value: Flt, exact: bool) -> Number {
+        let real = if exact {
+            // Attempt to demote irrationals.
+            Real::Irrational(value).demote()
+        }
+        else {
+            Real::Irrational(value)
+        };
+        Number::new(real, None, exact)
+    }
+
     pub fn is_exact(&self) -> bool { self.exact }
 }
 
@@ -61,3 +81,21 @@ impl ValueEq for Number {
 impl IsBool for Number { }
 impl IsChar for Number { }
 impl IsNumber for Number { }
+
+#[cfg(test)]
+mod tests {
+    use super::Number;
+    use super::real::Real;
+
+    #[test]
+    fn exact_numbers_are_exact() {
+        assert!(Number::from_int(3, true).is_exact());
+        assert!(!Number::from_int(3, false).is_exact());
+    }
+
+    #[test]
+    fn exact_irrationals_are_reduced() {
+        let real = Real::Rational(3, 2);
+        assert_eq!(Number::from_float(1.5, true), Number::new(real, None, true));
+    }
+}

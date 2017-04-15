@@ -2,10 +2,8 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use std::any::Any;
 use super::*;
 use number::math::*;
-use value::*;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Real {
@@ -27,7 +25,7 @@ impl Real {
     }
 
     /// Promote a Real to the next highest type.
-    fn promote(self) -> Real {
+    pub fn promote_once(self) -> Real {
         match self {
             Real::Integer(v) => Real::Rational(v, 1),
             Real::Rational(p, q) => Real::Irrational(p as Flt / q as Flt),
@@ -35,10 +33,29 @@ impl Real {
         }
     }
 
+    /// Demote a Real as far down the tower as possible.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use number::real::Real;
+    ///
+    /// assert_eq!(Real::Integer(3).demote(), Real::Integer(3));
+    /// assert_eq!(Real::Rational(3, 1).demote(), Real::Integer(3));
+    /// assert_eq!(Real::Irrational(3.2).demote(), Real::Rational(32, 100));
+    /// assert_eq!(Real::Irrational(3.0).demote(), Real::Integer(3));
+    /// ```
+    pub fn demote(self) -> Real {
+        match self.demote_once() {
+            Some(demoted) => demoted.demote(),
+            None => self,
+        }
+    }
+
     /// Demote a Real to the next lowest type, if possible.
-    fn demote(self) -> Option<Real> {
+    pub fn demote_once(self) -> Option<Real> {
         match self {
-            Real::Integer(v) => None,
+            Real::Integer(_) => None,
             Real::Rational(p, q) => if q == 1 {
                 Some(Real::Integer(p))
             }
@@ -46,7 +63,7 @@ impl Real {
                 None
             },
             // TODO: Convert an irrational into a fraction.
-            Real::Irrational(mut v) => {
+            Real::Irrational(v) => {
                 let whole_part = v.trunc();
                 let mut p = v.fract();
                 let mut q = 1.0;
@@ -91,12 +108,12 @@ mod tests {
 
         #[test]
         fn promote_to_rationals() {
-            assert_eq!(Real::Integer(6).promote(), Real::Rational(6, 1));
+            assert_eq!(Real::Integer(6).promote_once(), Real::Rational(6, 1));
         }
 
         #[test]
-        fn demote_to_nothing() {
-            assert_eq!(Real::Integer(6).demote(), None);
+        fn demote_to_themselves() {
+            assert_eq!(Real::Integer(6).demote(), Real::Integer(6));
         }
     }
 
@@ -116,13 +133,13 @@ mod tests {
 
         #[test]
         fn promote_to_irrationals() {
-            assert_eq!(Real::Rational(3, 2).promote(), Real::Irrational(1.5));
+            assert_eq!(Real::Rational(3, 2).promote_once(), Real::Irrational(1.5));
         }
 
         #[test]
         fn demote_to_integers_if_possible() {
-            assert_eq!(Real::Rational(3, 2).demote(), None);
-            assert_eq!(Real::Rational(4, 1).demote(), Some(Real::Integer(4)));
+            assert_eq!(Real::Rational(3, 2).demote(), Real::Rational(3, 2));
+            assert_eq!(Real::Rational(4, 1).demote(), Real::Integer(4));
         }
     }
 
@@ -142,13 +159,13 @@ mod tests {
 
         #[test]
         fn promote_to_themselves() {
-            assert_eq!(Real::Irrational(3.2).promote(), Real::Irrational(3.2));
+            assert_eq!(Real::Irrational(3.2).promote_once(), Real::Irrational(3.2));
         }
 
         #[test]
         fn demote_to_rationals() {
-            assert_eq!(Real::Irrational(3.2).demote(), Some(Real::Rational(16, 5)));
-            assert_eq!(Real::Irrational(3.5).demote(), Some(Real::Rational(7, 2)));
+            assert_eq!(Real::Irrational(3.2).demote(), Real::Rational(16, 5));
+            assert_eq!(Real::Irrational(3.5).demote(), Real::Rational(7, 2));
         }
     }
 }
