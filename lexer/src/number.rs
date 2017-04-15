@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use types::Number;
+use sibiltypes::Number;
 
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }
@@ -67,9 +67,20 @@ impl NumberBuilder {
 
     pub fn resolve(&self) -> Number {
         // TODO: Convert fields to Number type.
-        let value = if self.point > 0 { self.value / 10u32.pow(self.point) as f64 } else { self.value };
-        let value = if self.sign == Sign::Neg { value * -1.0 } else { value };
-        Number::from_float(value)
+        let value = if self.point > 0 {
+            self.value / 10u32.pow(self.point) as f64
+        }
+        else {
+            self.value
+        };
+        let value = if self.sign == Sign::Neg {
+            value * -1.0
+        }
+        else {
+            value
+        };
+        // TODO: Use an integer if we can.
+        Number::from_float(value, self.exact == Exactness::Exact)
     }
 
     pub fn radix_value(&self) -> u32 {
@@ -133,42 +144,43 @@ impl Exactness {
 
 #[cfg(test)]
 mod tests {
+    use sibiltypes::Number;
     use super::*;
 
     #[test]
     fn builds_integers() {
         let mut b = NumberBuilder::new();
         b.extend_value('3');
-        assert_eq!(b.resolve().value, 3.0);
+        assert_eq!(b.resolve(), Number::from_int(3, true));
         b.extend_value('4');
-        assert_eq!(b.resolve().value, 34.0);
+        assert_eq!(b.resolve(), Number::from_int(34, true));
     }
 
     #[test]
     fn builds_negative_integers() {
         let num = NumberBuilder::new().sign(Sign::Neg).extend_value('3').resolve();
-        assert_eq!(num.value, -3.0);
+        assert_eq!(num, Number::from_int(-3, true));
     }
 
     #[test]
     fn builds_pointy_numbers() {
         let mut b = NumberBuilder::new();
         b.extend_value('5');
-        assert_eq!(b.resolve().value, 5.0);
+        assert_eq!(b.resolve(), Number::from_int(5, true));
         b.extend_decimal_value('3');
-        assert_eq!(b.resolve().value, 5.3);
+        assert_eq!(b.resolve(), Number::from_float(5.3, false));
         b.extend_decimal_value('4');
-        assert_eq!(b.resolve().value, 5.34);
+        assert_eq!(b.resolve(), Number::from_float(5.34, false));
     }
 
     #[test]
     fn builds_hex() {
         let mut b = NumberBuilder::new();
         b.radix(Radix::Hex).extend_value('4');
-        assert_eq!(b.resolve().value, 0x4 as f64);
+        assert_eq!(b.resolve(), Number::from_int(0x4, true));
         b.extend_value('A');
-        assert_eq!(b.resolve().value, 0x4A as f64);
+        assert_eq!(b.resolve(), Number::from_int(0x4A, true));
         b.extend_value('6');
-        assert_eq!(b.resolve().value, 0x4A6 as f64);
+        assert_eq!(b.resolve(), Number::from_int(0x4A6, true));
     }
 }

@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use types::{Bool, Char, Number};
+use sibiltypes::{Bool, Char, Number};
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
@@ -19,8 +19,8 @@ pub enum Token {
     String(String),
 }
 
-/// A Lex is a Token extracted from a specific position in an input. It contains useful information about the token's
-/// place.
+/// A Lex is a Token extracted from a specific position in an input stream. It
+/// contains useful information about the token's place.
 #[derive(Debug)]
 pub struct Lex {
     pub token: Token,

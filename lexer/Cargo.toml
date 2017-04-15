@@ -1,0 +1,7 @@
+[package]
+name = "sibillexer"
+version = "0.1.0"
+authors = ["Eryn Wells <eryn@erynwells.me>"]
+
+[dependencies]
+sibiltypes = { path = "../types" }

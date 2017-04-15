@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use lexer::charset;
+use charset;
 
 pub trait Lexable {
     fn is_character_leader(&self) -> bool;

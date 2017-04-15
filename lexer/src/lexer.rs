@@ -2,69 +2,19 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-pub mod token;
-pub use self::token::Lex;
-pub use self::token::Token;
-
-mod char;
-mod charset;
-mod number;
-mod str;
-
-mod named_char {
-    use std::collections::HashSet;
-    use types::Char;
-
-    const ALARM: &'static str = "alarm";
-    const BACKSPACE: &'static str = "backspace";
-    const DELETE: &'static str = "delete";
-    const ESCAPE: &'static str = "escape";
-    const NEWLINE: &'static str = "newline";
-    const NULL: &'static str = "null";
-    const RETURN: &'static str = "return";
-    const SPACE: &'static str = "space";
-    const TAB: &'static str = "tab";
-
-    pub fn set() -> HashSet<&'static str> {
-        let mut set: HashSet<&'static str> = HashSet::new();
-        set.insert(ALARM);
-        set.insert(BACKSPACE);
-        set.insert(DELETE);
-        set.insert(ESCAPE);
-        set.insert(NEWLINE);
-        set.insert(NULL);
-        set.insert(RETURN);
-        set.insert(SPACE);
-        set.insert(TAB);
-        set
-    }
-
-    pub fn char_named_by(named: &str) -> Char {
-        Char::new(match named {
-            ALARM => '\x07',
-            BACKSPACE => '\x08',
-            DELETE => '\x7F',
-            ESCAPE => '\x1B',
-            NEWLINE => '\n',
-            NULL => '\0',
-            RETURN => '\r',
-            SPACE => ' ',
-            TAB => '\t',
-            _ => panic!("char_named_by called with invalid named char string")
-        })
-    }
-}
-
 use std::collections::HashSet;
+use sibiltypes::{Bool, Char};
 
-use types::{Bool, Char};
-use self::char::Lexable;
-use self::number::Exactness;
-use self::number::NumberBuilder;
-use self::number::Radix;
-use self::number::Sign;
-use self::str::CharAt;
-use self::str::RelativeIndexable;
+use char::Lexable;
+use named_char;
+use number::Exactness;
+use number::NumberBuilder;
+use number::Radix;
+use number::Sign;
+use str::CharAt;
+use str::RelativeIndexable;
+use token::Lex;
+use token::Token;
 
 type StateResult = Result<Option<Token>, String>;
 
@@ -265,7 +215,7 @@ impl Lexer {
         if candidates.len() > 0 {
             self.state = State::NamedChar(candidates, lower_c);
         } else {
-            return self.token_result(Token::Character(Char::new(c)));
+            return self.token_result(Token::Character(Char(c)));
         }
         Ok(None)
     }
@@ -280,7 +230,7 @@ impl Lexer {
         if c.is_identifier_delimiter() || c.is_eof() {
             if progress.len() == 1 {
                 self.retract();
-                return self.token_result(Token::Character(Char::new(progress.chars().next().unwrap())));
+                return self.token_result(Token::Character(Char(progress.chars().next().unwrap())));
             }
             else {
                 return self.generic_error(c);
@@ -337,7 +287,7 @@ impl Lexer {
     fn state_hash(&mut self, c: char) -> StateResult {
         if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
-            return self.token_result(Token::Boolean(Bool::new(c.is_boolean_true())));
+            return self.token_result(Token::Boolean(Bool(c.is_boolean_true())));
         }
         else if c.is_left_paren() {
             self.advance();
@@ -578,168 +528,5 @@ impl HasResult for StateResult {
             },
             Err(_) => false
         }
-    }
-}
-
-//
-// UNIT TESTING
-//
-
-#[cfg(test)]
-mod tests {
-    use types::{Bool, Char, Number};
-    use std::iter::Iterator;
-    use super::*;
-
-    #[test]
-    fn finds_parens() {
-        check_single_token("(", Token::LeftParen);
-        check_single_token(")", Token::RightParen);
-        check_single_token("#(", Token::LeftVectorParen);
-    }
-
-    #[test]
-    fn finds_characters() {
-        check_single_token("#\\a", Token::Character(Char::new('a')));
-        check_single_token("#\\n", Token::Character(Char::new('n')));
-        check_single_token("#\\s", Token::Character(Char::new('s')));
-    }
-
-    #[test]
-    fn finds_named_characters() {
-        check_single_token("#\\newline", Token::Character(Char::new('\n')));
-        check_single_token("#\\null", Token::Character(Char::new('\0')));
-        check_single_token("#\\space", Token::Character(Char::new(' ')));
-    }
-
-    #[test]
-    fn finds_dots() {
-        check_single_token(".", Token::Dot);
-
-        let mut lexer = Lexer::new("abc . abc");
-        assert_next_token(&mut lexer, &Token::Id(String::from("abc")));
-        assert_next_token(&mut lexer, &Token::Dot);
-        assert_next_token(&mut lexer, &Token::Id(String::from("abc")));
-    }
-
-    #[test]
-    fn finds_identifiers() {
-        let tok = |s: &str| { check_single_token(s, Token::Id(String::from(s))); };
-        tok("abc");
-        tok("number?");
-        tok("+");
-        tok("-");
-    }
-
-    #[test]
-    fn finds_booleans() {
-        check_single_token("#t", Token::Boolean(Bool::new(true)));
-        check_single_token("#f", Token::Boolean(Bool::new(false)));
-    }
-
-    #[test]
-    fn finds_comments() {
-        let s = "; a comment";
-        check_single_token(s, Token::Comment(String::from(s)));
-    }
-
-    #[test]
-    fn finds_escaped_characters_in_strings() {
-        check_single_token("\"\\\\\"", Token::String(String::from("\\")));
-        check_single_token("\"\\\"\"", Token::String(String::from("\"")));
-        check_single_token("\"\\n\"", Token::String(String::from("\n")));
-    }
-
-    #[test]
-    fn finds_numbers() {
-        check_single_token("34", Token::Number(Number::from_float(34.0)));
-        check_single_token(".34", Token::Number(Number::from_float(0.34)));
-        check_single_token("0.34", Token::Number(Number::from_float(0.34)));
-    }
-
-    #[test]
-    fn finds_negative_numbers() {
-        check_single_token("-3", Token::Number(Number::from_int(-3)));
-        check_single_token("-0", Token::Number(Number::from_int(-0)));
-        check_single_token("-0.56", Token::Number(Number::from_float(-0.56)));
-        check_single_token("-3.14159", Token::Number(Number::from_float(-3.14159)));
-    }
-
-    #[test]
-    fn finds_bin_numbers() {
-        check_single_token("#b0", Token::Number(Number::from_int(0b0)));
-        check_single_token("#b01011", Token::Number(Number::from_int(0b01011)));
-    }
-
-    #[test]
-    fn finds_dec_numbers() {
-        check_single_token("34", Token::Number(Number::from_float(34.0)));
-        check_single_token("#d89", Token::Number(Number::from_int(89)));
-    }
-
-    #[test]
-    fn finds_oct_numbers() {
-        check_single_token("#o45", Token::Number(Number::from_int(0o45)));
-    }
-
-    #[test]
-    fn finds_exact_numbers() {
-        check_single_token("#e45", Token::Number(Number::from_int(45)));
-        check_single_token("#e-45", Token::Number(Number::from_int(-45)));
-    }
-
-    #[test]
-    fn finds_hex_numbers() {
-        check_single_token("#h4A65", Token::Number(Number::from_int(0x4A65)));
-    }
-
-    #[test]
-    fn finds_quote() {
-        check_single_token("'", Token::Quote);
-    }
-
-    #[test]
-    fn finds_strings() {
-        check_single_token("\"\"", Token::String(String::from("")));
-        check_single_token("\"abc\"", Token::String(String::from("abc")));
-    }
-
-    #[test]
-    fn lexes_simple_expression() {
-        check_tokens("(+ 3.4 6.8)", vec![
-                     Token::LeftParen,
-                     Token::Id(String::from("+")),
-                     Token::Number(Number::from_float(3.4)),
-                     Token::Number(Number::from_float(6.8)),
-                     Token::RightParen]);
-    }
-
-    #[test]
-    fn lexes_quoted_identifier() {
-        check_tokens("'abc", vec![Token::Quote, Token::Id(String::from("abc"))]);
-    }
-
-    fn check_single_token(input: &str, expected: Token) {
-        let mut lexer = Lexer::new(input);
-        assert_next_token(&mut lexer, &expected);
-    }
-
-    fn check_tokens(input: &str, expected: Vec<Token>) {
-        let lexer = Lexer::new(input);
-        let mut expected_iter = expected.iter();
-        for lex in lexer {
-            if let Some(expected_token) = expected_iter.next() {
-                assert_eq!(lex.token, *expected_token);
-            }
-            else {
-                assert!(false, "Found a token we didn't expect: {:?}", lex.token);
-            }
-        }
-        // TODO: Check that all expected tokens are consumed.
-    }
-
-    fn assert_next_token(lexer: &mut Lexer, expected: &Token) {
-        let lex = lexer.next().unwrap();
-        assert_eq!(lex.token, *expected);
     }
 }
