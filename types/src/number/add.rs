@@ -18,8 +18,11 @@ impl Add for Real {
                 }
                 else {
                     let lcm = q.lcm(oq);
-                    Real::Rational(1, 1)
-                }
+                    let numer = (p * (lcm / q)) + (op * (lcm / oq));
+                    let denom = lcm;
+                    println!("lcm = {}, numer = {}, denom = {}", lcm, numer, denom);
+                    Real::Rational(numer, denom)
+                }.reduce()
             },
             (Real::Irrational(v), Real::Irrational(ov)) => Real::Irrational(v + ov),
             // TODO: The rest.
@@ -39,9 +42,15 @@ mod tests {
     }
 
     #[test]
-    fn rational_addition() {
+    fn rational_addition_with_like_denominators() {
         let r = Real::Rational(1, 4) + Real::Rational(1, 4);
         assert_eq!(r, Real::Rational(1, 2));
+    }
+
+    #[test]
+    fn rational_addition_with_unlike_denominators() {
+        let r = Real::Rational(4, 7) + Real::Rational(14, 3);
+        assert_eq!(r, Real::Rational(110, 21));
     }
 
     #[test]
