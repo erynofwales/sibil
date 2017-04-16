@@ -16,6 +16,7 @@ exhaustive, though I will continue to add to it as I think of things...
 
 ### `sibillexer` -- The lexer
 
+- [ ] Make the Lexer Peekable
 - [ ] Rational numbers
 - [ ] Complex numbers
 - [ ] Quasiquotes (this is not context free apparently, so I expect Badness)
