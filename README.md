@@ -10,31 +10,31 @@ exhaustive, though I will continue to add to it as I think of things...
 
 ### `sibil` -- The actual binary
 
--[ ] Environments
--[ ] REPL
--[ ] Standard library stuff
+- [ ] Environments
+- [ ] REPL
+- [ ] Standard library stuff
 
 ### `sibillexer` -- The lexer
 
--[ ] Rational numbers
--[ ] Complex numbers
--[ ] Quasiquotes (this is not context free apparently, so I expect Badness)
--[ ] Proper error handling
+- [ ] Rational numbers
+- [ ] Complex numbers
+- [ ] Quasiquotes (this is not context free apparently, so I expect Badness)
+- [ ] Proper error handling
 
 ### `sibilparser` -- The parser
 
--[ ] Programs
--[ ] SExpressions: Atoms
--[ ] SExpressions: Lists
--[ ] Proper error handling
+- [ ] Programs
+- [ ] SExpressions: Atoms
+- [ ] SExpressions: Lists
+- [ ] Proper error handling
 
 ### `sibiltypes` -- The type library
 
--[ ] Complex numbers
--[ ] Addition of disparate types of numbers
--[ ] Subtraction of numbers
--[ ] Multiplication of numbers
--[ ] Division of numbers
+- [ ] Complex numbers
+- [ ] Addition of disparate types of numbers
+- [ ] Subtraction of numbers
+- [ ] Multiplication of numbers
+- [ ] Division of numbers
 
 ## Authors
 
