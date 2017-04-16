@@ -5,20 +5,17 @@
 extern crate sibillexer;
 extern crate sibiltypes;
 
-use sibillexer::Lexer;
-use sibillexer::Token;
-use sibiltypes::Value;
-use super::Parsable;
-use super::ParseError;
-use super::Result;
+use sibillexer::{Lexer, Token};
+use sibiltypes::{Bool, Char, Number, Value};
+use super::{Parsable, ParseError, Result};
 
 pub enum SExpression {
-    Value(Box<Value>),
+    Atom(Box<Value>),
     List(Vec<SExpression>),
 }
 
 impl Parsable for SExpression {
     fn parse(lexer: &Lexer) -> Result<SExpression> {
-        Err(ParseError{ })
+        Ok(SExpression::Atom(Box::new(Number::from_int(3, true))))
     }
 }
