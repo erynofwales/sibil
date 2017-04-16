@@ -6,6 +6,7 @@ mod value;
 pub use bool::Bool;
 pub use char::Char;
 pub use number::Number;
+pub use value::Value;
 
 #[cfg(test)]
 mod tests {
