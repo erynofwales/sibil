@@ -17,6 +17,8 @@ exhaustive, though I will continue to add to it as I think of things...
 ### `sibillexer` -- The lexer
 
 - [ ] Make the Lexer Peekable
+- [ ] Use character iterators (`str.chars()`) instead of my own code to iterate
+  through characters in the input
 - [ ] Rational numbers
 - [ ] Complex numbers
 - [ ] Quasiquotes (this is not context free apparently, so I expect Badness)
