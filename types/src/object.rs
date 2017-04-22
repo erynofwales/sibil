@@ -39,6 +39,10 @@ pub enum Object {
     Vector(Vec<ObjectPtr>),
 }
 
+impl ObjectPtr {
+    fn new(obj: Object) -> ObjectPtr { ObjectPtr::Ptr(Box::new(obj)) }
+}
+
 impl fmt::Display for ObjectPtr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -97,9 +101,54 @@ impl Object {
         write!(f, "{}", car).and_then(|r| match cdr {
             &ObjectPtr::Null => Ok(r),  // Don't write anything.
             &ObjectPtr::Ptr(ref ptr) => match ptr.deref() {
-                &Object::Pair(ref next_car, ref next_cdr) => Object::fmt_pair(next_car, next_cdr, f),
+                &Object::Pair(ref next_car, ref next_cdr) => {
+                    write!(f, " ").and_then(|_| Object::fmt_pair(next_car, next_cdr, f))
+                },
                 _ => write!(f, " . {}", ptr)
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Object;
+    use super::ObjectPtr;
+
+    #[test]
+    fn display_bools() {
+        assert_eq!(format!("{}", Object::Bool(true)), "#t");
+        assert_eq!(format!("{}", Object::Bool(false)), "#f");
+    }
+
+    #[test]
+    fn display_simple_pair() {
+        let pair = Object::Pair(ObjectPtr::new(Object::Bool(true)), ObjectPtr::new(Object::Bool(false)));
+        assert_eq!(format!("{}", pair), "(#t . #f)");
+    }
+
+    #[test]
+    fn display_single_item_pair() {
+        let pair = Object::Pair(ObjectPtr::new(Object::Bool(true)), ObjectPtr::Null);
+        assert_eq!(format!("{}", pair), "(#t)");
+    }
+
+    #[test]
+    fn display_recursive_pair() {
+        let p1 = Object::Pair(ObjectPtr::new(Object::Bool(true)), ObjectPtr::Null);
+        let p2 = Object::Pair(ObjectPtr::new(Object::Bool(true)), ObjectPtr::new(p1));
+        assert_eq!(format!("{}", p2), "(#t #t)");
+    }
+
+    #[test]
+    fn display_improper_recursive_pair() {
+        let p1 = Object::Pair(ObjectPtr::new(Object::Bool(true)), ObjectPtr::new(Object::Bool(false)));
+        let p2 = Object::Pair(ObjectPtr::new(Object::Bool(true)), ObjectPtr::new(p1));
+        assert_eq!(format!("{}", p2), "(#t #t . #f)");
+    }
+
+    #[test]
+    fn display_string() {
+        assert_eq!(format!("{}", Object::String(String::from("Hello!"))), "\"Hello!\"");
     }
 }
