@@ -1,12 +1,12 @@
-pub mod number;
+//pub mod number;
 mod bool;
-mod char;
-mod value;
+//mod char;
+mod number;
+mod object;
+mod predicates;
 
-pub use bool::Bool;
-pub use char::Char;
-pub use number::Number;
-pub use value::Value;
+pub use object::Object;
+pub use predicates::*;
 
 #[cfg(test)]
 mod tests {
