@@ -73,6 +73,7 @@ impl fmt::Display for Object {
             Object::Pair(ref car, ref cdr) => {
                 // TODO: There are rules for printing pairs...
                 // Print a dot before the cdr iff it's anything but Null or another Pair.
+                // Going to need a recursive helper to avoid printing ( and ) for every pair.
                 write!(f, "({}", car).and_then(|_| match cdr {
                     &ObjectPtr::Null => write!(f, ")"),
                     &ObjectPtr::Ptr(ref ptr) => match ptr.deref() {
