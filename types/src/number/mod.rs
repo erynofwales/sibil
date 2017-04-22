@@ -6,8 +6,10 @@
 ///
 /// Scheme numbers are complex, literally.
 
+use std::fmt;
+
 pub mod real;
-//mod add;
+mod add;
 mod math;
 
 pub use self::real::Real;
@@ -60,6 +62,15 @@ impl Number {
     }
 
     pub fn is_exact(&self) -> bool { self.exact }
+}
+
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.real).and_then(|r| match self.imag {
+            Some(ref imag) => write!(f, "{}i", imag),
+            None => Ok(r),
+        })
+    }
 }
 
 #[cfg(test)]
