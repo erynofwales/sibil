@@ -4,7 +4,7 @@
 
 use std::fmt;
 use super::*;
-use number::math::*;
+use self::math::*;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Real {
