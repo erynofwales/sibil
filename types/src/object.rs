@@ -72,7 +72,7 @@ impl fmt::Display for Object {
 
             Object::Number(ref n) => {
                 // TODO: Implement Display for Number
-                write!(f, "{:?}", n)
+                write!(f, "{}", n)
             }
 
             Object::Pair(ref car, ref cdr) => {
