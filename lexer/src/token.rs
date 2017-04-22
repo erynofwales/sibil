@@ -2,21 +2,21 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use sibiltypes::{Bool, Char, Number};
+use sibiltypes::Object;
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    Boolean(Bool),
-    Character(Char),
-    Comment(String),
+    Boolean(Object),
+    Character(Object),
+    Comment(Object),
     Dot,
-    Id(String),
+    Id(Object),
     LeftParen,
     LeftVectorParen,
-    Number(Number),
+    Number(Object),
     Quote,
     RightParen,
-    String(String),
+    String(Object),
 }
 
 /// A Lex is a Token extracted from a specific position in an input string. It contains useful
