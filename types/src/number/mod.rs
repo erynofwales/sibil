@@ -7,15 +7,12 @@
 /// Scheme numbers are complex, literally.
 
 pub mod real;
-pub mod complex;
-mod add;
+//pub mod complex;
+//mod add;
 mod math;
 
 pub use self::real::Real;
-pub use self::complex::Complex;
-
-use std::any::Any;
-use value::*;
+//pub use self::complex::Complex;
 
 type Int = i64;
 type Flt = f64;
@@ -66,21 +63,6 @@ impl Number {
 
     pub fn is_exact(&self) -> bool { self.exact }
 }
-
-impl Value for Number {
-    fn as_value(&self) -> &Value { self }
-}
-
-impl ValueEq for Number {
-    fn eq(&self, other: &Value) -> bool {
-        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
-    }
-    fn as_any(&self) -> &Any { self }
-}
-
-impl IsBool for Number { }
-impl IsChar for Number { }
-impl IsNumber for Number { }
 
 #[cfg(test)]
 mod tests {
