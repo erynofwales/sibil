@@ -130,6 +130,7 @@ impl PartialEq for Real {
 
 impl fmt::Display for Real {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // TODO: Figure out how to print the sign if `f.sign_plus() == true`.
         match *self {
             Real::Integer(v) => write!(f, "{}", v),
             Real::Rational(p, q) => write!(f, "{}/{}", p, q),

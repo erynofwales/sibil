@@ -66,10 +66,8 @@ impl Number {
 
 impl fmt::Display for Number {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.real).and_then(|r| match self.imag {
-            Some(ref imag) => write!(f, "{}i", imag),
-            None => Ok(r),
-        })
+        write!(f, "{}", self.real).and_then(
+            |r| self.imag.map(|i| write!(f, "{:+}i", i)).unwrap_or(Ok(r)))
     }
 }
 
