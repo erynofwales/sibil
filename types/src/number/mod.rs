@@ -7,12 +7,10 @@
 /// Scheme numbers are complex, literally.
 
 pub mod real;
-//pub mod complex;
 //mod add;
 mod math;
 
 pub use self::real::Real;
-//pub use self::complex::Complex;
 
 type Int = i64;
 type Flt = f64;
