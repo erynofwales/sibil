@@ -16,23 +16,19 @@ impl IsBool for Object {
 
 #[cfg(test)]
 mod tests {
-    use super::Bool;
-    use value::*;
-
-    #[test]
-    fn equal_bools_are_equal() {
-        assert_eq!(Bool(true), Bool(true));
-        assert_eq!(Bool(false), Bool(false));
-        assert_ne!(Bool(true), Bool(false));
-
-        assert_eq!(Bool(true).as_value(), Bool(true).as_value());
-        assert_ne!(Bool(true).as_value(), Bool(false).as_value());
-    }
+    use object::Object;
+    use predicates::{IsBool, IsChar};
 
     #[test]
     fn bools_are_bools() {
-        assert_eq!(Bool(false).is_bool(), true);
-        assert_eq!(Bool(false).is_char(), false);
-        assert_eq!(Bool(false).is_number(), false);
+        assert_eq!(Object::Bool(false).is_bool(), true);
+        assert_eq!(Object::Bool(false).is_char(), false);
+    }
+
+    #[test]
+    fn equal_bools_are_equal() {
+        assert_eq!(Object::Bool(true), Object::Bool(true));
+        assert_eq!(Object::Bool(false), Object::Bool(false));
+        assert_ne!(Object::Bool(true), Object::Bool(false));
     }
 }
