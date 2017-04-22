@@ -2,11 +2,34 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use std::fmt::Debug;
+use std::fmt;
 use std::any::Any;
 
-pub trait Value: Debug + IsBool + IsChar + IsNumber + ValueEq {
-    fn as_value(&self) -> &Value;
+type ObjectPtr = Option<Box<Object>>;
+
+pub enum ObjectPtr {
+    /// Absence of a value. A null pointer.
+    Null,
+    /// A pointer to an object.
+    Ptr(Box<Object>),
+}
+
+#[derive(Debug)]
+pub enum Object {
+    Bool(bool),
+    ByteVector(Vec<u8>),
+    Char(char),
+    Pair(ObjectPtr, ObjectPtr),
+    //Procedure/*( TODO: Something )*/,
+    //Record/*( TODO: Something )*/,
+    String(String),
+    Symbol(String),
+    Vector(Vec<ObjectPtr>),
+}
+
+pub trait IsNull {
+    fn is_null(&self) -> bool { false }
+    fn is_eof(&self) -> bool { false }
 }
 
 pub trait IsBool {
@@ -20,7 +43,7 @@ pub trait IsChar {
 }
 
 pub trait IsNumber {
-    /// Should return `true` if this Value is a number type.
+    /// Should return `true` if this Value is any kind of number.
     fn is_number(&self) -> bool { self.is_complex() || self.is_real() || self.is_rational() || self.is_integer() }
     /// Should return `true` if this Value is a complex number type.
     fn is_complex(&self) -> bool { self.is_real() }
@@ -30,17 +53,4 @@ pub trait IsNumber {
     fn is_rational(&self) -> bool { self.is_integer() }
     /// Should return `true` if this Value is a integer number type.
     fn is_integer(&self) -> bool { false }
-}
-
-/// A trait on value types that makes it easier to compare values of disparate types. The methods
-/// provided by this trait are used by the PartialEq implementation on Values.
-pub trait ValueEq {
-    fn eq(&self, other: &Value) -> bool;
-    fn as_any(&self) -> &Any;
-}
-
-impl<'lhs,'rhs> PartialEq<Value+'rhs> for Value+'lhs {
-    fn eq(&self, other: &(Value+'rhs)) -> bool {
-        ValueEq::eq(self, other)
-    }
 }
