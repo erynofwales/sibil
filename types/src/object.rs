@@ -17,7 +17,7 @@ use std::fmt;
 use std::ops::Deref;
 use number::Number;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ObjectPtr {
     /// Absence of a value. A null pointer.
     Null,
@@ -25,7 +25,7 @@ pub enum ObjectPtr {
     Ptr(Box<Object>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Object {
     Bool(bool),
     ByteVector(Vec<u8>),
@@ -67,20 +67,13 @@ impl fmt::Display for Object {
             },
 
             Object::Number(ref n) => {
-                write!(f, "{}", n)
+                // TODO: Implement Display for Number
+                write!(f, "{:?}", n)
             }
 
             Object::Pair(ref car, ref cdr) => {
-                // TODO: There are rules for printing pairs...
-                // Print a dot before the cdr iff it's anything but Null or another Pair.
-                // Going to need a recursive helper to avoid printing ( and ) for every pair.
-                write!(f, "({}", car).and_then(|_| match cdr {
-                    &ObjectPtr::Null => write!(f, ")"),
-                    &ObjectPtr::Ptr(ref ptr) => match ptr.deref() {
-                        &Object::Pair(_, _) => write!(f, "{}", ptr),
-                        _ => write!(f, " . {})", ptr)
-                    }
-                })
+                write!(f, "(").and_then(|_| Object::fmt_pair(car, cdr, f))
+                              .and_then(|_| write!(f, ")"))
             },
 
             Object::String(ref st) => {
@@ -96,5 +89,17 @@ impl fmt::Display for Object {
                 write!(f, "#(").and_then(|_| write!(f, ")"))
             }
         }
+    }
+}
+
+impl Object {
+    fn fmt_pair(car: &ObjectPtr, cdr: &ObjectPtr, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", car).and_then(|r| match cdr {
+            &ObjectPtr::Null => Ok(r),  // Don't write anything.
+            &ObjectPtr::Ptr(ref ptr) => match ptr.deref() {
+                &Object::Pair(ref next_car, ref next_cdr) => Object::fmt_pair(next_car, next_cdr, f),
+                _ => write!(f, " . {}", ptr)
+            }
+        })
     }
 }
