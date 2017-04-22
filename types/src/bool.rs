@@ -1,30 +1,17 @@
-/* types/bool.rs
+/* types/src/bool.rs
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use std::any::Any;
-use value::*;
+use object::Object;
+use predicates::IsBool;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct Bool(pub bool);
-
-impl Value for Bool {
-    fn as_value(&self) -> &Value { self }
-}
-
-impl IsBool for Bool {
-    fn is_bool(&self) -> bool { true }
-}
-
-impl IsChar for Bool { }
-impl IsNumber for Bool { }
-
-impl ValueEq for Bool {
-    fn eq(&self, other: &Value) -> bool {
-        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
+impl IsBool for Object {
+    fn is_bool(&self) -> bool {
+        match *self {
+            Object::Bool(_) => true,
+            _ => false,
+        }
     }
-
-    fn as_any(&self) -> &Any { self }
 }
 
 #[cfg(test)]
