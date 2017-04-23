@@ -6,6 +6,7 @@ mod object;
 mod predicates;
 
 pub use object::Object;
+pub use object::ObjectPtr;
 pub use predicates::*;
 
 #[cfg(test)]

@@ -40,7 +40,7 @@ pub enum Object {
 }
 
 impl ObjectPtr {
-    fn new(obj: Object) -> ObjectPtr { ObjectPtr::Ptr(Box::new(obj)) }
+    pub fn new(obj: Object) -> ObjectPtr { ObjectPtr::Ptr(Box::new(obj)) }
 }
 
 impl fmt::Display for ObjectPtr {
