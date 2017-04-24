@@ -7,12 +7,6 @@ mod names;
 use object::Object;
 use predicates::IsChar;
 
-pub trait Char {
-    fn from_char(c: char) -> Object;
-    fn from_char_named(name: &str) -> Option<Object>;
-    fn char_name(&self) -> Option<String>;
-}
-
 impl IsChar for Object {
     fn is_char(&self) -> bool {
         match *self {
@@ -20,6 +14,12 @@ impl IsChar for Object {
             _ => false,
         }
     }
+}
+
+pub trait Char {
+    fn from_char(c: char) -> Object;
+    fn from_char_named(name: &str) -> Option<Object>;
+    fn char_name(&self) -> Option<String>;
 }
 
 impl Char for Object {
