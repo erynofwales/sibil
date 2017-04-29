@@ -5,18 +5,14 @@
 extern crate sibillexer;
 extern crate sibiltypes;
 
-mod list;
 mod program;
 
 use sibillexer::Lexer;
+use sibiltypes::Object;
 
 struct ParseError { }
 
-type Result<T> = std::result::Result<T, ParseError>;
-
-trait Parsable: Sized {
-    fn parse(lexer: &Lexer) -> Result<Self>;
-}
+type Result = std::result::Result<Object, ParseError>;
 
 #[cfg(test)]
 mod tests {
