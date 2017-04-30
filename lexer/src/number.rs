@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use sibiltypes::Number;
+use sibiltypes::number::{Number, Exact};
 
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }
@@ -10,12 +10,9 @@ pub enum Radix { Bin, Oct, Dec, Hex }
 #[derive(PartialEq, Debug)]
 pub enum Sign { Pos, Neg }
 
-#[derive(PartialEq, Debug)]
-pub enum Exactness { Exact, Inexact }
-
 #[derive(Debug)]
 pub struct NumberBuilder {
-    exact: Option<Exactness>,
+    exact: Exact,
     radix: Radix,
     sign: Sign,
     value: f64,
@@ -25,7 +22,7 @@ pub struct NumberBuilder {
 impl NumberBuilder {
     pub fn new() -> NumberBuilder {
         NumberBuilder {
-            exact: None,
+            exact: Exact::Yes,
             radix: Radix::Dec,
             sign: Sign::Pos,
             value: 0.0,
@@ -33,8 +30,8 @@ impl NumberBuilder {
         }
     }
 
-    pub fn exact<'a>(&'a mut self, ex: Exactness) -> &'a mut NumberBuilder {
-        self.exact = Some(ex);
+    pub fn exact<'a>(&'a mut self, ex: Exact) -> &'a mut NumberBuilder {
+        self.exact = ex;
         self
     }
 
@@ -79,8 +76,7 @@ impl NumberBuilder {
             value
         };
         // TODO: Use an integer if we can.
-        let exact = self.point == 0 || self.exact == Some(Exactness::Exact);
-        Number::from_float(value, exact)
+        Number::from_float(value, self.exact)
     }
 
     pub fn radix_value(&self) -> u32 {

@@ -17,16 +17,28 @@ pub use self::real::Real;
 type Int = i64;
 type Flt = f64;
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum Exact { Yes, No }
+
+impl fmt::Display for Exact {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", match *self {
+            Exact::Yes => "#e",
+            Exact::No => "#i",
+        })
+    }
+}
+
 // TODO: Implement PartialEq myself cause there are some weird nuances to comparing numbers.
 #[derive(Debug, PartialEq)]
 pub struct Number {
     real: Real,
     imag: Option<Real>,
-    exact: bool,
+    exact: Exact,
 }
 
 impl Number {
-    fn new(real: Real, imag: Option<Real>, exact: bool) -> Number {
+    fn new(real: Real, imag: Option<Real>, exact: Exact) -> Number {
         Number {
             real: real.reduce(),
             imag: imag.map(|n| n.reduce()),
@@ -34,12 +46,12 @@ impl Number {
         }
     }
 
-    pub fn from_int(value: Int, exact: bool) -> Number {
+    pub fn from_int(value: Int, exact: Exact) -> Number {
         Number::new(Real::Integer(value), None, exact)
     }
 
-    pub fn from_quotient(p: Int, q: Int, exact: bool) -> Number {
-        let real = if exact {
+    pub fn from_quotient(p: Int, q: Int, exact: Exact) -> Number {
+        let real = if exact == Exact::Yes {
             // Make an exact rational an integer if possible.
             Real::Rational(p, q).demote()
         }
@@ -50,8 +62,8 @@ impl Number {
         Number::new(real, None, exact)
     }
 
-    pub fn from_float(value: Flt, exact: bool) -> Number {
-        let real = if exact {
+    pub fn from_float(value: Flt, exact: Exact) -> Number {
+        let real = if exact == Exact::Yes {
             // Attempt to demote irrationals.
             Real::Irrational(value).demote()
         }
@@ -61,7 +73,12 @@ impl Number {
         Number::new(real, None, exact)
     }
 
-    pub fn is_exact(&self) -> bool { self.exact }
+    pub fn is_exact(&self) -> bool {
+        match self.exact {
+            Exact::Yes => true,
+            Exact::No => false,
+        }
+    }
 }
 
 impl fmt::Display for Number {
@@ -85,6 +102,6 @@ mod tests {
     #[test]
     fn exact_irrationals_are_reduced() {
         let real = Real::Rational(3, 2);
-        assert_eq!(Number::from_float(1.5, true), Number::new(real, None, true));
+        assert_eq!(Number::from_float(1.5, Exact::Yes), Number::new(real, None, Exact::Yes));
     }
 }
