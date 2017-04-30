@@ -3,6 +3,7 @@
  */
 
 use sibiltypes::number::{Number, Exact};
+use char::FromChar;
 
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }
@@ -94,16 +95,6 @@ impl NumberBuilder {
 }
 
 impl Radix {
-    pub fn from_char(c: char) -> Option<Radix> {
-        match c {
-            'b' => Some(Radix::Bin),
-            'o' => Some(Radix::Oct),
-            'd' => Some(Radix::Dec),
-            'h' => Some(Radix::Hex),
-            _ => None,
-        }
-    }
-
     pub fn value(&self) -> u32 {
         match *self {
             Radix::Bin => 2,
@@ -118,8 +109,20 @@ impl Radix {
     }
 }
 
-impl Sign {
-    pub fn from_char(c: char) -> Option<Sign> {
+impl FromChar for Radix {
+    fn from_char(c: char) -> Option<Radix> {
+        match c {
+            'b' => Some(Radix::Bin),
+            'o' => Some(Radix::Oct),
+            'd' => Some(Radix::Dec),
+            'h' => Some(Radix::Hex),
+            _ => None,
+        }
+    }
+}
+
+impl FromChar for Sign {
+    fn from_char(c: char) -> Option<Sign> {
         match c {
             '+' => Some(Sign::Pos),
             '-' => Some(Sign::Neg),
@@ -128,11 +131,11 @@ impl Sign {
     }
 }
 
-impl Exactness {
-    pub fn from_char(c: char) -> Option<Exactness> {
+impl FromChar for Exact {
+    fn from_char(c: char) -> Option<Exact> {
         match c {
-            'i' => Some(Exactness::Inexact),
-            'e' => Some(Exactness::Exact),
+            'i' => Some(Exact::No),
+            'e' => Some(Exact::Yes),
             _ => None,
         }
     }

@@ -2,7 +2,12 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use std::marker::Sized;
 use charset;
+
+pub trait FromChar {
+    fn from_char(c: char) -> Option<Self> where Self: Sized;
+}
 
 pub trait Lexable {
     fn is_character_leader(&self) -> bool;
