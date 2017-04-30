@@ -2,6 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use sibiltypes::Object;
 use sibiltypes::number::{Number, Exact};
 use char::FromChar;
 
