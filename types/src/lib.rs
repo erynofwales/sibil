@@ -1,7 +1,7 @@
 pub mod number;
+pub mod char;
 
 mod bool;
-mod char;
 mod object;
 mod predicates;
 
