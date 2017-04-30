@@ -3,18 +3,13 @@
  */
 
 use std::collections::HashSet;
-use sibiltypes::{Bool, Char};
+use sibiltypes::Object;
+use sibiltypes::number::Exact;
 
-use char::Lexable;
-use named_char;
-use number::Exactness;
-use number::NumberBuilder;
-use number::Radix;
-use number::Sign;
-use str::CharAt;
-use str::RelativeIndexable;
-use token::Lex;
-use token::Token;
+use char::{FromChar, Lexable};
+use number::{NumberBuilder, Radix, Sign};
+use str::{CharAt, RelativeIndexable};
+use token::{Lex, Token};
 
 type StateResult = Result<Option<Token>, String>;
 
@@ -32,7 +27,7 @@ enum State {
     Dot,
     Hash,
     Number,
-    NumberExactness,
+    NumberExact,
     NumberDecimal,
     NumberRadix,
     NumberSign,
@@ -203,7 +198,7 @@ impl Lexer {
         self.advance();
         let lower_c = c.to_lowercase().collect::<String>();
         let mut candidates: HashSet<&str> = HashSet::new();
-        for c in named_char::set().iter() {
+        for c in names::set().iter() {
             if c.starts_with(&lower_c) {
                 candidates.insert(c);
             }
@@ -211,7 +206,7 @@ impl Lexer {
         if candidates.len() > 0 {
             self.state = State::NamedChar(candidates, lower_c);
         } else {
-            return self.token_result(Token::Character(Char(c)));
+            return self.token_result(Token::Character(Object::Char(c)));
         }
         Ok(None)
     }
@@ -226,7 +221,8 @@ impl Lexer {
         if c.is_identifier_delimiter() || c.is_eof() {
             if progress.len() == 1 {
                 self.retract();
-                return self.token_result(Token::Character(Char(progress.chars().next().unwrap())));
+                let token_char = Object::Char(progress.chars().next().unwrap());
+                return self.token_result(Token::Character(token_char));
             }
             else {
                 return self.generic_error(c);
@@ -243,7 +239,8 @@ impl Lexer {
         if candidates.len() == 1 {
             let candidate = *candidates.iter().next().unwrap();
             if candidate == &progress {
-                self.token_result(Token::Character(named_char::char_named_by(&progress)))
+                let token_char = Object::from_char_named(&progress);
+                self.token_result(Token::Character(token_char))
             }
             else {
                 self.state = State::NamedChar(candidates, progress);
@@ -283,7 +280,8 @@ impl Lexer {
     fn state_hash(&mut self, c: char) -> StateResult {
         if c.is_boolean_true() || c.is_boolean_false() {
             self.advance();
-            return self.token_result(Token::Boolean(Bool(c.is_boolean_true())));
+            let token_bool = Object::Bool(c.is_boolean_true());
+            return self.token_result(Token::Boolean(token_bool));
         }
         else if c.is_left_paren() {
             self.advance();
@@ -298,9 +296,9 @@ impl Lexer {
             self.state = State::NumberRadix;
             self.advance();
         }
-        else if let Some(exactness) = Exactness::from_char(c) {
+        else if let Some(exactness) = Exact::from_char(c) {
             self.number_builder.exact(exactness);
-            self.state = State::NumberExactness;
+            self.state = State::NumberExact;
             self.advance();
         }
         else {
@@ -492,7 +490,7 @@ impl Iterator for Lexer {
                 State::Initial => self.state_initial(c),
                 State::Number => self.state_number(c),
                 State::NumberDecimal => self.state_number_decimal(c),
-                State::NumberExactness => self.state_number_exactness(c),
+                State::NumberExact => self.state_number_exactness(c),
                 State::NumberRadix => self.state_number_radix(c),
                 State::NumberSign => self.state_number_sign(c),
                 State::Sign => self.state_sign(c),
