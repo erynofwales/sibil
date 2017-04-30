@@ -90,7 +90,10 @@ impl fmt::Display for Object {
 
             Object::Vector(ref vec) => {
                 // TODO: Actually write the vector values.
-                write!(f, "#(").and_then(|_| write!(f, ")"))
+                vec.iter().enumerate().fold(write!(f, "#("), |acc, (i, obj)| {
+                    let space = if i == (vec.len() - 1) { " " } else { "" };
+                    acc.and(write!(f, "{}{}", obj, space))
+                }).and(write!(f, ")"))
             }
         }
     }
