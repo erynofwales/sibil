@@ -64,18 +64,8 @@ impl NumberBuilder {
 
     pub fn resolve(&self) -> Number {
         // TODO: Convert fields to Number type.
-        let value = if self.point > 0 {
-            self.value / 10u32.pow(self.point) as f64
-        }
-        else {
-            self.value
-        };
-        let value = if self.sign == Sign::Neg {
-            value * -1.0
-        }
-        else {
-            value
-        };
+        let value = if self.point > 0 { self.value / 10u32.pow(self.point) as f64 } else { self.value };
+        let value = if self.sign == Sign::Neg { value * -1.0 } else { value };
         // TODO: Use an integer if we can.
         Number::from_float(value, self.exact)
     }
