@@ -3,7 +3,6 @@ extern crate sibiltypes;
 mod char;
 mod charset;
 mod lexer;
-mod named_char;
 mod number;
 mod str;
 mod token;
