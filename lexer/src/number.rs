@@ -8,7 +8,7 @@ use char::FromChar;
 #[derive(Debug)]
 pub enum Radix { Bin, Oct, Dec, Hex }
 
-#[derive(PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug)]
 pub enum Sign { Pos, Neg }
 
 #[derive(Debug)]
