@@ -4,11 +4,13 @@
 
 use std::iter::Peekable;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Token { LeftParen, RightParen, Id(String), }
 
+#[derive(Debug, Eq, PartialEq)]
 enum Resume { Here, AtNext } 
 
+#[derive(Debug, Eq, PartialEq)]
 enum IterationResult {
     Continue,
     Emit(Token, Resume),
@@ -65,10 +67,9 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
             match result {
                 IterationResult::Continue => self.input.next(),
                 IterationResult::Emit(token, resume) => {
-                    match resume {
-                        Resume::AtNext => self.input.next(),
-                        Resume::Here => None,
-                    };
+                    if resume == Resume::AtNext {
+                        self.input.next();
+                    }
                     return Some(Ok(token))
                 },
                 IterationResult::Error(msg) => return Some(Err(msg)),
