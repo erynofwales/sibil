@@ -4,9 +4,12 @@
 
 use std::iter::Peekable;
 
+mod chars;
 mod error;
 
 pub use error::Error;
+
+use chars::Lexable;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Token { LeftParen, RightParen, Id(String), }
@@ -49,8 +52,8 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
             let peek = self.input.peek().map(char::clone);
             let result = if buffer.is_empty() {
                 match peek {
-                    Some('(') => self.emit(Token::LeftParen, Resume::AtNext),
-                    Some(')') => self.emit(Token::RightParen, Resume::AtNext),
+                    Some(c) if c.is_left_paren() => self.emit(Token::LeftParen, Resume::AtNext),
+                    Some(c) if c.is_right_paren() => self.emit(Token::RightParen, Resume::AtNext),
                     Some(c) if c.is_whitespace() => IterationResult::Continue,
                     Some(c) if c.is_alphabetic() => {
                         buffer.push(c);
@@ -67,7 +70,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                         buffer.push(c);
                         IterationResult::Continue
                     }
-                    Some(c) if c == '(' || c == ')' || c.is_whitespace() =>
+                    Some(c) if c.is_left_paren() || c.is_right_paren() || c.is_whitespace() =>
                         self.emit(Token::Id(buffer.clone()), Resume::Here),
                     Some(c) => self.fail(format!("Invalid character: {}", c)),
                     // Found EOF. Emit what we have and finish.
