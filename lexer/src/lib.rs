@@ -4,6 +4,10 @@
 
 use std::iter::Peekable;
 
+mod error;
+
+pub use error::Error;
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum Token { LeftParen, RightParen, Id(String), }
 
@@ -15,7 +19,7 @@ enum IterationResult {
     Finish,
     Continue,
     Emit(Token, Resume),
-    Error(String),
+    Error(Error),
 }
 
 pub struct Lexer<T> where T: Iterator<Item=char> {
@@ -32,12 +36,12 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
     }
 
     fn fail(&self, msg: String) -> IterationResult {
-        IterationResult::Error(msg)
+        IterationResult::Error(Error::new(msg))
     }
 }
 
 impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
-    type Item = Result<Token, String>;
+    type Item = Result<Token, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut buffer = String::new();
@@ -81,7 +85,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                     }
                     return Some(Ok(token))
                 },
-                IterationResult::Error(msg) => return Some(Err(msg)),
+                IterationResult::Error(err) => return Some(Err(err)),
             };
         }
         None
