@@ -55,7 +55,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                     Some(c) if c.is_left_paren() => self.emit(Token::LeftParen, Resume::AtNext),
                     Some(c) if c.is_right_paren() => self.emit(Token::RightParen, Resume::AtNext),
                     Some(c) if c.is_whitespace() => IterationResult::Continue,
-                    Some(c) if c.is_alphabetic() => {
+                    Some(c) if c.is_identifier_initial() => {
                         buffer.push(c);
                         IterationResult::Continue
                     },
@@ -66,11 +66,11 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
             }
             else {
                 match peek {
-                    Some(c) if c.is_alphabetic() => {
+                    Some(c) if c.is_identifier_subsequent() => {
                         buffer.push(c);
                         IterationResult::Continue
                     }
-                    Some(c) if c.is_left_paren() || c.is_right_paren() || c.is_whitespace() =>
+                    Some(c) if c.is_identifier_delimiter() =>
                         self.emit(Token::Id(buffer.clone()), Resume::Here),
                     Some(c) => self.fail(format!("Invalid character: {}", c)),
                     // Found EOF. Emit what we have and finish.
