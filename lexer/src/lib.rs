@@ -11,6 +11,8 @@ pub use error::Error;
 
 use chars::Lexable;
 
+pub type Result = std::result::Result<Token, Error>;
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum Token { LeftParen, RightParen, Id(String), }
 
@@ -44,7 +46,7 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
 }
 
 impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
-    type Item = Result<Token, Error>;
+    type Item = Result;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut buffer = String::new();
