@@ -3,18 +3,16 @@
  */
 
 use std::iter::Peekable;
+use chars::Lexable;
 
 mod chars;
 mod error;
+mod token;
 
 pub use error::Error;
+pub use token::{Lex, Token};
 
-use chars::Lexable;
-
-pub type Result = std::result::Result<Token, Error>;
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum Token { LeftParen, RightParen, Id(String), }
+pub type Result = std::result::Result<Lex, Error>;
 
 #[derive(Debug, Eq, PartialEq)]
 enum Resume { Here, AtNext } 
@@ -72,8 +70,14 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
             let peek = self.input.peek().map(char::clone);
             let result = if buffer.is_empty() {
                 match peek {
-                    Some(c) if c.is_left_paren() => self.emit(Token::LeftParen, Resume::AtNext),
-                    Some(c) if c.is_right_paren() => self.emit(Token::RightParen, Resume::AtNext),
+                    Some(c) if c.is_left_paren() => {
+                        buffer.push(c);
+                        self.emit(Token::LeftParen, Resume::AtNext)
+                    },
+                    Some(c) if c.is_right_paren() => {
+                        buffer.push(c);
+                        self.emit(Token::RightParen, Resume::AtNext)
+                    },
                     Some(c) if c.is_whitespace() => {
                         self.handle_whitespace(c);
                         IterationResult::Continue
@@ -94,12 +98,12 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                         IterationResult::Continue
                     }
                     Some(c) if c.is_identifier_delimiter() =>
-                        self.emit(Token::Id(buffer.clone()), Resume::Here),
+                        self.emit(Token::Id, Resume::Here),
                     Some(c) => self.fail(format!("Invalid character: {}", c)),
                     // Found EOF. Emit what we have and finish.
                     // Note: the Resume argument doesn't matter in this case since the input
                     // iterator will always be None from here on.
-                    None => self.emit(Token::Id(buffer.clone()), Resume::Here),
+                    None => self.emit(Token::Id, Resume::Here),
                 }
             };
             match result {
@@ -109,7 +113,8 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                     if resume == Resume::AtNext {
                         self.input.next();
                     }
-                    return Some(Ok(token))
+                    let lex = Lex::new(token, &buffer, self.line, self.offset);
+                    return Some(Ok(lex))
                 },
                 IterationResult::Error(err) => return Some(Err(err)),
             };

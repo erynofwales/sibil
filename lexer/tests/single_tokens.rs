@@ -6,25 +6,28 @@
 
 extern crate sibillexer;
 
-use sibillexer::{Lexer, Token};
+use sibillexer::{Lexer, Lex, Token};
 
 #[test]
 fn lexer_finds_left_paren() {
+    let expected_lex = Lex::new(Token::LeftParen, "(", 0, 0);
     let mut lex = Lexer::new("(".chars());
-    assert_eq!(lex.next(), Some(Ok(Token::LeftParen)));
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
 
 #[test]
 fn lexer_finds_right_paren() {
+    let expected_lex = Lex::new(Token::RightParen, ")", 0, 0);
     let mut lex = Lexer::new(")".chars());
-    assert_eq!(lex.next(), Some(Ok(Token::RightParen)));
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
 
 #[test]
 fn lexer_finds_id() {
+    let expected_lex = Lex::new(Token::Id, "abc", 0, 0);
     let mut lex = Lexer::new("abc".chars());
-    assert_eq!(lex.next(), Some(Ok(Token::Id("abc".to_string()))));
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
