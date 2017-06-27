@@ -29,11 +29,17 @@ enum IterationResult {
 
 pub struct Lexer<T> where T: Iterator<Item=char> {
     input: Peekable<T>,
+    line: usize,
+    offset: usize,
 }
 
 impl<T> Lexer<T> where T: Iterator<Item=char> {
     pub fn new(input: T) -> Lexer<T> {
-        Lexer { input: input.peekable() }
+        Lexer {
+            input: input.peekable(),
+            line: 0,
+            offset: 0
+        }
     }
 
     fn emit(&self, token: Token, resume: Resume) -> IterationResult {
@@ -42,6 +48,18 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
 
     fn fail(&self, msg: String) -> IterationResult {
         IterationResult::Error(Error::new(msg))
+    }
+}
+
+impl<T> Lexer<T> where T: Iterator<Item=char> {
+    fn handle_whitespace(&mut self, c: char) {
+        if c == '\n' {
+            self.line += 1;
+            self.offset = 0;
+        }
+        else {
+            self.offset += 1;
+        }
     }
 }
 
@@ -56,7 +74,10 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                 match peek {
                     Some(c) if c.is_left_paren() => self.emit(Token::LeftParen, Resume::AtNext),
                     Some(c) if c.is_right_paren() => self.emit(Token::RightParen, Resume::AtNext),
-                    Some(c) if c.is_whitespace() => IterationResult::Continue,
+                    Some(c) if c.is_whitespace() => {
+                        self.handle_whitespace(c);
+                        IterationResult::Continue
+                    },
                     Some(c) if c.is_identifier_initial() => {
                         buffer.push(c);
                         IterationResult::Continue
