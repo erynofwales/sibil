@@ -5,17 +5,18 @@
 extern crate sibillexer;
 extern crate sibiltypes;
 
+mod node_parser;
+
 use std::iter::Peekable;
 use sibillexer::Result as LexerResult;
+use sibillexer::Token;
 use sibiltypes::Object;
-
-#[derive(Debug)]
-pub struct ParseError;
+use node_parser::{NodeParser, IdParser, ListParser};
 
 pub type Result = std::result::Result<Object, ParseError>;
 
-trait NodeParser {
-}
+#[derive(Debug)]
+pub struct ParseError;
 
 pub struct Parser<T> where T: Iterator<Item=LexerResult> {
     input: Peekable<T>,
@@ -37,9 +38,10 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             if let Some(lex) = self.input.next() {
-                println!("{:?}", lex)
-            }
-            else {
+                if let Ok(lex) = lex {
+                } else {
+                }
+            } else {
                 break;
             }
         }
