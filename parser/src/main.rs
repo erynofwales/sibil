@@ -11,5 +11,7 @@ use sibilparser::Parser;
 fn main() {
     let lexer = Lexer::new("(ab)".chars());
     let parser = Parser::new(lexer);
-    for thing in parser { }
+    for thing in parser {
+        println!("{:?}", thing);
+    }
 }
