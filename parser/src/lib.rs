@@ -9,17 +9,25 @@ use std::iter::Peekable;
 use sibillexer::Result as LexerResult;
 use sibiltypes::Object;
 
+#[derive(Debug)]
 pub struct ParseError;
 
 pub type Result = std::result::Result<Object, ParseError>;
 
+trait NodeParser {
+}
+
 pub struct Parser<T> where T: Iterator<Item=LexerResult> {
     input: Peekable<T>,
+    parsers: Vec<Box<NodeParser>>,
 }
 
 impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
     pub fn new(input: T) -> Parser<T> {
-        Parser { input: input.peekable() }
+        Parser {
+            input: input.peekable(),
+            parsers: Vec::new(),
+        }
     }
 }
 
@@ -35,6 +43,7 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                 break;
             }
         }
+        assert_eq!(self.parsers.len(), 0);
         None
     }
 }
