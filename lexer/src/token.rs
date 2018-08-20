@@ -10,7 +10,7 @@ pub struct Lex {
     offset: usize,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Token { LeftParen, RightParen, Id, }
 
 impl Lex {
@@ -22,4 +22,6 @@ impl Lex {
             offset: offset,
         }
     }
+
+    pub fn token(&self) -> Token { self.token }
 }
