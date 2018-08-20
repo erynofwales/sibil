@@ -25,6 +25,11 @@ pub enum ObjectPtr {
     Ptr(Box<Object>),
 }
 
+pub trait Object :
+    fmt::Display,
+
+{ }
+
 #[derive(Debug, PartialEq)]
 pub enum Object {
     Bool(bool),
