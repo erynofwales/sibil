@@ -24,4 +24,5 @@ impl Lex {
     }
 
     pub fn token(&self) -> Token { self.token }
+    pub fn value(&self) -> &str { self.value.as_str() }
 }

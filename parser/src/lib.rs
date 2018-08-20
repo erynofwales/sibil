@@ -9,10 +9,10 @@ mod node_parser;
 
 use std::iter::Peekable;
 use sibillexer::Result as LexerResult;
-use sibillexer::Token;
 use sibiltypes::Object;
 use node_parser::{NodeParser, IdParser, ListParser};
 
+/// The output of calling `parse()` on a Parser is one of these Result objects.
 pub type Result = std::result::Result<Object, ParseError>;
 
 #[derive(Debug)]
