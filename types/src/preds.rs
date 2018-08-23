@@ -1,6 +1,9 @@
-/* types/src/predicates.rs
+/* types/src/preds.rs
  * Eryn Wells <eryn@erynwells.me>
  */
+
+//! This module defines several important predicates for determing what kind of
+//! a thing this Object is.
 
 pub trait IsNull {
     /// Is this thing null?
@@ -32,4 +35,9 @@ pub trait IsNumber {
 
     /// Should return `true` if this Value is a integer number type.
     fn is_integer(&self) -> bool { false }
+}
+
+pub trait IsPair {
+    /// Should return `true` if this Value is a pair.
+    fn is_pair(&self) -> bool { false }
 }
