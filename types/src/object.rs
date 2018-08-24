@@ -13,6 +13,7 @@
 //! available types in Scheme. These predicates are implemented as `is_*`
 //! methods in a bunch of `Is*` traits defined below.
 
+use std::mem;
 use std::any::Any;
 use std::fmt;
 use super::*;
@@ -34,6 +35,10 @@ pub trait Object:
 impl Obj {
     pub fn new<T: 'static + Object>(obj: T) -> Obj {
         Obj::Ptr(Box::new(obj))
+    }
+
+    pub fn take(&mut self) -> Obj {
+        mem::replace(self, Obj::Null)
     }
 
     pub fn unbox_as<T: 'static + Object>(&self) -> Option<&T> {

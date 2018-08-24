@@ -30,8 +30,10 @@ impl NodeParser for ListParser {
             Token::Id => {
                 let parser = SymParser{};
                 NodeParseResult::Push { next: Box::new(parser) }
+            },
+            Token::RightParen => {
+                NodeParseResult::Complete { obj: self.list.take() }
             }
-            _ => NodeParseResult::Error { msg: "womp".to_string() }
         }
     }
 }
