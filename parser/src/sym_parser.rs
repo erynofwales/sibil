@@ -19,7 +19,7 @@ impl NodeParser for SymParser {
                 NodeParseResult::Complete { obj: obj }
             }
             _ => {
-                let msg = format!("Invalid token: {:?}", lex);
+                let msg = format!("Expected symbol found {:?}", lex);
                 NodeParseResult::error(msg)
             }
         }
