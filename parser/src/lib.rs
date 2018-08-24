@@ -44,6 +44,11 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
         let parser = self.parsers.last_mut().expect("couldn't get a parser -- this is unexpected");
         parser.parse(lex)
     }
+
+    fn parse_none(&mut self) -> NodeParseResult {
+        let parser = self.parsers.last_mut().expect("couldn't get a parser -- this is unexpected");
+        parser.none()
+    }
 }
 
 impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
@@ -59,7 +64,11 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                 Some(NodeParseResult::Continue) => self.input.next(),
                 Some(NodeParseResult::Complete{ obj }) => {
                     self.parsers.pop();
-                    // TODO: Handle obj
+                    if self.parsers.len() == 0 && input_lex.is_none() {
+                        // We are done.
+                        out = Some(Ok(obj));
+                        break;
+                    }
                     self.input.next()
                 },
                 Some(NodeParseResult::Push{ next }) => {
@@ -87,7 +96,7 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                     // TODO: We didn't get a Lex from the input, which means the
                     // input is done. If there's any parse result waiting
                     // around, clean it up and return it or return an error.
-                    break;
+                    result = Some(self.parse_none());
                 }
             }
         }

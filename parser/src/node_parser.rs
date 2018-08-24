@@ -33,4 +33,6 @@ impl NodeParseResult {
 /// nodes it encounters.
 pub trait NodeParser: Debug {
     fn parse(&mut self, lex: &Lex) -> NodeParseResult;
+    /// Called on a NodeParser when None is encountered in the input.
+    fn none(&mut self) -> NodeParseResult;
 }

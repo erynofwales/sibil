@@ -19,9 +19,14 @@ impl NodeParser for SymParser {
                 NodeParseResult::Complete { obj: obj }
             }
             _ => {
-                let msg = format!("Expected symbol found {:?}", lex);
+                let msg = format!("Expected symbol, found {:?}", lex);
                 NodeParseResult::error(msg)
             }
         }
+    }
+
+    fn none(&mut self) -> NodeParseResult {
+        let msg = format!("Expected symbol, found EOF");
+        NodeParseResult::Error { msg }
     }
 }

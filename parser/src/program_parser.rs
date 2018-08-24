@@ -3,6 +3,7 @@
  */
 
 use sibillexer::{Lex, Token};
+use sibiltypes::Obj;
 use list_parser::ListParser;
 use node_parser::{NodeParser, NodeParseResult};
 use sym_parser::SymParser;
@@ -34,6 +35,10 @@ impl NodeParser for ProgramParser {
                 NodeParseResult::Push { next: parser }
             }
         }
+    }
+
+    fn none(&mut self) -> NodeParseResult {
+        NodeParseResult::Complete { obj: Obj::Null }
     }
 }
 
