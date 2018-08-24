@@ -52,8 +52,26 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
     fn next(&mut self) -> Option<Self::Item> {
         let mut out: Option<Self::Item> = None;
         let mut result: Option<NodeParseResult> = None;
+        let mut input_lex: Option<T::Item> = None;
         loop {
-            match self.input.next() {
+            input_lex = match result {
+                None => self.input.next(),  // Starting condition
+                Some(NodeParseResult::Continue) => self.input.next(),
+                Some(NodeParseResult::Complete{ obj }) => {
+                    self.parsers.pop();
+                    // TODO: Handle obj
+                    self.input.next()
+                },
+                Some(NodeParseResult::Push{ next }) => {
+                    self.parsers.push(next);
+                    input_lex
+                },
+                Some(NodeParseResult::Error{ msg }) => {
+                    out = Some(Err(ParseError::ParserError{ msg: msg }));
+                    break;
+                }
+            };
+            match input_lex {
                 Some(Ok(ref lex)) => {
                     // TODO: Valid Lex from our input. Hand it off to the
                     // current parser and process the result.
@@ -61,7 +79,8 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                 },
                 Some(Err(ref error)) => {
                     // TODO: Lexer error. Throw it up and out.
-                    out = Some(Err(ParseError::LexerError { msg: error.msg().to_string() }));
+                    let msg = error.msg().to_string();
+                    out = Some(Err(ParseError::LexerError { msg: msg }));
                     break;
                 },
                 None => {
