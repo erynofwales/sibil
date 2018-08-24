@@ -7,12 +7,14 @@ extern crate sibiltypes;
 
 mod list_parser;
 mod node_parser;
+mod program_parser;
 mod sym_parser;
 
 use std::iter::Peekable;
 use sibillexer::Result as LexerResult;
 use sibiltypes::Obj;
-use node_parser::NodeParser;
+use node_parser::{NodeParser, NodeParseResult};
+use program_parser::ProgramParser;
 use sym_parser::SymParser;
 
 /// The output of calling `parse()` on a Parser is one of these Result objects.

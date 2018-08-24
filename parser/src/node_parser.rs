@@ -34,21 +34,3 @@ impl NodeParseResult {
 pub trait NodeParser: Debug {
     fn parse(&mut self, lex: Lex) -> NodeParseResult;
 }
-
-#[derive(Debug)]
-pub struct ProgramParser {
-}
-
-impl ProgramParser {
-    pub fn new() -> ProgramParser {
-        ProgramParser { }
-    }
-}
-
-impl NodeParser for ProgramParser {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult {
-        NodeParseResult::Error { msg: "womp".to_string() }
-    }
-}
-
-
