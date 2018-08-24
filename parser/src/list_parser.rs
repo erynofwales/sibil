@@ -24,8 +24,18 @@ impl NodeParser for ListParser {
     fn parse(&mut self, lex: Lex) -> NodeParseResult {
         match lex.token() {
             Token::LeftParen => {
-                self.list = Obj::new(Pair::empty());
-                NodeParseResult::Continue
+                match self.list {
+                    Obj::Null => {
+                        // Create our empty pair and proceed parsing this list.
+                        self.list = Obj::new(Pair::empty());
+                        NodeParseResult::Continue
+                    },
+                    Obj::Ptr(_) => {
+                        // This is an embedded list. Create a new parser for it.
+                        let parser = ListParser::new();
+                        NodeParseResult::Push { next: Box::new(parser) }
+                    }
+                }
             },
             Token::Id => {
                 let parser = SymParser{};
