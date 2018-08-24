@@ -21,7 +21,10 @@ use sym_parser::SymParser;
 pub type Result = std::result::Result<Obj, ParseError>;
 
 #[derive(Debug)]
-pub struct ParseError;
+pub enum ParseError {
+    LexerError{msg: String},
+    ParserError{msg: String}
+}
 
 pub struct Parser<T> where T: Iterator<Item=LexerResult> {
     input: Peekable<T>,
@@ -30,9 +33,10 @@ pub struct Parser<T> where T: Iterator<Item=LexerResult> {
 
 impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
     pub fn new(input: T) -> Parser<T> {
+        let program_parser = Box::new(ProgramParser::new());
         Parser {
             input: input.peekable(),
-            parsers: Vec::new(),
+            parsers: vec!(program_parser)
         }
     }
 }
