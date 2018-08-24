@@ -44,18 +44,28 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
     type Item = Result;
 
     fn next(&mut self) -> Option<Self::Item> {
+        let mut out: Option<Self::Item> = None;
         let mut result: Option<NodeParseResult> = None;
         loop {
             match self.input.next() {
                 Some(Ok(ref lex)) => {
+                    // TODO: Valid Lex from our input. Hand it off to the
+                    // current parser and process the result.
                 },
                 Some(Err(ref error)) => {
+                    // TODO: Lexer error. Throw it up and out.
+                    out = Some(Err(ParseError::LexerError { msg: error.msg().to_string() }));
                 },
-                None => break
+                None => {
+                    // TODO: We didn't get a Lex from the input. If there's any
+                    // parse result waiting around, clean it up and return it or
+                    // return an error.
+                    break;
+                }
             }
         }
         assert_eq!(self.parsers.len(), 0);
-        None
+        out
     }
 }
 
