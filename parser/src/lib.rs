@@ -44,15 +44,12 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
     type Item = Result;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut lex = self.input.next();
+        let mut result: Option<NodeParseResult> = None;
         loop {
-            match lex {
-                Some(ref lex) => {
-                    match lex {
-                        Ok(ref lex) => {
-                        }
-                        Err(error) => {}
-                    }
+            match self.input.next() {
+                Some(Ok(ref lex)) => {
+                },
+                Some(Err(ref error)) => {
                 },
                 None => break
             }
