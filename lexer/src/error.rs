@@ -13,4 +13,6 @@ impl Error {
             message: msg
         }
     }
+
+    pub fn msg(&self) -> &str { &self.message }
 }
