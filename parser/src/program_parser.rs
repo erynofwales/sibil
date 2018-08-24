@@ -17,7 +17,7 @@ impl ProgramParser {
 }
 
 impl NodeParser for ProgramParser {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult {
+    fn parse(&mut self, lex: &Lex) -> NodeParseResult {
         match lex.token() {
             Token::LeftParen => {
                 let parser = ListParser::new();

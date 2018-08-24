@@ -21,7 +21,7 @@ impl ListParser {
 }
 
 impl NodeParser for ListParser {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult {
+    fn parse(&mut self, lex: &Lex) -> NodeParseResult {
         match lex.token() {
             Token::LeftParen => {
                 match self.list {

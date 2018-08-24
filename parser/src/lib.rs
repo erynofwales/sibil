@@ -12,6 +12,7 @@ mod sym_parser;
 
 use std::iter::Peekable;
 use sibillexer::Result as LexerResult;
+use sibillexer::Lex;
 use sibiltypes::Obj;
 use node_parser::{NodeParser, NodeParseResult};
 use program_parser::ProgramParser;
@@ -38,6 +39,11 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
             parsers: vec!(program_parser)
         }
     }
+
+    fn parse_lex(&mut self, lex: &Lex) -> NodeParseResult {
+        let parser = self.parsers.last_mut().expect("couldn't get a parser -- this is unexpected");
+        parser.parse(lex)
+    }
 }
 
 impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
@@ -51,15 +57,17 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                 Some(Ok(ref lex)) => {
                     // TODO: Valid Lex from our input. Hand it off to the
                     // current parser and process the result.
+                    result = Some(self.parse_lex(lex));
                 },
                 Some(Err(ref error)) => {
                     // TODO: Lexer error. Throw it up and out.
                     out = Some(Err(ParseError::LexerError { msg: error.msg().to_string() }));
+                    break;
                 },
                 None => {
-                    // TODO: We didn't get a Lex from the input. If there's any
-                    // parse result waiting around, clean it up and return it or
-                    // return an error.
+                    // TODO: We didn't get a Lex from the input, which means the
+                    // input is done. If there's any parse result waiting
+                    // around, clean it up and return it or return an error.
                     break;
                 }
             }

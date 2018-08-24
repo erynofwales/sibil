@@ -10,7 +10,7 @@ use node_parser::{NodeParser, NodeParseResult};
 pub struct SymParser;
 
 impl NodeParser for SymParser {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult {
+    fn parse(&mut self, lex: &Lex) -> NodeParseResult {
         match lex.token() {
             Token::Id => {
                 let value = String::from(lex.value());

@@ -32,5 +32,5 @@ impl NodeParseResult {
 /// through the stream of tokens, new NodeParsers are created to handle the
 /// nodes it encounters.
 pub trait NodeParser: Debug {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult;
+    fn parse(&mut self, lex: &Lex) -> NodeParseResult;
 }
