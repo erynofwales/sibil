@@ -76,7 +76,7 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                     input_lex
                 },
                 Some(NodeParseResult::Error{ msg }) => {
-                    out = Some(Err(ParseError::ParserError{ msg: msg }));
+                    out = Some(Err(ParseError::ParserError{ msg }));
                     break;
                 }
             };
@@ -87,15 +87,15 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                     result = Some(self.parse_lex(lex));
                 },
                 Some(Err(ref error)) => {
-                    // TODO: Lexer error. Throw it up and out.
+                    // Lexer error. Throw it up and out.
                     let msg = error.msg().to_string();
-                    out = Some(Err(ParseError::LexerError { msg: msg }));
+                    out = Some(Err(ParseError::LexerError { msg }));
                     break;
                 },
                 None => {
-                    // TODO: We didn't get a Lex from the input, which means the
-                    // input is done. If there's any parse result waiting
-                    // around, clean it up and return it or return an error.
+                    // We didn't get a Lex from the input, which means the input
+                    // is done. If there's any parse result waiting around,
+                    // clean it up and return it or return an error.
                     result = Some(self.parse_none());
                 }
             }

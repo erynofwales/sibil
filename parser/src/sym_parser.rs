@@ -27,6 +27,6 @@ impl NodeParser for SymParser {
 
     fn none(&mut self) -> NodeParseResult {
         let msg = format!("Expected symbol, found EOF");
-        NodeParseResult::Error { msg }
+        NodeParseResult::error(msg)
     }
 }

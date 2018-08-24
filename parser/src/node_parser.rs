@@ -3,7 +3,7 @@
  */
 
 use std::fmt::Debug;
-use sibillexer::{Lex, Token};
+use sibillexer::Lex;
 use sibiltypes::Obj;
 
 #[derive(Debug)]

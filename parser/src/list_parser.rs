@@ -49,6 +49,6 @@ impl NodeParser for ListParser {
 
     fn none(&mut self) -> NodeParseResult {
         let msg = format!("Unmatched paren, found EOF");
-        NodeParseResult::Error { msg }
+        NodeParseResult::error(msg)
     }
 }
