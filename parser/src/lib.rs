@@ -49,6 +49,27 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
         let parser = self.parsers.last_mut().expect("couldn't get a parser -- this is unexpected");
         parser.none()
     }
+
+    fn pop_parser(&mut self) {
+        let popped = self.parsers.pop();
+        print!("popped parser stack, {} parser{} remain --> {:?}\n",
+               self.parsers.len(),
+               if self.parsers.len() == 1 { " " } else { "s" },
+               popped);
+    }
+
+    fn push_parser(&mut self, next: Box<NodeParser>) {
+        self.parsers.push(next);
+        print!("pushed onto parser stack, {} now -> {:?}\n",
+               self.parsers.len(),
+               self.parsers.last());
+    }
+
+    fn next_lex(&mut self) -> Option<T::Item> {
+        let next = self.input.next();
+        print!("next lex: {:?}\n", next);
+        next
+    }
 }
 
 impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
@@ -60,19 +81,19 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
         let mut input_lex: Option<T::Item> = None;
         loop {
             input_lex = match result {
-                None => self.input.next(),  // Starting condition
-                Some(NodeParseResult::Continue) => self.input.next(),
+                None => self.next_lex(),  // Starting condition
+                Some(NodeParseResult::Continue) => self.next_lex(),
                 Some(NodeParseResult::Complete{ obj }) => {
-                    self.parsers.pop();
+                    self.pop_parser();
                     if self.parsers.len() == 0 && input_lex.is_none() {
                         // We are done.
                         out = Some(Ok(obj));
                         break;
                     }
-                    self.input.next()
+                    self.next_lex()
                 },
                 Some(NodeParseResult::Push{ next }) => {
-                    self.parsers.push(next);
+                    self.push_parser(next);
                     input_lex
                 },
                 Some(NodeParseResult::Error{ msg }) => {
