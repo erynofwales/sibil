@@ -4,7 +4,7 @@
 
 use std::fmt::Debug;
 use sibillexer::{Lex, Token};
-use sibiltypes::{Object, ObjectPtr};
+use sibiltypes::Obj;
 
 #[derive(Debug)]
 pub enum NodeParseResult {
@@ -12,12 +12,18 @@ pub enum NodeParseResult {
     Continue,
     /// This NodeParser has completed its work and has produced the given Object
     /// as a result.
-    Complete { obj: ObjectPtr },
+    Complete { obj: Obj },
     /// Push a new NodeParser onto the parsing stack and let that parser proceed
     /// with the current Lex.
     Push { next: Box<NodeParser> },
     /// There was an error parsing with the current Lex.
     Error { msg: String },
+}
+
+impl NodeParseResult {
+    pub fn error(msg: String) -> NodeParseResult {
+        NodeParseResult::Error { msg: msg }
+    }
 }
 
 /// A `NodeParser` is responsible for parsing one particular thing in the Scheme
@@ -45,47 +51,4 @@ impl NodeParser for ProgramParser {
     }
 }
 
-#[derive(Debug)]
-pub struct IdParser {
-}
 
-impl IdParser {
-    pub fn new() -> IdParser {
-        IdParser { }
-    }
-}
-
-impl NodeParser for IdParser {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult {
-        match lex.token() {
-            Token::Id => {
-                let value = String::from(lex.value());
-                let obj = ObjectPtr::new(Object::Symbol(value));
-                NodeParseResult::Complete { obj: obj }
-            }
-            _ => {
-                let msg = String::from(format!("Invalid token: {:?}", lex));
-                NodeParseResult::Error { msg: msg }
-            }
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct ListParser {
-    list: ObjectPtr
-}
-
-impl ListParser {
-    pub fn new() -> ListParser {
-        ListParser {
-            list: ObjectPtr::Null
-        }
-    }
-}
-
-impl NodeParser for ListParser {
-    fn parse(&mut self, lex: Lex) -> NodeParseResult {
-        NodeParseResult::Error { msg: "womp".to_string() }
-    }
-}

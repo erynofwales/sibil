@@ -9,6 +9,12 @@ use super::*;
 
 pub struct Sym(String);
 
+impl Sym {
+    pub fn new(value: String) -> Sym {
+        Sym(value)
+    }
+}
+
 impl Object for Sym {
     fn as_any(&self) -> &Any { self }
     fn as_pair(&self) -> Option<&Pair> { None }
@@ -18,5 +24,11 @@ impl Object for Sym {
 impl fmt::Display for Sym {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl fmt::Debug for Sym {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }

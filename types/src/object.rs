@@ -23,7 +23,8 @@ pub enum Obj {
 }
 
 pub trait Object:
-    fmt::Display 
+    fmt::Debug +
+    fmt::Display
 {
     fn as_any(&self) -> &Any;
     fn as_pair(&self) -> Option<&Pair>;
@@ -31,6 +32,10 @@ pub trait Object:
 }
 
 impl Obj {
+    pub fn new<T: 'static + Object>(obj: T) -> Obj {
+        Obj::Ptr(Box::new(obj))
+    }
+
     pub fn unbox_as<T: 'static + Object>(&self) -> Option<&T> {
         match self {
             Obj::Null => None,
@@ -45,6 +50,12 @@ impl fmt::Display for Obj {
             Obj::Null => write!(f, "null"),
             Obj::Ptr(obj) => write!(f, "{}", obj)
         }
+    }
+}
+
+impl fmt::Debug for Obj {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }
 

@@ -13,6 +13,10 @@ pub struct Pair {
 }
 
 impl Pair {
+    pub fn empty() -> Pair {
+        Pair { car: Obj::Null, cdr: Obj::Null }
+    }
+
     fn fmt_pair(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let r = write!(f, "{}", self.car);
         r.and_then(|r| match self.cdr {
@@ -37,5 +41,11 @@ impl fmt::Display for Pair {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "(").and_then(|_| self.fmt_pair(f))
                       .and_then(|_| write!(f, ")"))
+    }
+}
+
+impl fmt::Debug for Pair {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }

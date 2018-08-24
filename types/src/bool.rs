@@ -2,16 +2,26 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use object::Object;
-use predicates::IsBool;
+use std::fmt;
+use object::Obj;
+use preds;
 
-impl IsBool for Object {
-    fn is_bool(&self) -> bool {
-        match *self {
-            Object::Bool(_) => true,
-            _ => false,
+/// The Scheme boolean type. It can be `True` or `False`.
+pub enum Bool { True, False }
+
+impl Obj for Bool { }
+
+impl fmt::Display for Bool {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Bool::True => write!(f, "#t"),
+            Bool::False => write!(f, "#f")
         }
     }
+}
+
+impl preds::IsBool for Bool {
+    fn is_bool(&self) -> bool { true }
 }
 
 #[cfg(test)]
