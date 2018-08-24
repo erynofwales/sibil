@@ -90,13 +90,14 @@ impl fmt::Display for Number {
 
 #[cfg(test)]
 mod tests {
+    use super::Exact;
     use super::Number;
     use super::real::Real;
 
     #[test]
     fn exact_numbers_are_exact() {
-        assert!(Number::from_int(3, true).is_exact());
-        assert!(!Number::from_int(3, false).is_exact());
+        assert!(Number::from_int(3, Exact::Yes).is_exact());
+        assert!(!Number::from_int(3, Exact::No).is_exact());
     }
 
     #[test]

@@ -1,13 +1,10 @@
-pub mod number;
-pub mod char;
-
-mod bool;
 mod object;
-mod predicates;
+mod pair;
+mod sym;
 
-pub use object::Object;
-pub use object::ObjectPtr;
-pub use predicates::*;
+pub use object::Obj;
+pub use pair::Pair;
+pub use sym::Sym;
 
 #[cfg(test)]
 mod tests {
