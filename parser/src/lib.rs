@@ -15,7 +15,6 @@ use sibillexer::Result as LexerResult;
 use sibiltypes::Obj;
 use node_parser::{NodeParser, NodeParseResult};
 use program_parser::ProgramParser;
-use sym_parser::SymParser;
 
 /// The output of calling `parse()` on a Parser is one of these Result objects.
 pub type Result = std::result::Result<Obj, ParseError>;
@@ -45,13 +44,17 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
     type Item = Result;
 
     fn next(&mut self) -> Option<Self::Item> {
+        let mut lex = self.input.next();
         loop {
-            if let Some(lex) = self.input.next() {
-                if let Ok(lex) = lex {
-                } else {
-                }
-            } else {
-                break;
+            match lex {
+                Some(ref lex) => {
+                    match lex {
+                        Ok(ref lex) => {
+                        }
+                        Err(error) => {}
+                    }
+                },
+                None => break
             }
         }
         assert_eq!(self.parsers.len(), 0);
