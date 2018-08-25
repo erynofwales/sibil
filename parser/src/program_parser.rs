@@ -40,5 +40,9 @@ impl NodeParser for ProgramParser {
     fn none(&mut self) -> NodeParseResult {
         NodeParseResult::Complete { obj: Obj::Null }
     }
+
+    fn subparser_completed(&mut self, obj: Obj) -> NodeParseResult {
+        NodeParseResult::Complete { obj: obj }
+    }
 }
 

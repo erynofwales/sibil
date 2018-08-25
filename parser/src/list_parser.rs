@@ -9,13 +9,13 @@ use sym_parser::SymParser;
 
 #[derive(Debug)]
 pub struct ListParser {
-    list: Obj
+    list: Option<Pair>
 }
 
 impl ListParser {
     pub fn new() -> ListParser {
         ListParser {
-            list: Obj::Null
+            list: None
         }
     }
 }
@@ -25,12 +25,12 @@ impl NodeParser for ListParser {
         match lex.token() {
             Token::LeftParen => {
                 match self.list {
-                    Obj::Null => {
+                    None => {
                         // Create our empty pair and proceed parsing this list.
-                        self.list = Obj::new(Pair::empty());
+                        self.list = Some(Pair::empty());
                         NodeParseResult::Continue
                     },
-                    Obj::Ptr(_) => {
+                    Some(_) => {
                         // This is an embedded list. Create a new parser for it.
                         let parser = ListParser::new();
                         NodeParseResult::Push { next: Box::new(parser) }
@@ -42,7 +42,17 @@ impl NodeParser for ListParser {
                 NodeParseResult::Push { next: Box::new(parser) }
             },
             Token::RightParen => {
-                NodeParseResult::Complete { obj: self.list.take() }
+                match self.list {
+                    None => {
+                        let msg = format!("Found right paren without matching left paren");
+                        NodeParseResult::error(msg)
+                    },
+                    Some(_) => {
+                        let taken = self.list.take().unwrap();
+                        // TODO: If the cdr is Null, fill it in with an empty pair.
+                        NodeParseResult::Complete { obj: Obj::new(taken) }
+                    }
+                }
             }
         }
     }
@@ -50,5 +60,23 @@ impl NodeParser for ListParser {
     fn none(&mut self) -> NodeParseResult {
         let msg = format!("Unmatched paren, found EOF");
         NodeParseResult::error(msg)
+    }
+
+    fn subparser_completed(&mut self, obj: Obj) -> NodeParseResult {
+        if let Some(ref mut list) = self.list {
+            match list.car {
+                Obj::Null => {
+                    list.car = obj;
+                },
+                Obj::Ptr(_) => {
+                    let pair = Pair::with_car(obj);
+                    list.cdr = Obj::new(pair);
+                }
+            }
+            NodeParseResult::Continue
+        } else {
+            let msg = format!("what happened here???");
+            NodeParseResult::error(msg)
+        }
     }
 }

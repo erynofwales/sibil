@@ -29,4 +29,9 @@ impl NodeParser for SymParser {
         let msg = format!("Expected symbol, found EOF");
         NodeParseResult::error(msg)
     }
+
+    fn subparser_completed(&mut self, obj: Obj) -> NodeParseResult {
+        let msg = format!("Unexpected parser result: {}", obj);
+        NodeParseResult::error(msg)
+    }
 }
