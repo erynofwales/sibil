@@ -24,7 +24,6 @@ impl Sym {
 
 impl Object for Sym {
     fn as_any(&self) -> &Any { self }
-    fn as_pair(&self) -> Option<&Pair> { None }
     fn as_sym(&self) -> Option<&Sym> { Some(self) }
 }
 

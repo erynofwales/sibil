@@ -43,7 +43,6 @@ impl Pair {
 impl Object for Pair {
     fn as_any(&self) -> &Any { self }
     fn as_pair(&self) -> Option<&Pair> { Some(self) }
-    fn as_sym(&self) -> Option<&Sym> { None }
 }
 
 impl fmt::Display for Pair {

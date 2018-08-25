@@ -28,9 +28,12 @@ pub trait Object:
     fmt::Debug +
     fmt::Display
 {
+    /// Cast this Object to an Any.
     fn as_any(&self) -> &Any;
-    fn as_pair(&self) -> Option<&Pair>;
-    fn as_sym(&self) -> Option<&Sym>;
+    /// Cast this Object to a Pair if possible.
+    fn as_pair(&self) -> Option<&Pair> { None }
+    /// Cast this Object to a Sym if possible.
+    fn as_sym(&self) -> Option<&Sym> { None }
 }
 
 impl Obj {
