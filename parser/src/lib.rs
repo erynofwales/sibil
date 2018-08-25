@@ -42,7 +42,7 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
     fn prepare(&mut self) {
         assert_eq!(self.parsers.len(), 0);
         let program_parser = Box::new(ProgramParser::new());
-        self.parsers.push(program_parser);
+        self.push_parser(program_parser);
     }
 
     fn parse_lex(&mut self, lex: &Lex) -> NodeParseResult {
@@ -57,17 +57,12 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
 
     fn pop_parser(&mut self) {
         let popped = self.parsers.pop();
-        println!("popped parser stack, {} parser{} remain --> {:?}",
-                 self.parsers.len(),
-                 if self.parsers.len() == 1 { " " } else { "s" },
-                 popped);
+        println!("popped parser stack --> {:?}", self.parsers);
     }
 
     fn push_parser(&mut self, next: Box<NodeParser>) {
         self.parsers.push(next);
-        println!("pushed onto parser stack, {} now -> {:?}",
-                 self.parsers.len(),
-                 self.parsers.last());
+        println!("pushed onto parser stack -> {:?}", self.parsers);
     }
 
     fn next_lex(&mut self) -> Option<T::Item> {
@@ -100,13 +95,19 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                 }
                 Some(NodeParseResult::Continue) => self.next_lex(),
                 Some(NodeParseResult::Complete{ obj }) => {
+                    println!("{:?} completed with {:?}", self.parsers.last().unwrap(), obj);
                     self.pop_parser();
                     if self.parsers.len() == 0 && input_lex.is_none() {
                         // We are done.
                         println!("we are done");
                         out = Some(Ok(obj));
                         break;
+                    } else {
+                        let prev_parser = self.parsers.last_mut().unwrap();
+                        prev_parser.subparser_completed(obj);
+                        // TODO: Handle the result from above.
                     }
+                    println!("parsers {:?}", self.parsers);
                     self.next_lex()
                 },
                 Some(NodeParseResult::Push{ next }) => {

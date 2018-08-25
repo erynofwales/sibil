@@ -7,14 +7,19 @@ use std::fmt;
 use super::*;
 use object::Object;
 
+#[derive(Debug)]
 pub struct Pair {
-    car: Obj,
-    cdr: Obj
+    pub car: Obj,
+    pub cdr: Obj
 }
 
 impl Pair {
     pub fn empty() -> Pair {
         Pair { car: Obj::Null, cdr: Obj::Null }
+    }
+
+    pub fn with_car(car: Obj) -> Pair {
+        Pair { car: car, cdr: Obj::Null }
     }
 
     fn fmt_pair(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -44,8 +49,3 @@ impl fmt::Display for Pair {
     }
 }
 
-impl fmt::Debug for Pair {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
