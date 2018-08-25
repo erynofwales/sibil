@@ -52,6 +52,23 @@ impl fmt::Display for Pair {
     }
 }
 
+impl PartialEq<Obj> for Pair {
+    fn eq(&self, rhs: &Obj) -> bool {
+        match rhs {
+            Obj::Null => false,
+            Obj::Ptr(ref rhs) => {
+                if let Some(rhs_pair) = rhs.as_pair() {
+                    let car_eq = self.car == rhs_pair.car;
+                    let cdr_eq = self.cdr == rhs_pair.cdr;
+                    car_eq && cdr_eq
+                } else {
+                    false
+                }
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Pair;

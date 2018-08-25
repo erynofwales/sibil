@@ -13,6 +13,7 @@
 //! available types in Scheme. These predicates are implemented as `is_*`
 //! methods in a bunch of `Is*` traits defined below.
 
+use std::ops::Deref;
 use std::mem;
 use std::any::Any;
 use std::fmt;
@@ -26,7 +27,8 @@ pub enum Obj {
 
 pub trait Object:
     fmt::Debug +
-    fmt::Display
+    fmt::Display +
+    PartialEq<Obj>
 {
     /// Cast this Object to an Any.
     fn as_any(&self) -> &Any;
@@ -52,6 +54,13 @@ impl Obj {
             Obj::Ptr(obj) => obj.as_any().downcast_ref::<T>()
         }
     }
+
+    pub fn is_null(&self) -> bool {
+        match self {
+            Obj::Null => true,
+            _ => false
+        }
+    }
 }
 
 impl fmt::Display for Obj {
@@ -59,6 +68,15 @@ impl fmt::Display for Obj {
         match self {
             Obj::Null => write!(f, "()"),
             Obj::Ptr(obj) => write!(f, "{}", obj)
+        }
+    }
+}
+
+impl PartialEq for Obj {
+    fn eq(&self, rhs: &Self) -> bool {
+        match self {
+            Obj::Null => rhs.is_null(),
+            Obj::Ptr(ref inner) => inner.deref() == rhs
         }
     }
 }

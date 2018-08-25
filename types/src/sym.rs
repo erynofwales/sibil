@@ -3,6 +3,7 @@
  */
 
 use std::any::Any;
+use std::ops::Deref;
 use std::fmt;
 use object::Object;
 use super::*;
@@ -30,6 +31,21 @@ impl Object for Sym {
 impl fmt::Display for Sym {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl PartialEq<Obj> for Sym {
+    fn eq(&self, rhs: &Obj) -> bool {
+        match rhs {
+            Obj::Null => false,
+            Obj::Ptr(ref inner) => {
+                if let Some(rhs_sym) = inner.deref().as_sym() {
+                    self.0 == rhs_sym.0
+                } else {
+                    false
+                }
+            }
+        }
     }
 }
 
