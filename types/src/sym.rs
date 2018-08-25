@@ -7,11 +7,18 @@ use std::fmt;
 use object::Object;
 use super::*;
 
+#[derive(Debug, PartialEq)]
 pub struct Sym(String);
 
 impl Sym {
+    /// Creates a Sym with the given String.
     pub fn new(value: String) -> Sym {
         Sym(value)
+    }
+
+    /// Makes a copy of the input `&str` and creates a Sym with it.
+    pub fn with_str(value: &str) -> Sym {
+        Sym(value.to_string())
     }
 }
 
@@ -27,8 +34,21 @@ impl fmt::Display for Sym {
     }
 }
 
-impl fmt::Debug for Sym {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
+#[cfg(test)]
+mod tests {
+    use super::Sym;
+
+    #[test]
+    fn syms_display_as_strings() {
+        let sym = Sym::with_str("abc");
+        let disp = format!("{}", sym);
+        assert_eq!(disp, "abc");
+    }
+
+    #[test]
+    fn syms_with_the_same_name_are_equal() {
+        let a = Sym::with_str("abc");
+        let b = Sym::with_str("abc");
+        assert_eq!(a, b);
     }
 }
