@@ -33,11 +33,16 @@ pub struct Parser<T> where T: Iterator<Item=LexerResult> {
 
 impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
     pub fn new(input: T) -> Parser<T> {
-        let program_parser = Box::new(ProgramParser::new());
         Parser {
             input: input.peekable(),
-            parsers: vec!(program_parser)
+            parsers: vec![]
         }
+    }
+
+    fn prepare(&mut self) {
+        assert_eq!(self.parsers.len(), 0);
+        let program_parser = Box::new(ProgramParser::new());
+        self.parsers.push(program_parser);
     }
 
     fn parse_lex(&mut self, lex: &Lex) -> NodeParseResult {
@@ -81,7 +86,18 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
         let mut input_lex: Option<T::Item> = None;
         loop {
             input_lex = match result {
-                None => self.next_lex(),  // Starting condition
+                None => {
+                    let next_lex = self.next_lex();
+                    if next_lex.is_none() {
+                        // First run through the loop and our input has nothing to give.
+                        out = None;
+                        break;
+                    } else {
+                        // Prepare for parsing!
+                        self.prepare();
+                    }
+                    next_lex
+                }
                 Some(NodeParseResult::Continue) => self.next_lex(),
                 Some(NodeParseResult::Complete{ obj }) => {
                     self.pop_parser();
