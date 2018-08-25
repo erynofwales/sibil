@@ -147,7 +147,14 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
 
 #[cfg(test)]
 mod tests {
+    use sibillexer::Lexer;
+    use sibiltypes::Pair;
+    use super::Parser;
+
     #[test]
     fn it_works() {
+        let lexer = Lexer::new("(ab)".chars());
+        let mut parser = Parser::new(lexer);
+        let obj = parser.next().unwrap().unwrap();
     }
 }
