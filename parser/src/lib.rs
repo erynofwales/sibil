@@ -110,8 +110,7 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                     self.next_lex()
                 },
                 Some(NodeParseResult::Push{ next }) => {
-                    // Push the next parser on and give it a shot at the current
-                    // token.
+                    // Push the next parser on and give it a shot at the current token.
                     self.push_parser(next);
                     input_lex
                 },
@@ -122,8 +121,7 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
             };
             match input_lex {
                 Some(Ok(ref lex)) => {
-                    // TODO: Valid Lex from our input. Hand it off to the
-                    // current parser and process the result.
+                    // TODO: Valid Lex from our input. Hand it off to the current parser and process the result.
                     result = Some(self.parse_lex(lex));
                 },
                 Some(Err(ref error)) => {
