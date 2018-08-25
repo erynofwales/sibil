@@ -20,7 +20,7 @@ use program_parser::ProgramParser;
 /// The output of calling `parse()` on a Parser is one of these Result objects.
 pub type Result = std::result::Result<Obj, ParseError>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ParseError {
     LexerError{msg: String},
     ParserError{msg: String}
