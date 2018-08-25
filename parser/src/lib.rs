@@ -97,16 +97,17 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                 Some(NodeParseResult::Complete{ obj }) => {
                     println!("{:?} completed with {:?}", self.parsers.last().unwrap(), obj);
                     self.pop_parser();
-                    if self.parsers.len() == 0 && input_lex.is_none() {
-                        // We are done.
-                        println!("we are done");
+                    if self.parsers.len() == 0 {
+                        println!("we are done parsing");
                         out = Some(Ok(obj));
                         break;
                     } else {
                         let prev_parser = self.parsers.last_mut().unwrap();
-                        prev_parser.subparser_completed(obj);
-                        // TODO: Handle the result from above.
+                        println!("passing completed obj {:?} to previous parser {:?}", obj, prev_parser);
+                        result = Some(prev_parser.subparser_completed(obj));
+                        continue;
                     }
+                    // TODO: This is dead code now... Is this correct?
                     println!("parsers {:?}", self.parsers);
                     self.next_lex()
                 },
