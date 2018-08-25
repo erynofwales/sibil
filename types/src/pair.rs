@@ -49,3 +49,14 @@ impl fmt::Display for Pair {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::Pair;
+
+    #[test]
+    fn display_empty_pair() {
+        let empty = Pair::empty();
+        let disp = format!("{}", empty);
+        assert_eq!(disp, "(())");
+    }
+}

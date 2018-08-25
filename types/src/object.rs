@@ -39,6 +39,7 @@ impl Obj {
     }
 
     pub fn take(&mut self) -> Obj {
+        // Stole Option's implementation of this. Handy. :D
         mem::replace(self, Obj::Null)
     }
 
