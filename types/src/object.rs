@@ -18,6 +18,7 @@ use std::any::Any;
 use std::fmt;
 use super::*;
 
+#[derive(Debug)]
 pub enum Obj {
     Null,
     Ptr(Box<Object>)
@@ -55,12 +56,6 @@ impl fmt::Display for Obj {
             Obj::Null => write!(f, "null"),
             Obj::Ptr(obj) => write!(f, "{}", obj)
         }
-    }
-}
-
-impl fmt::Debug for Obj {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
     }
 }
 
