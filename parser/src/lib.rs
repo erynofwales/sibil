@@ -52,22 +52,22 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
 
     fn pop_parser(&mut self) {
         let popped = self.parsers.pop();
-        print!("popped parser stack, {} parser{} remain --> {:?}\n",
-               self.parsers.len(),
-               if self.parsers.len() == 1 { " " } else { "s" },
-               popped);
+        println!("popped parser stack, {} parser{} remain --> {:?}",
+                 self.parsers.len(),
+                 if self.parsers.len() == 1 { " " } else { "s" },
+                 popped);
     }
 
     fn push_parser(&mut self, next: Box<NodeParser>) {
         self.parsers.push(next);
-        print!("pushed onto parser stack, {} now -> {:?}\n",
-               self.parsers.len(),
-               self.parsers.last());
+        println!("pushed onto parser stack, {} now -> {:?}",
+                 self.parsers.len(),
+                 self.parsers.last());
     }
 
     fn next_lex(&mut self) -> Option<T::Item> {
         let next = self.input.next();
-        print!("next lex: {:?}\n", next);
+        println!("next lex: {:?}", next);
         next
     }
 }
@@ -87,12 +87,15 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
                     self.pop_parser();
                     if self.parsers.len() == 0 && input_lex.is_none() {
                         // We are done.
+                        println!("we are done");
                         out = Some(Ok(obj));
                         break;
                     }
                     self.next_lex()
                 },
                 Some(NodeParseResult::Push{ next }) => {
+                    // Push the next parser on and give it a shot at the current
+                    // token.
                     self.push_parser(next);
                     input_lex
                 },
