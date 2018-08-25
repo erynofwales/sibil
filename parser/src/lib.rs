@@ -76,7 +76,7 @@ impl<T> Iterator for Parser<T> where T: Iterator<Item=LexerResult> {
     type Item = Result;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut out: Option<Self::Item> = None;
+        let out: Option<Self::Item>;
         let mut result: Option<NodeParseResult> = None;
         let mut input_lex: Option<T::Item> = None;
         loop {
