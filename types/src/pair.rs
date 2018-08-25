@@ -7,7 +7,7 @@ use std::fmt;
 use super::*;
 use object::Object;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Pair {
     pub car: Obj,
     pub cdr: Obj
@@ -72,4 +72,11 @@ impl PartialEq<Obj> for Pair {
 #[cfg(test)]
 mod tests {
     use super::Pair;
+
+    #[test]
+    fn empty_pairs_are_equal() {
+        let a = Pair::empty();
+        let b = Pair::empty();
+        assert_eq!(a, b);
+    }
 }
