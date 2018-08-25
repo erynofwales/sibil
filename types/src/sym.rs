@@ -39,13 +39,6 @@ mod tests {
     use super::Sym;
 
     #[test]
-    fn syms_display_as_strings() {
-        let sym = Sym::with_str("abc");
-        let disp = format!("{}", sym);
-        assert_eq!(disp, "abc");
-    }
-
-    #[test]
     fn syms_with_the_same_name_are_equal() {
         let a = Sym::with_str("abc");
         let b = Sym::with_str("abc");

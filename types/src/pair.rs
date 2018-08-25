@@ -14,6 +14,10 @@ pub struct Pair {
 }
 
 impl Pair {
+    pub fn new(car: Obj, cdr: Obj) -> Pair {
+        Pair { car, cdr }
+    }
+
     pub fn empty() -> Pair {
         Pair { car: Obj::Null, cdr: Obj::Null }
     }
@@ -52,11 +56,4 @@ impl fmt::Display for Pair {
 #[cfg(test)]
 mod tests {
     use super::Pair;
-
-    #[test]
-    fn display_empty_pair() {
-        let empty = Pair::empty();
-        let disp = format!("{}", empty);
-        assert_eq!(disp, "(())");
-    }
 }

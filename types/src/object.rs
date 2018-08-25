@@ -54,7 +54,7 @@ impl Obj {
 impl fmt::Display for Obj {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Obj::Null => write!(f, "null"),
+            Obj::Null => write!(f, "()"),
             Obj::Ptr(obj) => write!(f, "{}", obj)
         }
     }
