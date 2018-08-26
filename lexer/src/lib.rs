@@ -54,7 +54,6 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
             let peek = self.input.peek().map(char::clone);
             println!("lexing {:?} in state {:?}, buffer = {:?}", peek, state, buffer);
             match peek {
-                // TODO: Give the current state a chance to react.
                 None => match state.none() {
                     Ok(None) => break,
                     Ok(Some(token)) => {

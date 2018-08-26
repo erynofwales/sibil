@@ -3,6 +3,7 @@
  */
 
 mod begin;
+mod hash;
 mod id;
 
 pub use self::begin::Begin;

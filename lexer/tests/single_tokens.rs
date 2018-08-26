@@ -31,3 +31,35 @@ fn lexer_finds_id() {
     assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
+
+#[test]
+fn bool_short_true() {
+    let expected_lex = Lex::new(Token::Bool(true), "#t", 0, 0);
+    let mut lex = Lexer::new("#t".chars());
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
+    assert_eq!(lex.next(), None);
+}
+
+#[test]
+fn bool_short_false() {
+    let expected_lex = Lex::new(Token::Bool(false), "#f", 0, 0);
+    let mut lex = Lexer::new("#f".chars());
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
+    assert_eq!(lex.next(), None);
+}
+
+#[test]
+fn bool_long_true() {
+    let expected_lex = Lex::new(Token::Bool(true), "#true", 0, 0);
+    let mut lex = Lexer::new("#true".chars());
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
+    assert_eq!(lex.next(), None);
+}
+
+#[test]
+fn bool_long_false() {
+    let expected_lex = Lex::new(Token::Bool(false), "#false", 0, 0);
+    let mut lex = Lexer::new("#false".chars());
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
+    assert_eq!(lex.next(), None);
+}

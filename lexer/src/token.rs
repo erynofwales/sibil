@@ -11,7 +11,12 @@ pub struct Lex {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Token { LeftParen, RightParen, Id, }
+pub enum Token {
+    Bool(bool),
+    LeftParen,
+    RightParen,
+    Id
+}
 
 impl Lex {
     pub fn new(token: Token, value: &str, line: usize, offset: usize) -> Lex {
