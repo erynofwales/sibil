@@ -2,28 +2,18 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use std::iter::Peekable;
-use chars::Lexable;
-
 mod chars;
 mod error;
+mod states;
 mod token;
 
 pub use error::Error;
 pub use token::{Lex, Token};
 
+use std::iter::Peekable;
+use states::*;
+
 pub type Result = std::result::Result<Lex, Error>;
-
-#[derive(Debug, Eq, PartialEq)]
-enum Resume { Here, AtNext } 
-
-#[derive(Debug, Eq, PartialEq)]
-enum IterationResult {
-    Finish,
-    Continue,
-    Emit(Token, Resume),
-    Error(Error),
-}
 
 pub struct Lexer<T> where T: Iterator<Item=char> {
     input: Peekable<T>,
@@ -38,14 +28,6 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
             line: 0,
             offset: 0
         }
-    }
-
-    fn emit(&self, token: Token, resume: Resume) -> IterationResult {
-        IterationResult::Emit(token, resume)
-    }
-
-    fn fail(&self, msg: String) -> IterationResult {
-        IterationResult::Error(Error::new(msg))
     }
 }
 
@@ -66,59 +48,48 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut buffer = String::new();
+        let mut state: Box<states::State> = Box::new(states::Begin{});
+        let mut out: Option<Self::Item> = None;
         loop {
             let peek = self.input.peek().map(char::clone);
-            let result = if buffer.is_empty() {
-                match peek {
-                    Some(c) if c.is_left_paren() => {
-                        buffer.push(c);
-                        self.emit(Token::LeftParen, Resume::AtNext)
+            println!("lexing {:?} in state {:?}, buffer = {:?}", peek, state, buffer);
+            match peek {
+                // TODO: Give the current state a chance to react.
+                None => match state.none() {
+                    Ok(None) => break,
+                    Ok(Some(token)) => {
+                        out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
+                        break;
                     },
-                    Some(c) if c.is_right_paren() => {
-                        buffer.push(c);
-                        self.emit(Token::RightParen, Resume::AtNext)
-                    },
-                    Some(c) if c.is_whitespace() => {
-                        self.handle_whitespace(c);
-                        IterationResult::Continue
-                    },
-                    Some(c) if c.is_identifier_initial() => {
-                        buffer.push(c);
-                        IterationResult::Continue
-                    },
-                    Some(c) => self.fail(format!("Invalid character: {}", c)),
-                    // We found EOF and there's no pending string, so just finish.
-                    None => IterationResult::Finish,
+                    Err(msg) => panic!("{}", msg)
+                },
+                Some(c) => {
+                    let result = state.lex(c);
+                    match result {
+                        StateResult::Continue => {
+                            buffer.push(c);
+                            self.input.next();
+                        },
+                        StateResult::Advance { to } => {
+                            buffer.push(c);
+                            self.input.next();
+                            state = to;
+                        },
+                        StateResult::Emit(token, resume) => {
+                            if resume == Resume::AtNext {
+                                buffer.push(c);
+                                self.input.next();
+                            }
+                            out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
+                            break;
+                        },
+                        StateResult::Fail { msg } => {
+                            panic!("{}", msg);
+                        }
+                    }
                 }
             }
-            else {
-                match peek {
-                    Some(c) if c.is_identifier_subsequent() => {
-                        buffer.push(c);
-                        IterationResult::Continue
-                    }
-                    Some(c) if c.is_identifier_delimiter() =>
-                        self.emit(Token::Id, Resume::Here),
-                    Some(c) => self.fail(format!("Invalid character: {}", c)),
-                    // Found EOF. Emit what we have and finish.
-                    // Note: the Resume argument doesn't matter in this case since the input
-                    // iterator will always be None from here on.
-                    None => self.emit(Token::Id, Resume::Here),
-                }
-            };
-            match result {
-                IterationResult::Finish => break,
-                IterationResult::Continue => self.input.next(),
-                IterationResult::Emit(token, resume) => {
-                    if resume == Resume::AtNext {
-                        self.input.next();
-                    }
-                    let lex = Lex::new(token, &buffer, self.line, self.offset);
-                    return Some(Ok(lex))
-                },
-                IterationResult::Error(err) => return Some(Err(err)),
-            };
         }
-        None
+        out
     }
 }
