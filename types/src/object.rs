@@ -32,6 +32,8 @@ pub trait Object:
 {
     /// Cast this Object to an Any.
     fn as_any(&self) -> &Any;
+    /// Cast this Object to a Bool if possible.
+    fn as_bool(&self) -> Option<&Bool> { None }
     /// Cast this Object to a Pair if possible.
     fn as_pair(&self) -> Option<&Pair> { None }
     /// Cast this Object to a Sym if possible.
