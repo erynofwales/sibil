@@ -1,11 +1,11 @@
-/* parser/src/list_parser.rs
+/* parser/src/parsers/list.rs
  * Eryn Wells <eryn@erynwells.me>
  */
 
 use sibillexer::{Lex, Token};
 use sibiltypes::{Obj, Pair};
-use node_parser::{NodeParser, NodeParseResult};
-use sym_parser::SymParser;
+use parsers::{NodeParser, NodeParseResult};
+use parsers::sym::SymParser;
 
 #[derive(Debug)]
 pub struct ListParser {

@@ -5,17 +5,14 @@
 extern crate sibillexer;
 extern crate sibiltypes;
 
-mod list_parser;
-mod node_parser;
-mod program_parser;
-mod sym_parser;
+mod parsers;
 
 use std::iter::Peekable;
 use sibillexer::Result as LexerResult;
 use sibillexer::Lex;
 use sibiltypes::Obj;
-use node_parser::{NodeParser, NodeParseResult};
-use program_parser::ProgramParser;
+use parsers::{NodeParser, NodeParseResult};
+use parsers::ProgramParser;
 
 /// The output of calling `parse()` on a Parser is one of these Result objects.
 pub type Result = std::result::Result<Obj, ParseError>;

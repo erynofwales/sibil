@@ -4,9 +4,9 @@
 
 use sibillexer::{Lex, Token};
 use sibiltypes::Obj;
-use list_parser::ListParser;
-use node_parser::{NodeParser, NodeParseResult};
-use sym_parser::SymParser;
+use parsers::{NodeParser, NodeParseResult};
+use parsers::list::ListParser;
+use parsers::sym::SymParser;
 
 #[derive(Debug)]
 pub struct ProgramParser;

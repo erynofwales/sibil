@@ -4,7 +4,7 @@
 
 use sibillexer::{Lex, Token};
 use sibiltypes::{Obj, Sym};
-use node_parser::{NodeParser, NodeParseResult};
+use parsers::{NodeParser, NodeParseResult};
 
 #[derive(Debug)]
 pub struct SymParser;

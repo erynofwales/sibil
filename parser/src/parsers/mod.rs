@@ -1,6 +1,12 @@
-/* node_parser.rs
+/* parser/src/parsers/mod.rs
  * Eryn Wells <eryn@erynwells.me>
  */
+
+mod list;
+mod program;
+mod sym;
+
+pub use self::program::ProgramParser;
 
 use std::fmt::Debug;
 use sibillexer::Lex;
@@ -31,8 +37,10 @@ impl NodeParseResult {
 pub trait NodeParser: Debug {
     /// Called on a NodeParser when a Lex is encountered in the input.
     fn parse(&mut self, lex: &Lex) -> NodeParseResult;
+
     /// Called on a NodeParser when None is encountered in the input.
     fn none(&mut self) -> NodeParseResult;
+
     /// Called on a NodeParser when a NodeParser created by this one returns an object via
     /// `NodeParseResult::Complete`.
     fn subparser_completed(&mut self, obj: Obj) -> NodeParseResult;
