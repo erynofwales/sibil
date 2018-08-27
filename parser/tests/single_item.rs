@@ -11,7 +11,7 @@ extern crate sibiltypes;
 use sibillexer::{Lex, Token};
 use sibillexer::Result as LexerResult;
 use sibilparser::Parser;
-use sibiltypes::{Obj, Pair, Sym};
+use sibiltypes::{Bool, Obj, Pair, Sym};
 
 #[test]
 fn single_sym() {
@@ -28,5 +28,14 @@ fn single_pair() {
                       Ok(Lex::new(Token::RightParen, ")", 0, 0))].into_iter();
     let mut parser = Parser::new(tokens);
     assert_eq!(parser.next(), Some(Ok(Obj::new(Pair::empty()))));
+    assert_eq!(parser.next(), None);
+}
+
+#[test]
+fn single_bool() {
+    let lex: LexerResult = Ok(Lex::new(Token::Bool(true), "#t", 0, 0));
+    let tokens = vec![lex].into_iter();
+    let mut parser = Parser::new(tokens);
+    assert_eq!(parser.next(), Some(Ok(Obj::new(Bool::True))));
     assert_eq!(parser.next(), None);
 }
