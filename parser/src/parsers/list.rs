@@ -5,6 +5,7 @@
 use sibillexer::{Lex, Token};
 use sibiltypes::{Obj, Pair};
 use parsers::{NodeParser, NodeParseResult};
+use parsers::bool::BoolParser;
 use parsers::sym::SymParser;
 
 #[derive(Debug)]
@@ -23,6 +24,10 @@ impl ListParser {
 impl NodeParser for ListParser {
     fn parse(&mut self, lex: &Lex) -> NodeParseResult {
         match lex.token() {
+            Token::Bool(_) => {
+                let parser = BoolParser{};
+                NodeParseResult::Push { next: Box::new(parser) }
+            }
             Token::LeftParen => {
                 match self.list {
                     None => {

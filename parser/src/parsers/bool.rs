@@ -1,31 +1,28 @@
-/* parser/src/sym_parser.rs
+/* parser/src/parsers/bool.rs
  * Eryn Wells <eryn@erynwells.me>
  */
 
 use sibillexer::{Lex, Token};
-use sibiltypes::{Obj, Sym};
+use sibiltypes::{Bool, Obj};
 use parsers::{NodeParser, NodeParseResult};
 
-#[derive(Debug)] pub struct SymParser;
+#[derive(Debug)] pub struct BoolParser;
 
-impl NodeParser for SymParser {
+impl NodeParser for BoolParser {
     fn parse(&mut self, lex: &Lex) -> NodeParseResult {
         match lex.token() {
-            Token::Id => {
-                let value = String::from(lex.value());
-                // Initializing with Sym(value) caused E0423. So use this isntead.
-                let obj = Obj::new(Sym::new(value));
-                NodeParseResult::Complete { obj: obj }
+            Token::Bool(value) => {
+                NodeParseResult::Complete { obj: Obj::new(Bool::from(value)) }
             }
             _ => {
-                let msg = format!("Expected symbol, found {:?}", lex);
+                let msg = format!("Expected bool, found {:?}", lex);
                 NodeParseResult::error(msg)
             }
         }
     }
 
     fn none(&mut self) -> NodeParseResult {
-        let msg = format!("Expected symbol, found EOF");
+        let msg = format!("Expected bool, found EOF");
         NodeParseResult::error(msg)
     }
 

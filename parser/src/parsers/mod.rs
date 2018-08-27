@@ -2,6 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+mod bool;
 mod list;
 mod program;
 mod sym;

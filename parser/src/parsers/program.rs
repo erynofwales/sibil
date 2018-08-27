@@ -5,6 +5,7 @@
 use sibillexer::{Lex, Token};
 use sibiltypes::Obj;
 use parsers::{NodeParser, NodeParseResult};
+use parsers::bool::BoolParser;
 use parsers::list::ListParser;
 use parsers::sym::SymParser;
 
@@ -20,10 +21,13 @@ impl ProgramParser {
 impl NodeParser for ProgramParser {
     fn parse(&mut self, lex: &Lex) -> NodeParseResult {
         match lex.token() {
+            Token::Bool(_) => {
+                let next = Box::new(BoolParser{});
+                NodeParseResult::Push { next }
+            },
             Token::LeftParen => {
-                let parser = ListParser::new();
-                let parser = Box::new(parser);
-                NodeParseResult::Push { next: parser }
+                let next = Box::new(ListParser::new());
+                NodeParseResult::Push { next }
             },
             Token::RightParen => {
                 let msg = format!("Expected symbol found {:?}", lex);
