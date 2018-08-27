@@ -10,13 +10,24 @@ use parsers::sym::SymParser;
 
 #[derive(Debug)]
 pub struct ListParser {
-    list: Option<Pair>
+    pairs: Option<Vec<Pair>>
 }
 
 impl ListParser {
     pub fn new() -> ListParser {
-        ListParser {
-            list: None
+        ListParser { pairs: None }
+    }
+
+    fn assemble(&mut self) -> Result<Obj, String> {
+        match self.pairs.take() {
+            Some(pairs) => {
+                let obj = pairs.into_iter().rfold(Obj::Null, |acc, mut pair| {
+                    pair.cdr = acc;
+                    Obj::Ptr(Box::new(pair))
+                });
+                Ok(obj)
+            },
+            None => Err("bad".to_string())
         }
     }
 }
@@ -29,33 +40,35 @@ impl NodeParser for ListParser {
                 NodeParseResult::Push { next: Box::new(parser) }
             }
             Token::LeftParen => {
-                match self.list {
+                match self.pairs {
                     None => {
                         // Create our empty pair and proceed parsing this list.
-                        self.list = Some(Pair::empty());
+                        self.pairs = Some(Vec::new());
                         NodeParseResult::Continue
                     },
                     Some(_) => {
                         // This is an embedded list. Create a new parser for it.
-                        let parser = ListParser::new();
-                        NodeParseResult::Push { next: Box::new(parser) }
+                        let next = Box::new(ListParser::new());
+                        NodeParseResult::Push { next }
                     }
                 }
             },
             Token::Id => {
-                let parser = SymParser{};
-                NodeParseResult::Push { next: Box::new(parser) }
+                let next = Box::new(SymParser{});
+                NodeParseResult::Push { next }
             },
             Token::RightParen => {
-                match self.list {
+                match self.pairs {
                     None => {
                         let msg = format!("Found right paren without matching left paren");
                         NodeParseResult::error(msg)
                     },
                     Some(_) => {
-                        let taken = self.list.take().unwrap();
-                        // TODO: If the cdr is Null, fill it in with an empty pair.
-                        NodeParseResult::Complete { obj: Obj::new(taken) }
+                        let list = self.assemble();
+                        match list {
+                            Ok(list) => NodeParseResult::Complete { obj: list },
+                            Err(msg) => NodeParseResult::error(msg)
+                        }
                     }
                 }
             }
@@ -68,16 +81,8 @@ impl NodeParser for ListParser {
     }
 
     fn subparser_completed(&mut self, obj: Obj) -> NodeParseResult {
-        if let Some(ref mut list) = self.list {
-            match list.car {
-                Obj::Null => {
-                    list.car = obj;
-                },
-                Obj::Ptr(_) => {
-                    let pair = Pair::with_car(obj);
-                    list.cdr = Obj::new(pair);
-                }
-            }
+        if let Some(ref mut pairs) = self.pairs {
+            pairs.push(Pair::with_car(obj));
             NodeParseResult::Continue
         } else {
             let msg = format!("what happened here???");

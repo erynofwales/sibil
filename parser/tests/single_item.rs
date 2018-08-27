@@ -27,7 +27,7 @@ fn single_pair() {
     let tokens = vec![Ok(Lex::new(Token::LeftParen, "(", 0, 0)),
                       Ok(Lex::new(Token::RightParen, ")", 0, 0))].into_iter();
     let mut parser = Parser::new(tokens);
-    assert_eq!(parser.next(), Some(Ok(Obj::new(Pair::empty()))));
+    assert_eq!(parser.next(), Some(Ok(Obj::Null)));
     assert_eq!(parser.next(), None);
 }
 
