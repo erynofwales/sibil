@@ -25,6 +25,16 @@ impl fmt::Display for Bool {
     }
 }
 
+impl From<bool> for Bool {
+    fn from(value: bool) -> Self {
+        if value {
+            Bool::True
+        } else {
+            Bool::False
+        }
+    }
+}
+
 impl PartialEq<Obj> for Bool {
     fn eq(&self, rhs: &Obj) -> bool {
         match rhs {
