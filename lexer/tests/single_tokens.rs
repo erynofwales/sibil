@@ -63,3 +63,12 @@ fn bool_long_false() {
     assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
+
+#[test]
+fn bool_with_spaces() {
+    // See issue #12
+    let expected_lex = Lex::new(Token::Bool(false), "#f", 0, 0);
+    let mut lex = Lexer::new("  #f  ".chars());
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
+    assert_eq!(lex.next(), None);
+}
