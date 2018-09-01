@@ -18,9 +18,7 @@ impl Number for Int {
 
 impl PartialEq<Obj> for Int {
     fn eq<'a>(&self, rhs: &'a Obj) -> bool {
-        let obj: Option<&'a Object> = rhs.obj();
-        let num: Option<&'a Number> = obj.and_then(Object::as_num);
-        match num {
+        match rhs.obj().and_then(Object::as_num) {
             Some(num) => self == num,
             None => false
         }
