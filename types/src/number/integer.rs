@@ -3,40 +3,40 @@
  */
 
 use std::any::Any;
-use value::*;
-use super::*;
+use number::Number;
+use object::{Obj, Object};
 
-#[derive(Debug, Eq, PartialEq)]
-pub struct Integer(pub Int);
+pub type Int = i64;
 
-impl Number for Integer {
-    fn convert_down(&self) -> Option<Box<Number>> { None }
-
-    fn is_exact(&self) -> bool { true }
-}
-
-impl Value for Integer {
-    fn as_value(&self) -> &Value { self }
-}
-
-impl IsBool for Integer { }
-impl IsChar for Integer { }
-
-impl IsNumber for Integer {
-    fn is_integer(&self) -> bool { true }
-}
-
-impl ValueEq for Integer {
-    fn eq(&self, other: &Value) -> bool {
-        other.as_any().downcast_ref::<Self>().map_or(false, |x| x == self)
-    }
-
+impl Object for Int {
     fn as_any(&self) -> &Any { self }
+}
+
+impl Number for Int {
+    fn as_int(&self) -> Option<&Int> { Some(self) }
+}
+
+impl PartialEq<Obj> for Int {
+    fn eq(&self, rhs: &Obj) -> bool {
+        match rhs.obj().and_then(Object::as_num) {
+            Some(num) => self == num,
+            None => false
+        }
+    }
+}
+
+impl PartialEq<Number> for Int {
+    fn eq(&self, rhs: &Number) -> bool {
+        match rhs.as_int() {
+            Some(rhs) => *self == *rhs,
+            None => false
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Integer;
+    use super::Int;
     use number::*;
     use value::*;
 
