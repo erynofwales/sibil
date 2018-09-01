@@ -18,6 +18,7 @@ use std::mem;
 use std::any::Any;
 use std::fmt;
 use super::*;
+use number::Number;
 
 #[derive(Debug)]
 pub enum Obj {
@@ -38,11 +39,20 @@ pub trait Object:
     fn as_pair(&self) -> Option<&Pair> { None }
     /// Cast this Object to a Sym if possible.
     fn as_sym(&self) -> Option<&Sym> { None }
+    /// Cast this Object to a Number if possible.
+    fn as_num(&self) -> Option<&Number> { None }
 }
 
 impl Obj {
     pub fn new<T: 'static + Object>(obj: T) -> Obj {
         Obj::Ptr(Box::new(obj))
+    }
+
+    pub fn obj<'a>(&'a self) -> Option<&'a Object> {
+        match self {
+            Obj::Ptr(obj) => Some(obj.deref()),
+            Obj::Null => None
+        }
     }
 
     pub fn take(&mut self) -> Obj {
