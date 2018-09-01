@@ -2,13 +2,17 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-/// # Numbers
-///
-/// Scheme numbers are complex, literally.
+//! # Numbers
+//!
+//! Scheme numbers are complex, literally. The model it uses is a hierarchy of types called the
+//! Number Tower. It consists of four types, in order: Integers, Rationals (or Fractionals),
+//! Irrationals (or Reals), and Complex Numbers. Each type going down the tower can be
+//! unequivocally cast to the type below it, but the reverse is not necessarily true. So, an
+//! Integer can be cast as a Rational (by putting its value over 1), but a Rational like 1/2 cannot
+//! be represented as an Integer.
 
 mod integer;
 
-use std::fmt;
 use object::Object;
 
 pub use self::integer::Int;
@@ -16,19 +20,10 @@ pub use self::integer::Int;
 pub trait Number: 
     Object
 {
+    /// Cast this Number to an Int if possible.
     fn as_int(&self) -> Option<&Int> { None }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum Exact { Yes, No }
-
-impl fmt::Display for Exact {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match *self {
-            Exact::Yes => "#e",
-            Exact::No => "#i",
-        })
-    }
+    /// Return `true` if this Number is an exact representation of its value.
+    fn is_exact(&self) -> bool { true }
 }
 
 // TODO: Implement PartialEq myself cause there are some weird nuances to comparing numbers.
