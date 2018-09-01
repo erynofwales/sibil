@@ -8,7 +8,6 @@
 
 mod integer;
 
-use std::fmt;
 use object::Object;
 
 pub use self::integer::Int;
@@ -16,19 +15,10 @@ pub use self::integer::Int;
 pub trait Number: 
     Object
 {
+    /// Cast this Number to an Int if possible.
     fn as_int(&self) -> Option<&Int> { None }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum Exact { Yes, No }
-
-impl fmt::Display for Exact {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match *self {
-            Exact::Yes => "#e",
-            Exact::No => "#i",
-        })
-    }
+    /// Return `true` if this Number is an exact representation of its value.
+    fn is_exact(&self) -> bool { true }
 }
 
 // TODO: Implement PartialEq myself cause there are some weird nuances to comparing numbers.
