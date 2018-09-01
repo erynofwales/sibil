@@ -188,8 +188,6 @@ impl PartialEq for Obj {
 
 #[cfg(test)]
 mod tests {
-    use super::Obj;
-
 //    #[test]
 //    fn display_bools() {
 //        assert_eq!(format!("{}", Object::Bool(true)), "#t");

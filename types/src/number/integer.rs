@@ -3,13 +3,22 @@
  */
 
 use std::any::Any;
+use std::fmt;
 use number::Number;
 use object::{Obj, Object};
 
-pub type Int = i64;
+#[derive(Debug, Eq, PartialEq)]
+pub struct Int(i64);
+
+impl fmt::Display for Int {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 impl Object for Int {
     fn as_any(&self) -> &Any { self }
+    fn as_num(&self) -> Option<&Number> { Some(self) }
 }
 
 impl Number for Int {
@@ -36,32 +45,23 @@ impl<'a> PartialEq<Number + 'a> for Int {
 
 #[cfg(test)]
 mod tests {
-    use super::Int;
-    use number::*;
-    use value::*;
+    use super::*;
 
     #[test]
     fn equal_integers_are_equal() {
-        assert_eq!(Integer(3), Integer(3));
-        assert_ne!(Integer(12), Integer(9));
-        assert_eq!(Integer(4).as_value(), Integer(4).as_value());
-        assert_ne!(Integer(5).as_value(), Integer(7).as_value());
+        assert_eq!(Int(3), Int(3));
+        assert_ne!(Int(12), Int(9));
+        assert_eq!(Obj::new(Int(3)), Obj::new(Int(3)));
+        assert_ne!(Obj::new(Int(3)), Obj::new(Int(4)));
     }
 
     #[test]
     fn integers_are_integers() {
-        assert!(Integer(4).is_complex());
-        assert!(Integer(4).is_real());
-        assert!(Integer(4).is_rational());
-        assert!(Integer(4).is_integer());
-        assert!(Integer(4).is_number());
-        assert!(!Integer(6).is_char());
-        assert!(!Integer(6).is_bool());
+        assert_eq!(Int(4).as_bool(), None);
     }
 
     #[test]
     fn integers_are_exact() {
-        assert!(Integer(4).is_exact());
-        assert!(!Integer(4).is_inexact());
+        assert!(Int(4).is_exact());
     }
 }
