@@ -17,16 +17,18 @@ impl Number for Int {
 }
 
 impl PartialEq<Obj> for Int {
-    fn eq(&self, rhs: &Obj) -> bool {
-        match rhs.obj().and_then(Object::as_num) {
+    fn eq<'a>(&self, rhs: &'a Obj) -> bool {
+        let obj: Option<&'a Object> = rhs.obj();
+        let num: Option<&'a Number> = obj.and_then(Object::as_num);
+        match num {
             Some(num) => self == num,
             None => false
         }
     }
 }
 
-impl PartialEq<Number> for Int {
-    fn eq(&self, rhs: &Number) -> bool {
+impl<'a> PartialEq<Number + 'a> for Int {
+    fn eq(&self, rhs: &(Number + 'a)) -> bool {
         match rhs.as_int() {
             Some(rhs) => *self == *rhs,
             None => false

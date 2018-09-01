@@ -44,11 +44,11 @@ pub trait Object:
 }
 
 impl Obj {
-    pub fn new<T: 'static + Object>(obj: T) -> Obj {
+    pub fn new<T: Object + 'static>(obj: T) -> Obj {
         Obj::Ptr(Box::new(obj))
     }
 
-    pub fn obj<'a>(&'a self) -> Option<&'a Object> {
+    pub fn obj<'s, 'r: 's>(&'s self) -> Option<&'r (Object + 's)> {
         match self {
             Obj::Ptr(obj) => Some(obj.deref()),
             Obj::Null => None
@@ -60,7 +60,7 @@ impl Obj {
         mem::replace(self, Obj::Null)
     }
 
-    pub fn unbox_as<T: 'static + Object>(&self) -> Option<&T> {
+    pub fn unbox_as<T: Object + 'static>(&self) -> Option<&T> {
         match self {
             Obj::Null => None,
             Obj::Ptr(obj) => obj.as_any().downcast_ref::<T>()
