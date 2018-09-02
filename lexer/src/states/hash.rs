@@ -17,7 +17,7 @@ const FALSE: &'static str = "false";
 #[derive(Debug)] pub struct BoolSub(String);
 
 impl Hash {
-    pub fn new() { Hash{} }
+    pub fn new() -> Hash { Hash{} }
 }
 
 impl State for Hash {
