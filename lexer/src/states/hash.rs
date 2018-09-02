@@ -16,6 +16,10 @@ const FALSE: &'static str = "false";
 #[derive(Debug)] pub struct Hash;
 #[derive(Debug)] pub struct BoolSub(String);
 
+impl Hash {
+    pub fn new() { Hash{} }
+}
+
 impl State for Hash {
     fn lex(&mut self, c: char) -> StateResult {
         match c {

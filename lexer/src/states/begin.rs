@@ -19,7 +19,7 @@ impl State for Begin {
             // TODO: Figure out some way to track newlines.
             c if c.is_whitespace() => StateResult::Continue,
             c if c.is_identifier_initial() => StateResult::Advance { to: Box::new(IdSub{}) },
-            c if c.is_hash() => StateResult::Advance { to: Box::new(Hash{}) },
+            c if c.is_hash() => StateResult::Advance { to: Box::new(Hash::new()) },
             _ => {
                 let msg = format!("Invalid character: {}", c);
                 StateResult::Fail { msg }
