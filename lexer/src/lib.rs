@@ -26,21 +26,26 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
         Lexer {
             input: input.peekable(),
             line: 0,
-            offset: 0
+            offset: 0,
+        }
+    }
+
+    fn next(&mut self) -> Option<T::Item> {
+        let out = self.input.next();
+        out
+    }
+
+    fn handle_whitespace(&mut self, c: char) {
+        if c == '\n' {
+            self.line += 1;
+            self.offset = 1;
+        } else {
+            self.offset += 1;
         }
     }
 }
 
 impl<T> Lexer<T> where T: Iterator<Item=char> {
-    fn handle_whitespace(&mut self, c: char) {
-        if c == '\n' {
-            self.line += 1;
-            self.offset = 0;
-        }
-        else {
-            self.offset += 1;
-        }
-    }
 }
 
 impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
@@ -67,17 +72,17 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                     match result {
                         StateResult::Continue => {
                             buffer.push(c);
-                            self.input.next();
+                            self.next();
                         },
                         StateResult::Advance { to } => {
                             buffer.push(c);
-                            self.input.next();
+                            self.next();
                             state = to;
                         },
                         StateResult::Emit(token, resume) => {
                             if resume == Resume::AtNext {
                                 buffer.push(c);
-                                self.input.next();
+                                self.next();
                             }
                             out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
                             break;
@@ -86,7 +91,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                             panic!("{}", msg);
                         }
                     }
-                }
+                },
             }
         }
         out
