@@ -7,9 +7,11 @@ use token::Token;
 
 mod begin;
 mod hash;
+mod number;
 mod id;
 
 pub use self::begin::Begin;
+pub use self::number::BeginNumber;
 
 #[derive(Debug)]
 pub enum StateResult {
