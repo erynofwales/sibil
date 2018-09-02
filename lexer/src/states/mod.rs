@@ -35,3 +35,9 @@ pub trait State: Debug {
     fn lex(&mut self, c: char) -> StateResult;
     fn none(&mut self) -> Result<Option<Token>, String>;
 }
+
+impl StateResult {
+    pub fn fail(msg: &str) -> StateResult {
+        StateResult::Fail { msg: msg.to_string() }
+    }
+}
