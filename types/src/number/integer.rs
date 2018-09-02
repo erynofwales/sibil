@@ -4,11 +4,33 @@
 
 use std::any::Any;
 use std::fmt;
+use std::ops::{Add, Mul};
 use number::Number;
 use object::{Obj, Object};
 
-#[derive(Debug, Eq, PartialEq)]
-pub struct Int(i64);
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct Int(pub i64);
+
+impl Add for Int {
+    type Output = Int;
+    fn add(self, rhs: Self) -> Self::Output {
+        Int(self.0 + rhs.0)
+    }
+}
+
+impl<'a> Add<Int> for &'a Int {
+    type Output = Int;
+    fn add(self, rhs: Int) -> Self::Output {
+        Int(self.0 + rhs.0)
+    }
+}
+
+impl<'a, 'b> Add<&'a Int> for &'b Int {
+    type Output = Int;
+    fn add(self, rhs: &Int) -> Self::Output {
+        Int(self.0 + rhs.0)
+    }
+}
 
 impl fmt::Display for Int {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -23,6 +45,27 @@ impl Object for Int {
 
 impl Number for Int {
     fn as_int(&self) -> Option<&Int> { Some(self) }
+}
+
+impl Mul for Int {
+    type Output = Int;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Int(self.0 * rhs.0)
+    }
+}
+
+impl<'a> Mul<Int> for &'a Int {
+    type Output = Int;
+    fn mul(self, rhs: Int) -> Self::Output {
+        Int(self.0 * rhs.0)
+    }
+}
+
+impl<'a, 'b> Mul<&'a Int> for &'b Int {
+    type Output = Int;
+    fn mul(self, rhs: &Int) -> Self::Output {
+        Int(self.0 * rhs.0)
+    }
 }
 
 impl PartialEq<Obj> for Int {

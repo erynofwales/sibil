@@ -18,7 +18,7 @@ use object::Object;
 pub use self::integer::Int;
 
 pub trait Number: 
-    Object
+    Object 
 {
     /// Cast this Number to an Int if possible.
     fn as_int(&self) -> Option<&Int> { None }
