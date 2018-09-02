@@ -2,6 +2,9 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use std::iter::Peekable;
+use states::*;
+
 mod chars;
 mod error;
 mod states;
@@ -9,9 +12,6 @@ mod token;
 
 pub use error::Error;
 pub use token::{Lex, Token};
-
-use std::iter::Peekable;
-use states::*;
 
 pub type Result = std::result::Result<Lex, Error>;
 

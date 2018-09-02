@@ -2,14 +2,14 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use std::fmt::Debug;
+use token::Token;
+
 mod begin;
 mod hash;
 mod id;
 
 pub use self::begin::Begin;
-
-use std::fmt::Debug;
-use token::Token;
 
 #[derive(Debug)]
 pub enum StateResult {

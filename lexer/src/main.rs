@@ -4,8 +4,8 @@
 
 extern crate sibillexer;
 
-use std::io::prelude::*;
 use std::io;
+use std::io::Write;
 use sibillexer::Lexer;
 
 fn main() {
