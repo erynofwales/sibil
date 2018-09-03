@@ -45,9 +45,6 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
     }
 }
 
-impl<T> Lexer<T> where T: Iterator<Item=char> {
-}
-
 impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
     type Item = Result;
 
