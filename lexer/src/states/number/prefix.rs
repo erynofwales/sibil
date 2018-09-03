@@ -17,16 +17,24 @@ impl Prefix {
         Prefix(b)
     }
 
-    pub fn with_char(c: char) -> Option<Prefix> {
-        let mut builder = Builder::new();
+    pub fn with_char(b: Builder, c: char) -> Option<Prefix> {
         if let Some(ex) = Exact::from(c) {
-            builder.push_exact(ex);
+            if b.seen_exact() {
+                return None;
+            }
+            let mut b = b.clone();
+            b.push_exact(ex);
+            Some(Prefix::new(b))
         } else if let Some(rx) = Radix::from(c) {
-            builder.push_radix(rx);
+            if b.seen_radix() {
+                return None;
+            }
+            let mut b = b.clone();
+            b.push_radix(rx);
+            Some(Prefix::new(b))
         } else {
-            return None;
+            None
         }
-        Some(Prefix::new(builder))
     }
 }
 
@@ -48,20 +56,8 @@ impl State for Prefix {
 
 impl State for Hash {
     fn lex(&mut self, c: char) -> StateResult {
-        if let Some(ex) = Exact::from(c) {
-            if !self.0.seen_exact() {
-                self.0.push_exact(ex);
-                StateResult::advance(Box::new(Prefix::new(self.0)))
-            } else {
-                StateResult::fail(Error::invalid_char(c))
-            }
-        } else if let Some(rx) = Radix::from(c) {
-            if !self.0.seen_radix() {
-                self.0.push_radix(rx);
-                StateResult::advance(Box::new(Prefix::new(self.0)))
-            } else {
-                StateResult::fail(Error::invalid_char(c))
-            }
+        if let Some(st) = Prefix::with_char(self.0, c) {
+            StateResult::advance(Box::new(st))
         } else {
             StateResult::fail(Error::invalid_char(c))
         }

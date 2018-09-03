@@ -6,7 +6,7 @@ use chars::Lexable;
 use error::Error;
 use states::{State, StateResult};
 use states::bool::Bool;
-use states::number::Prefix;
+use states::number::{Builder, Prefix};
 use token::Token;
 
 trait HashLexable {
@@ -28,7 +28,7 @@ impl State for Hash {
                 StateResult::advance(Box::new(Bool::new(buf.as_str())))
             },
             c if c.is_radix() || c.is_exactness() => {
-                if let Some(st) = Prefix::with_char(c) {
+                if let Some(st) = Prefix::with_char(Builder::new(), c) {
                     StateResult::advance(Box::new(st))
                 } else {
                     StateResult::fail(Error::new(format!("invalid numeric prefix character: {}", c)))
