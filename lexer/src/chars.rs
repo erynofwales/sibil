@@ -8,9 +8,16 @@ pub trait Lexable {
     fn is_identifier_initial(&self) -> bool;
     fn is_identifier_subsequent(&self) -> bool;
     fn is_identifier_delimiter(&self) -> bool;
+
+    fn is_exactness(&self) -> bool;
+    fn is_radix(&self) -> bool;
 }
 
 impl Lexable for char {
+    fn is_exactness(&self) -> bool {
+        *self == 'i' || *self == 'e'
+    }
+
     fn is_left_paren(&self) -> bool {
         *self == '('
     }
@@ -29,6 +36,11 @@ impl Lexable for char {
 
     fn is_identifier_delimiter(&self) -> bool {
         self.is_whitespace() || self.is_left_paren() || self.is_right_paren()
+    }
+
+    fn is_radix(&self) -> bool {
+        let radishes = &['b', 'd', 'o', 'x'];
+        radishes.contains(self)
     }
 }
 

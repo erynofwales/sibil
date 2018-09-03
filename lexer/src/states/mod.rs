@@ -8,6 +8,7 @@ use token::Token;
 mod begin;
 mod bool;
 mod hash;
+mod number;
 mod id;
 
 pub use self::begin::Begin;
