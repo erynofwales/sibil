@@ -6,12 +6,11 @@ use std::fmt::Debug;
 use token::Token;
 
 mod begin;
+mod bool;
 mod hash;
-mod number;
 mod id;
 
 pub use self::begin::Begin;
-pub use self::number::BeginNumber;
 
 #[derive(Debug)]
 pub enum StateResult {
@@ -39,6 +38,14 @@ pub trait State: Debug {
 }
 
 impl StateResult {
+    pub fn advance(to: Box<State>) -> StateResult {
+        StateResult::Advance { to }
+    }
+
+    pub fn emit(token: Token, at: Resume) -> StateResult {
+        StateResult::Emit(token, at)
+    }
+
     pub fn fail(msg: &str) -> StateResult {
         StateResult::Fail { msg: msg.to_string() }
     }
