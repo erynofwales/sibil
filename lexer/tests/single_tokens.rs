@@ -72,3 +72,11 @@ fn bool_with_spaces() {
     assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
+
+#[test]
+fn integer() {
+    let expected_lex = Lex::new(Token::Num(23), "23", 0, 0);
+    let mut lex = Lexer::new("23".chars());
+    assert_eq!(lex.next(), Some(Ok(expected_lex)));
+    assert_eq!(lex.next(), None);
+}
