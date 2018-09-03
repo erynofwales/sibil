@@ -14,5 +14,9 @@ impl Error {
         }
     }
 
+    pub fn invalid_char(c: char) -> Error {
+        Error::new(format!("invalid character: {}", c))
+    }
+
     pub fn msg(&self) -> &str { &self.message }
 }
