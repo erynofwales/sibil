@@ -2,10 +2,11 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use chars::Lexable;
 use error::Error;
 use states::{State, StateResult};
-use states::number::{Radix, Exact};
-use states::number::Builder;
+use states::number::{Builder, Radix, Exact};
+use states::number::sign::Sign;
 use token::Token;
 
 #[derive(Debug)] pub struct Prefix(Builder);
@@ -31,9 +32,12 @@ impl Prefix {
 
 impl State for Prefix {
     fn lex(&mut self, c: char) -> StateResult {
-        match c {
-            '#' => StateResult::advance(Box::new(Hash(self.0))),
-            _ => StateResult::fail(Error::invalid_char(c))
+        if c.is_hash() {
+            StateResult::advance(Box::new(Hash(self.0)))
+        } else if let Some(sn) = Sign::with_char(self.0, c) {
+            StateResult::advance(Box::new(sn))
+        } else {
+            StateResult::fail(Error::invalid_char(c))
         }
     }
 

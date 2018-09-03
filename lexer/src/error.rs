@@ -18,5 +18,9 @@ impl Error {
         Error::new(format!("invalid character: {}", c))
     }
 
+    pub fn unexpected_eof() -> Error {
+        Error::new("unexpected EOF".to_string())
+    }
+
     pub fn msg(&self) -> &str { &self.message }
 }
