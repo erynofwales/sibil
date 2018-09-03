@@ -1,0 +1,74 @@
+digraph lexer {
+    rankdir=LR;
+    node [shape = doublecircle] LP RP B0 BF DP1 DD0 DD1 DD2 DR0 DR1 INF NAN EXD;
+    node [shape = circle];
+    BEGIN -> LP  [ label = "(" ];
+    BEGIN -> RP  [ label = ")" ];
+    BEGIN -> H [ label = "#" ];
+
+    subgraph bools {
+        H -> B0 [ label = "t,f" ];
+        B0 -> BF [ label = "rue,alse" ];
+    }
+
+/*
+    subgraph chars {
+        H -> SL [ label = "\\" ];
+        SL -> CH1 [ label = "*" ];
+        SL -> NMCH [ label = "alarm" ];
+        SL -> NMCH [ label = "backspace" ];
+        SL -> NMCH [ label = "delete" ];
+        SL -> NMCH [ label = "escape" ];
+        SL -> NMCH [ label = "newline" ];
+        SL -> NMCH [ label = "null" ];
+        SL -> NMCH [ label = "return" ];
+        SL -> NMCH [ label = "space" ];
+        SL -> NMCH [ label = "tab" ];
+        SL -> XC [ label = "x" ];
+    }
+*/
+     
+    subgraph numbers {
+        BEGIN -> DD0 [ label = "0-9" ];
+        BEGIN -> SN0 [ label = "+,-" ];
+        BEGIN -> DP0 [ label = "." ];
+        DD0 -> DD0 [ label = "0-9" ];
+        DD0 -> DP1 [ label = "." ];
+        DP1 -> DD1 [ label = "0-9" ];
+        DP0 -> DD1 [ label = "0-9" ];
+        DD1 -> DD1 [ label = "0-9" ];
+        SN0 -> DD0 [ label = "0-9" ];
+        SN0 -> DP0 [ label = "." ];
+        SN0 -> INF [ label = "inf.0" ];
+        SN0 -> NAN [ label = "nan.0" ];
+
+        H -> NEX [ label = "i,e" ];
+        NEX -> DD0 [ label = "0-9" ];
+        NEX -> SN0 [ label = "." ];
+
+        H -> NBD [ label = "d" ];
+        NBD -> DD0 [ label = "0-9" ];
+        NBD -> SN0 [ label = "." ];
+
+        H -> NBS [ label = "b,o,x" ];
+        NBS -> DR0 [ label = "Dr" ];
+        DR0 -> DR0 [ label = "Dr" ];
+
+        DD0 -> EXP [ label = "e" ];
+        DP1 -> EXP [ label = "e" ];
+        DD1 -> EXP [ label = "e" ];
+
+        EXP -> EXS [ label = "+,-" ];
+        EXS -> EXD [ label = "0-9" ];
+        EXP -> EXD [ label = "0-9" ];
+        EXD -> EXD [ label = "0-9" ];
+
+        DR0 -> FR0 [ label = "/" ];
+        FR0 -> DR1 [ label = "Dr" ];
+        DR1 -> DR1 [ label = "Dr" ];
+
+        DD0 -> FR1 [ label = "/" ];
+        FR1 -> DD2 [ label = "0-9" ];
+        DD2 -> DD2 [ label = "0-9" ];
+    }
+}
