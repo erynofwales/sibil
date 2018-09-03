@@ -44,15 +44,35 @@ digraph lexer {
 
         H -> NEX [ label = "i,e" ];
         NEX -> DD0 [ label = "0-9" ];
-        NEX -> SN0 [ label = "." ];
+        NEX -> SN0 [ label = "+,-" ];
+        NEX -> NXH1 [ label = "#" ];
+        NXH1 -> NXD1 [ label = "d" ];
+        NXD1 -> DD0 [ label = "0-9" ];
+        NXD1 -> SN0 [ label = "+,-" ];
+        NXH1 -> NXX1 [ label = "b,o,x" ];
+        NXX1 -> SN1 [ label = "+,-" ];
+        NXX1 -> DR0 [ label = "Dr" ];
 
         H -> NBD [ label = "d" ];
         NBD -> DD0 [ label = "0-9" ];
-        NBD -> SN0 [ label = "." ];
+        NBD -> SN0 [ label = "+,-" ];
+        NBD -> NBH [ label = "#" ];
+        NBH -> NBX [ label = "i,e" ];
+        NBX -> SN0 [ label = "+,-" ];
+        NBX -> DD0 [ label = "0-9" ];
 
         H -> NBS [ label = "b,o,x" ];
         NBS -> DR0 [ label = "Dr" ];
         DR0 -> DR0 [ label = "Dr" ];
+        NBS -> NXH [ label = "#" ];
+        NXH -> NXX [ label = "i,e" ];
+        NXX -> DR0 [ label = "Dr" ];
+
+        NBS -> SN1 [ label = "+,-" ];
+        NXX -> SN1 [ label = "+,-" ];
+        SN1 -> DR0 [ label = "Dr" ];
+        SN1 -> INF [ label = "inf.0" ];
+        SN1 -> NAN [ label = "nan.0" ];
 
         DD0 -> EXP [ label = "e" ];
         DP1 -> EXP [ label = "e" ];
