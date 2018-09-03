@@ -29,11 +29,3 @@ impl State for Begin {
         Ok(None)
     }
 }
-
-trait BeginLexable {
-    fn is_hash(&self) -> bool;
-}
-
-impl BeginLexable for char {
-    fn is_hash(&self) -> bool { *self == '#' }
-}

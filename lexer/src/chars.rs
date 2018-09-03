@@ -11,6 +11,7 @@ pub trait Lexable {
 
     fn is_exactness(&self) -> bool;
     fn is_radix(&self) -> bool;
+    fn is_hash(&self) -> bool;
 }
 
 impl Lexable for char {
@@ -41,6 +42,10 @@ impl Lexable for char {
     fn is_radix(&self) -> bool {
         let radishes = &['b', 'd', 'o', 'x'];
         radishes.contains(self)
+    }
+
+    fn is_hash(&self) -> bool {
+        *self == '#'
     }
 }
 
