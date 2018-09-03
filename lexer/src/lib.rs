@@ -62,7 +62,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                         out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
                         break;
                     },
-                    Err(msg) => panic!("{}", msg)
+                    Err(err) => panic!("{}:{}: {}", self.line, self.offset, err.msg())
                 },
                 Some(c) => {
                     let result = state.lex(c);
@@ -84,8 +84,8 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                             out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
                             break;
                         },
-                        StateResult::Fail { msg } => {
-                            panic!("{}", msg);
+                        StateResult::Fail(err) => {
+                            panic!("{}:{}: {}", self.line, self.offset, err.msg());
                         }
                     }
                 },

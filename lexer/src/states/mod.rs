@@ -3,6 +3,7 @@
  */
 
 use std::fmt::Debug;
+use error::Error;
 use token::Token;
 
 mod begin;
@@ -22,7 +23,7 @@ pub enum StateResult {
     /// Emit a Lex with the provided Token and the accumulated buffer. The Resume value indicates
     /// whether to revisit the current input character or advance to the next one.
     Emit(Token, Resume),
-    Fail { msg: String }
+    Fail(Error)
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -35,7 +36,7 @@ pub enum Resume {
 
 pub trait State: Debug {
     fn lex(&mut self, c: char) -> StateResult;
-    fn none(&mut self) -> Result<Option<Token>, String>;
+    fn none(&mut self) -> Result<Option<Token>, Error>;
 }
 
 impl StateResult {
@@ -47,7 +48,7 @@ impl StateResult {
         StateResult::Emit(token, at)
     }
 
-    pub fn fail(msg: &str) -> StateResult {
-        StateResult::Fail { msg: msg.to_string() }
+    pub fn fail(err: Error) -> StateResult {
+        StateResult::Fail(err)
     }
 }

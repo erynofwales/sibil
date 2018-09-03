@@ -3,6 +3,7 @@
  */
 
 use chars::Lexable;
+use error::Error;
 use states::{Resume, State, StateResult};
 use token::Token;
 
@@ -14,14 +15,11 @@ impl State for IdSub {
         match c {
             c if c.is_identifier_subsequent() => StateResult::Continue,
             c if c.is_identifier_delimiter() => StateResult::Emit(Token::Id, Resume::Here),
-            _ => {
-                let msg = format!("Invalid character: {}", c);
-                StateResult::Fail { msg }
-            }
+            _ => StateResult::fail(Error::invalid_char(c)),
         }
     }
 
-    fn none(&mut self) -> Result<Option<Token>, String> {
+    fn none(&mut self) -> Result<Option<Token>, Error> {
         Ok(Some(Token::Id))
     }
 }

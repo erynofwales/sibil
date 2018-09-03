@@ -2,8 +2,9 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use super::{Radix, Exact};
+use error::Error;
 use states::{State, StateResult};
+use states::number::{Radix, Exact};
 use states::number::Builder;
 use token::Token;
 
@@ -32,12 +33,12 @@ impl State for Prefix {
     fn lex(&mut self, c: char) -> StateResult {
         match c {
             '#' => StateResult::advance(Box::new(Hash(self.0))),
-            _ => StateResult::fail(format!("invalid char: {}", c).as_str())
+            _ => StateResult::fail(Error::invalid_char(c))
         }
     }
 
-    fn none(&mut self) -> Result<Option<Token>, String> {
-        Err("blah".to_string())
+    fn none(&mut self) -> Result<Option<Token>, Error> {
+        Err(Error::new("blah".to_string()))
     }
 }
 
@@ -48,21 +49,21 @@ impl State for Hash {
                 self.0.push_exact(ex);
                 StateResult::advance(Box::new(Prefix::new(self.0)))
             } else {
-                StateResult::fail(format!("invalid char: {}", c).as_str())
+                StateResult::fail(Error::invalid_char(c))
             }
         } else if let Some(rx) = Radix::from(c) {
             if !self.0.seen_radix() {
                 self.0.push_radix(rx);
                 StateResult::advance(Box::new(Prefix::new(self.0)))
             } else {
-                StateResult::fail(format!("invalid char: {}", c).as_str())
+                StateResult::fail(Error::invalid_char(c))
             }
         } else {
-            StateResult::fail(format!("invalid char: {}", c).as_str())
+            StateResult::fail(Error::invalid_char(c))
         }
     }
 
-    fn none(&mut self) -> Result<Option<Token>, String> {
-        Err("blah".to_string())
+    fn none(&mut self) -> Result<Option<Token>, Error> {
+        Err(Error::new("blah".to_string()))
     }
 }

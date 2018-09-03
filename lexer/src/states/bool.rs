@@ -2,6 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use error::Error;
 use chars::Lexable;
 use states::{Resume, State, StateResult};
 use token::Token;
@@ -34,10 +35,7 @@ impl State for Bool {
         match c {
             c if c.is_identifier_delimiter() => match self.handle_delimiter() {
                 Some(token) => StateResult::Emit(token, Resume::Here),
-                None => {
-                    let msg = format!("Invalid character: {}", c);
-                    StateResult::fail(msg.as_str())
-                },
+                None => StateResult::fail(Error::invalid_char(c)),
             },
             _ => {
                 let buf = {
@@ -48,20 +46,16 @@ impl State for Bool {
                 if TRUE.starts_with(&buf) || FALSE.starts_with(&buf) {
                     StateResult::advance(Box::new(Bool(buf)))
                 } else {
-                    let msg = format!("Invalid character: {}", c);
-                    StateResult::fail(msg.as_str())
+                    StateResult::fail(Error::invalid_char(c))
                 }
             },
         }
     }
 
-    fn none(&mut self) -> Result<Option<Token>, String> {
+    fn none(&mut self) -> Result<Option<Token>, Error> {
         match self.handle_delimiter() {
             Some(token) => Ok(Some(token)),
-            None => {
-                let msg = format!("Found EOF while trying to parse a bool");
-                Err(msg)
-            }
+            None => Err(Error::new("Found EOF while trying to parse a bool".to_string()))
         }
     }
 }

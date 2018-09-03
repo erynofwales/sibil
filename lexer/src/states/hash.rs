@@ -3,6 +3,7 @@
  */
 
 use chars::Lexable;
+use error::Error;
 use states::{State, StateResult};
 use states::bool::Bool;
 use states::number::Prefix;
@@ -30,17 +31,14 @@ impl State for Hash {
                 if let Some(st) = Prefix::with_char(c) {
                     StateResult::advance(Box::new(st))
                 } else {
-                    StateResult::fail(format!("invalid numeric prefix character: {}", c).as_str())
+                    StateResult::fail(Error::new(format!("invalid numeric prefix character: {}", c)))
                 }
             },
-            _ => {
-                let msg = format!("Invalid character: {}", c);
-                StateResult::fail(msg.as_str())
-            },
+            _ => StateResult::fail(Error::invalid_char(c)),
         }
     }
 
-    fn none(&mut self) -> Result<Option<Token>, String> {
+    fn none(&mut self) -> Result<Option<Token>, Error> {
         Ok(None)
     }
 }
