@@ -8,20 +8,28 @@ use token::Token;
 use states::{Resume, State, StateResult};
 use states::id::IdSub;
 use states::hash::Hash;
+use states::number::{Builder, Digit};
 
 #[derive(Debug)]
 pub struct Begin;
 
 impl State for Begin {
     fn lex(&mut self, c: char) -> StateResult {
-        match c {
-            c if c.is_left_paren() => StateResult::Emit(Token::LeftParen, Resume::AtNext),
-            c if c.is_right_paren() => StateResult::Emit(Token::RightParen, Resume::AtNext),
+        if c.is_left_paren() {
+            StateResult::Emit(Token::LeftParen, Resume::AtNext)
+        } else if c.is_right_paren() {
+            StateResult::Emit(Token::RightParen, Resume::AtNext)
+        } else if c.is_whitespace() {
             // TODO: Figure out some way to track newlines.
-            c if c.is_whitespace() => StateResult::Continue,
-            c if c.is_identifier_initial() => StateResult::Advance { to: Box::new(IdSub{}) },
-            c if c.is_hash() => StateResult::Advance { to: Box::new(Hash::new()) },
-            _ => StateResult::fail(Error::invalid_char(c)),
+            StateResult::Continue
+        } else if c.is_identifier_initial() {
+            StateResult::advance(Box::new(IdSub{}))
+        } else if c.is_hash() {
+            StateResult::advance(Box::new(Hash::new()))
+        } else if let Some(st) = Digit::with_char(Builder::new(), c) {
+            StateResult::advance(Box::new(st))
+        } else {
+            StateResult::fail(Error::invalid_char(c))
         }
     }
 

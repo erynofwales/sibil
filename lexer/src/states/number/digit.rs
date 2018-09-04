@@ -2,11 +2,9 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-use chars::Lexable;
 use error::Error;
 use states::{State, StateResult};
 use states::number::{Builder, Radix, Exact};
-use states::number::sign::Sign;
 use token::Token;
 
 #[derive(Debug)] pub struct Digit(Builder);
@@ -39,6 +37,6 @@ impl State for Digit {
     }
 
     fn none(&mut self) -> Result<Option<Token>, Error> {
-        Err(Error::unexpected_eof())
+        Ok(Some(Token::Num(self.0.resolve())))
     }
 }

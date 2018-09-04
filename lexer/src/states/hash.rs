@@ -39,7 +39,7 @@ impl State for Hash {
     }
 
     fn none(&mut self) -> Result<Option<Token>, Error> {
-        Ok(None)
+        Err(Error::unexpected_eof())
     }
 }
 

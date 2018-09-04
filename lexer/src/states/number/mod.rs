@@ -9,6 +9,7 @@ mod prefix;
 mod sign;
 
 pub use self::prefix::Prefix;
+pub use self::digit::Digit;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Radix { Bin = 2, Oct = 8, Dec = 10, Hex = 16 }
@@ -83,9 +84,12 @@ impl Builder {
     }
 
     fn resolve(&self) -> i64 {
-        //let sign_factor: i64 = if let Some(sign) = self.sign { sign as i64 } else { 1 };
-        //self.value * sign_factor
-        0
+        let sign_factor: i64 = if let Some(sign) = self.sign {
+            sign as i64
+        } else {
+            1
+        };
+        self.value * sign_factor
     }
 
     fn seen_exact(&self) -> bool { self.exact.is_some() }
