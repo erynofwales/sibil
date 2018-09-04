@@ -2,9 +2,10 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use chars::Lexable;
 use error::Error;
-use states::{State, StateResult};
-use states::number::{Builder, Radix, Exact};
+use states::{State, StateResult, Resume};
+use states::number::{Builder, Radix};
 use token::Token;
 
 #[derive(Debug)] pub struct Digit(Builder);
@@ -31,6 +32,8 @@ impl State for Digit {
     fn lex(&mut self, c: char) -> StateResult {
         if self.0.push_digit(c).is_ok() {
             StateResult::Continue
+        } else if c.is_identifier_delimiter() {
+            StateResult::emit(Token::Num(self.0.resolve()), Resume::Here)
         } else {
             StateResult::fail(Error::invalid_char(c))
         }
