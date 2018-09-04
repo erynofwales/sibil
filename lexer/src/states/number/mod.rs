@@ -2,23 +2,13 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+use error::Error;
+
+mod digit;
 mod prefix;
 mod sign;
 
 pub use self::prefix::Prefix;
-
-trait NumberLexable {
-    /// Returns the value of this character interpreted as the indicator for a
-    /// base. In Scheme, you indicate the base of a number by prefixing it with
-    /// #[bodx].
-    fn base_value(&self) -> Option<Radix>;
-    /// Returns the value of the character interpreted as a numerical digit.
-    fn digit_value(&self) -> Option<u8>;
-    fn sign_value(&self) -> Option<Sign>;
-    fn is_dot(&self) -> bool;
-    fn is_hash(&self) -> bool;
-    fn is_sign(&self) -> bool;
-}
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Radix { Bin = 2, Oct = 8, Dec = 10, Hex = 16 }
@@ -65,12 +55,19 @@ impl Builder {
              radix: None,
              sign: None,
              exact: None,
-             value: 0
+             value: 0,
         }
     }
 
-    fn push_digit(&mut self, digit: u8) {
-        //self.value = self.value * self.base_value() as i64 + digit as i64;
+    fn push_digit(&mut self, c: char) -> Result<(), Error> {
+        let rx = self.radix_value();
+        match c.to_digit(rx as u32) {
+            Some(d) => {
+                self.value = self.value * rx as i64 + d as i64;
+                Ok(())
+            },
+            None => Err(Error::invalid_char(c))
+        }
     }
 
     fn push_exact(&mut self, ex: Exact) {
@@ -94,4 +91,12 @@ impl Builder {
     fn seen_exact(&self) -> bool { self.exact.is_some() }
     fn seen_radix(&self) -> bool { self.radix.is_some() }
     fn seen_sign(&self) -> bool { self.sign.is_some() }
+
+    fn radix_value(&self) -> u8 {
+        let rx = match self.radix {
+            Some(r) => r,
+            None => Radix::Dec,
+        };
+        rx as u8
+    }
 }

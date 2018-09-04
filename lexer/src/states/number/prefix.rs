@@ -50,7 +50,7 @@ impl State for Prefix {
     }
 
     fn none(&mut self) -> Result<Option<Token>, Error> {
-        Err(Error::new("blah".to_string()))
+        Err(Error::unexpected_eof())
     }
 }
 
