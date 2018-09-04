@@ -84,11 +84,7 @@ impl Builder {
     }
 
     fn resolve(&self) -> i64 {
-        let sign_factor: i64 = if let Some(sign) = self.sign {
-            sign as i64
-        } else {
-            1
-        };
+        let sign_factor = self.sign_value() as i64;
         self.value * sign_factor
     }
 
@@ -96,11 +92,6 @@ impl Builder {
     fn seen_radix(&self) -> bool { self.radix.is_some() }
     fn seen_sign(&self) -> bool { self.sign.is_some() }
 
-    fn radix_value(&self) -> u8 {
-        let rx = match self.radix {
-            Some(r) => r,
-            None => Radix::Dec,
-        };
-        rx as u8
-    }
+    fn radix_value(&self) -> u8 { self.radix.unwrap_or(Radix::Dec) as u8 }
+    fn sign_value(&self) -> u8 { self.sign.unwrap_or(Sign::Pos) as u8 }
 }
