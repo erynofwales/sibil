@@ -11,6 +11,7 @@ mod bool;
 mod hash;
 mod number;
 mod id;
+mod whitespace;
 
 pub use self::begin::Begin;
 
@@ -20,6 +21,8 @@ pub enum StateResult {
     Continue,
     /// Consume the character, advance to the provided state.
     Advance { to: Box<State> },
+    /// Discard the input consumed to this point. Resume as specified.
+    Discard(Resume),
     /// Emit a Lex with the provided Token and the accumulated buffer. The Resume value indicates
     /// whether to revisit the current input character or advance to the next one.
     Emit(Token, Resume),

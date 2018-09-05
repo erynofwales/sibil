@@ -2,7 +2,7 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq)]
 pub struct Lex {
     token: Token,
     value: String,
@@ -31,4 +31,10 @@ impl Lex {
 
     pub fn token(&self) -> Token { self.token }
     pub fn value(&self) -> &str { self.value.as_str() }
+}
+
+impl PartialEq for Lex {
+    fn eq(&self, rhs: &Lex) -> bool {
+        self.token == rhs.token && self.value == rhs.value
+    }
 }

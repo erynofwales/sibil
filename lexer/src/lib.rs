@@ -3,7 +3,7 @@
  */
 
 use std::iter::Peekable;
-use states::*;
+use states::{Begin, Resume, StateResult};
 
 mod chars;
 mod error;
@@ -16,8 +16,12 @@ pub use token::{Lex, Token};
 pub type Result = std::result::Result<Lex, Error>;
 
 pub struct Lexer<T> where T: Iterator<Item=char> {
+    /// The input stream.
     input: Peekable<T>,
+
+    /// Current line number.
     line: usize,
+    /// Character offset from the start of the input.
     offset: usize,
 }
 
@@ -32,15 +36,28 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
 
     fn next(&mut self) -> Option<T::Item> {
         let out = self.input.next();
+        if let Some(c) = out {
+            self.update_offsets(c);
+        }
         out
     }
 
-    fn handle_whitespace(&mut self, c: char) {
-        if c == '\n' {
-            self.line += 1;
-            self.offset = 1;
-        } else {
-            self.offset += 1;
+    fn handle_error(&self, err: Error) {
+        panic!("{}:{}: {}", self.line, self.offset, err.msg())
+    }
+
+    fn prepare_offsets(&mut self) { }
+
+    fn update_offsets(&mut self, c: char) {
+        self.offset += 1;
+        match c {
+            '\n' => {
+                self.line += 1;
+                self.offset = 0;
+            },
+            _ => {
+                self.offset += 1;
+            },
         }
     }
 }
@@ -49,8 +66,10 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
     type Item = Result;
 
     fn next(&mut self) -> Option<Self::Item> {
+        self.prepare_offsets();
+
         let mut buffer = String::new();
-        let mut state: Box<states::State> = Box::new(states::Begin{});
+        let mut state: Box<states::State> = Box::new(Begin::new());
         let mut out: Option<Self::Item> = None;
         loop {
             let peek = self.input.peek().map(char::clone);
@@ -62,7 +81,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                         out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
                         break;
                     },
-                    Err(err) => panic!("{}:{}: {}", self.line, self.offset, err.msg())
+                    Err(err) => self.handle_error(err)
                 },
                 Some(c) => {
                     let result = state.lex(c);
@@ -76,6 +95,13 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                             self.next();
                             state = to;
                         },
+                        StateResult::Discard(resume) => {
+                            buffer.clear();
+                            state = Box::new(Begin::new());
+                            if resume == Resume::AtNext {
+                                self.next();
+                            }
+                        },
                         StateResult::Emit(token, resume) => {
                             if resume == Resume::AtNext {
                                 buffer.push(c);
@@ -84,9 +110,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                             out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
                             break;
                         },
-                        StateResult::Fail(err) => {
-                            panic!("{}:{}: {}", self.line, self.offset, err.msg());
-                        }
+                        StateResult::Fail(err) => self.handle_error(err),
                     }
                 },
             }

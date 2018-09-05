@@ -9,13 +9,22 @@ use states::{Resume, State, StateResult};
 use states::id::IdSub;
 use states::hash::Hash;
 use states::number::{Builder, Digit};
+use states::whitespace::Whitespace;
 
 #[derive(Debug)]
 pub struct Begin;
 
+impl Begin {
+    pub fn new() -> Begin {
+        Begin{}
+    }
+}
+
 impl State for Begin {
     fn lex(&mut self, c: char) -> StateResult {
-        if c.is_left_paren() {
+        if c.is_whitespace() {
+            StateResult::advance(Box::new(Whitespace::new()))
+        } else if c.is_left_paren() {
             StateResult::Emit(Token::LeftParen, Resume::AtNext)
         } else if c.is_right_paren() {
             StateResult::Emit(Token::RightParen, Resume::AtNext)
