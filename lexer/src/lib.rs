@@ -49,16 +49,14 @@ impl<T> Lexer<T> where T: Iterator<Item=char> {
     fn prepare_offsets(&mut self) { }
 
     fn update_offsets(&mut self, c: char) {
-        self.offset += 1;
         match c {
             '\n' => {
                 self.line += 1;
                 self.offset = 0;
             },
-            _ => {
-                self.offset += 1;
-            },
+            _ => self.offset += 1
         }
+        println!("incremented offsets {}:{}", self.line, self.offset);
     }
 }
 
@@ -67,6 +65,10 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.prepare_offsets();
+
+        let mut token_line = self.line;
+        let mut token_offset = self.offset;
+        println!("beginning token at {}:{}", token_line, token_offset);
 
         let mut buffer = String::new();
         let mut state: Box<states::State> = Box::new(Begin::new());
@@ -78,7 +80,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                 None => match state.none() {
                     Ok(None) => break,
                     Ok(Some(token)) => {
-                        out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
+                        out = Some(Ok(Lex::new(token, &buffer, token_line, token_offset)));
                         break;
                     },
                     Err(err) => self.handle_error(err)
@@ -101,13 +103,15 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                             if resume == Resume::AtNext {
                                 self.next();
                             }
+                            token_line = self.line;
+                            token_offset = self.offset;
                         },
                         StateResult::Emit(token, resume) => {
                             if resume == Resume::AtNext {
                                 buffer.push(c);
                                 self.next();
                             }
-                            out = Some(Ok(Lex::new(token, &buffer, self.line, self.offset)));
+                            out = Some(Ok(Lex::new(token, &buffer, token_line, token_offset)));
                             break;
                         },
                         StateResult::Fail(err) => self.handle_error(err),
@@ -115,6 +119,7 @@ impl<T> Iterator for Lexer<T> where T: Iterator<Item=char> {
                 },
             }
         }
+        println!("emitting {:?}", out);
         out
     }
 }

@@ -67,16 +67,24 @@ fn bool_long_false() {
 #[test]
 fn bool_with_spaces() {
     // See issue #12
-    let expected_lex = Lex::new(Token::Bool(false), "#f", 0, 0);
+    let expected_lex = Lex::new(Token::Bool(false), "#f", 0, 2);
     let mut lex = Lexer::new("  #f  ".chars());
     assert_eq!(lex.next(), Some(Ok(expected_lex)));
     assert_eq!(lex.next(), None);
 }
 
 #[test]
-fn integer() {
+fn simple_integers() {
     let mut lex = Lexer::new("23 42".chars());
     assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(23), "23", 0, 0))));
-    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(42), "42", 0, 0))));
+    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(42), "42", 0, 3))));
+    assert_eq!(lex.next(), None);
+}
+
+#[test]
+fn integers_in_alternative_bases() {
+    let mut lex = Lexer::new("#x2A #b11001".chars());
+    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(0x2A), "#x2A", 0, 0))));
+    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(0b11001), "#b11001", 0, 5))));
     assert_eq!(lex.next(), None);
 }
