@@ -77,7 +77,6 @@ fn bool_with_spaces() {
 fn integer() {
     let mut lex = Lexer::new("23 42".chars());
     assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(23), "23", 0, 0))));
-    // TODO: Fix this once issue #12 is fixed.
-    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(42), " 42", 0, 0))));
+    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(42), "42", 0, 0))));
     assert_eq!(lex.next(), None);
 }
