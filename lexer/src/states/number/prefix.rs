@@ -6,6 +6,7 @@ use chars::Lexable;
 use error::Error;
 use states::{State, StateResult};
 use states::number::{Builder, Radix, Exact};
+use states::number::digit::Digit;
 use states::number::sign::Sign;
 use token::Token;
 
@@ -42,8 +43,10 @@ impl State for Prefix {
     fn lex(&mut self, c: char) -> StateResult {
         if c.is_hash() {
             StateResult::advance(Box::new(Hash(self.0)))
-        } else if let Some(sn) = Sign::with_char(self.0, c) {
-            StateResult::advance(Box::new(sn))
+        } else if let Some(st) = Sign::with_char(self.0, c) {
+            StateResult::advance(Box::new(st))
+        } else if let Some(st) = Digit::with_char(self.0, c) {
+            StateResult::advance(Box::new(st))
         } else {
             StateResult::fail(Error::invalid_char(c))
         }
