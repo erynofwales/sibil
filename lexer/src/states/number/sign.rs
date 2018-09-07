@@ -15,7 +15,7 @@ impl Sign {
         Sign(b)
     }
 
-    pub fn with_char(b: Builder, c: char) -> Option<Sign> {
+    pub fn with_char(b: &Builder, c: char) -> Option<Sign> {
         if !b.seen_sign() {
             match c {
                 '+' => {

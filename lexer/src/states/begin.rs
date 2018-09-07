@@ -35,7 +35,7 @@ impl State for Begin {
             StateResult::advance(Box::new(IdSub{}))
         } else if c.is_hash() {
             StateResult::advance(Box::new(Hash::new()))
-        } else if let Some(st) = Digit::with_char(Builder::new(), c) {
+        } else if let Some(st) = Digit::with_char(&Builder::new(), c) {
             StateResult::advance(Box::new(st))
         } else {
             StateResult::fail(Error::invalid_char(c))

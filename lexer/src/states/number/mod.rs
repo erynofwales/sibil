@@ -20,7 +20,7 @@ pub enum Sign { Neg = -1, Pos = 1 }
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Exact { Yes, No }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Builder {
     radix: Option<Radix>,
     sign: Option<Sign>,

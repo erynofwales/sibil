@@ -15,7 +15,7 @@ impl Digit {
         Digit(b)
     }
 
-    pub fn with_char(b: Builder, c: char) -> Option<Digit> {
+    pub fn with_char(b: &Builder, c: char) -> Option<Digit> {
         let mut b = b.clone();
         if !b.seen_radix() {
             b.push_radix(Radix::Dec);

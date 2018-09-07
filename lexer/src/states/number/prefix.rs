@@ -18,7 +18,7 @@ impl Prefix {
         Prefix(b)
     }
 
-    pub fn with_char(b: Builder, c: char) -> Option<Prefix> {
+    pub fn with_char(b: &Builder, c: char) -> Option<Prefix> {
         if let Some(ex) = Exact::from(c) {
             if b.seen_exact() {
                 return None;
@@ -42,10 +42,10 @@ impl Prefix {
 impl State for Prefix {
     fn lex(&mut self, c: char) -> StateResult {
         if c.is_hash() {
-            StateResult::advance(Box::new(Hash(self.0)))
-        } else if let Some(st) = Sign::with_char(self.0, c) {
+            StateResult::advance(Box::new(Hash::new(&self.0)))
+        } else if let Some(st) = Sign::with_char(&self.0, c) {
             StateResult::advance(Box::new(st))
-        } else if let Some(st) = Digit::with_char(self.0, c) {
+        } else if let Some(st) = Digit::with_char(&self.0, c) {
             StateResult::advance(Box::new(st))
         } else {
             StateResult::fail(Error::invalid_char(c))
@@ -57,9 +57,15 @@ impl State for Prefix {
     }
 }
 
+impl Hash {
+    fn new(b: &Builder) -> Hash {
+        Hash(b.clone())
+    }
+}
+
 impl State for Hash {
     fn lex(&mut self, c: char) -> StateResult {
-        if let Some(st) = Prefix::with_char(self.0, c) {
+        if let Some(st) = Prefix::with_char(&self.0, c) {
             StateResult::advance(Box::new(st))
         } else {
             StateResult::fail(Error::invalid_char(c))
