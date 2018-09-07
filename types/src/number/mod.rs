@@ -12,16 +12,20 @@
 //! be represented as an Integer.
 
 mod integer;
+mod frac;
 
 use object::Object;
 
 pub use self::integer::Int;
+pub use self::frac::Frac;
 
 pub trait Number: 
     Object 
 {
     /// Cast this Number to an Int if possible.
-    fn as_int(&self) -> Option<&Int> { None }
+    fn as_int(&self) -> Option<Int> { None }
+    /// Cast this Number to a Frac if possible.
+    fn as_frac(&self) -> Option<Frac> { None }
     /// Return `true` if this Number is an exact representation of its value.
     fn is_exact(&self) -> bool { true }
 }

@@ -5,7 +5,7 @@
 use std::any::Any;
 use std::fmt;
 use std::ops::{Add, Mul};
-use number::Number;
+use number::{Frac, Number};
 use object::{Obj, Object};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -44,7 +44,8 @@ impl Object for Int {
 }
 
 impl Number for Int {
-    fn as_int(&self) -> Option<&Int> { Some(self) }
+    fn as_int(&self) -> Option<Int> { Some(*self) }
+    fn as_frac(&self) -> Option<Frac> { Some(Frac(self.0, 1)) }
 }
 
 impl Mul for Int {
@@ -80,7 +81,7 @@ impl PartialEq<Obj> for Int {
 impl<'a> PartialEq<Number + 'a> for Int {
     fn eq(&self, rhs: &(Number + 'a)) -> bool {
         match rhs.as_int() {
-            Some(rhs) => *self == *rhs,
+            Some(rhs) => *self == rhs,
             None => false
         }
     }
@@ -106,5 +107,10 @@ mod tests {
     #[test]
     fn integers_are_exact() {
         assert!(Int(4).is_exact());
+    }
+
+    #[test]
+    fn integers_add() {
+        assert_eq!(Int(4) + Int(8), Int(12));
     }
 }
