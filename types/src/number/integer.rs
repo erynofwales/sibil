@@ -62,7 +62,7 @@ impl<'a, 'b> Div<&'a Int> for &'b Int {
 
 impl GCD for Int {
     fn gcd(self, other: Int) -> Int {
-		let (mut a, mut b) = if self.0 > other.0 {
+		let (mut a, mut b) = if self > other {
 			(self.0, other.0)
 		} else {
 			(other.0, self.0)

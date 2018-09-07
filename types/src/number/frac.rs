@@ -5,13 +5,13 @@
 use std::any::Any;
 use std::fmt;
 use std::ops::{Add, Mul};
-use number::arith::GCD;
+use number::arith::{GCD, LCM};
 use number::{Int, Number};
 use object::{Obj, Object};
 
 /// A fraction consisting of a numerator and denominator.
-#[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct Frac(Int, Int);
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct Frac { p: Int, q: Int }
 
 impl Frac {
     pub fn new(p: Int, q: Int) -> Result<Frac, ()> {
@@ -19,31 +19,59 @@ impl Frac {
             // TODO: Return a more specific error about dividing by zero.
             Err(())
         } else {
-            Ok(Frac(p, q).reduced())
+            Ok(Frac{p, q}.reduced())
         }
     }
 
     fn reduced(self) -> Frac {
-        let gcd = self.0.gcd(self.1);
-        Frac(self.0 / gcd, self.1 / gcd)
+        let gcd = self.p.gcd(self.q);
+        Frac { p: self.p / gcd, q: self.q / gcd }
+    }
+
+    fn _add(self, rhs: Frac) -> Frac {
+        let lcm = self.q.lcm(rhs.q);
+        let p = self.p * lcm + rhs.p * lcm;
+        let q = self.q * lcm;
+        Frac::new(p, q).unwrap()
     }
 }
 
 impl Number for Frac {
     fn as_int(&self) -> Option<Int> {
-        if self.1 == Int(1) {
-            Some(self.0)
+        if self.q == Int(1) {
+            Some(self.p)
         } else {
             None
         }
     }
 
-    fn as_frac(&self) -> Option<Frac> { Frac::new(self.0, self.1).ok() }
+    fn as_frac(&self) -> Option<Frac> { Frac::new(self.p, self.q).ok() }
+}
+
+impl Add for Frac {
+    type Output = Frac;
+    fn add(self, rhs: Self) -> Self::Output {
+        self._add(rhs)
+    }
+}
+
+impl<'a> Add<Frac> for &'a Frac {
+    type Output = Frac;
+    fn add(self, rhs: Frac) -> Self::Output {
+        self._add(rhs)
+    }
+}
+
+impl<'a, 'b> Add<&'a Frac> for &'b Frac {
+    type Output = Frac;
+    fn add(self, rhs: &Frac) -> Self::Output {
+        self._add(*rhs)
+    }
 }
 
 impl fmt::Display for Frac {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}/{}", self.0, self.1)
+        write!(f, "{}/{}", self.p, self.q)
     }
 }
 
