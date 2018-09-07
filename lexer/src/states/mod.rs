@@ -8,6 +8,7 @@ use token::Token;
 
 mod begin;
 mod bool;
+mod dot;
 mod hash;
 mod number;
 mod id;

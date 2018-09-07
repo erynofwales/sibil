@@ -88,3 +88,10 @@ fn integers_in_alternative_bases() {
     assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(0b11001), "#b11001", 0, 5))));
     assert_eq!(lex.next(), None);
 }
+
+#[test]
+fn dot() {
+    let mut lex = Lexer::new(".".chars());
+    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Dot, ".", 0, 0))));
+    assert_eq!(lex.next(), None);
+}

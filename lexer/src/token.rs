@@ -13,6 +13,7 @@ pub struct Lex {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Token {
     Bool(bool),
+    Dot,
     Num(i64),
     LeftParen,
     RightParen,

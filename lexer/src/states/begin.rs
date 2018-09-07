@@ -6,13 +6,13 @@ use chars::Lexable;
 use error::Error;
 use token::Token;
 use states::{Resume, State, StateResult};
+use states::dot::Dot;
 use states::id::IdSub;
 use states::hash::Hash;
 use states::number::{Builder, Digit};
 use states::whitespace::Whitespace;
 
-#[derive(Debug)]
-pub struct Begin;
+#[derive(Debug)] pub struct Begin;
 
 impl Begin {
     pub fn new() -> Begin {
@@ -28,9 +28,8 @@ impl State for Begin {
             StateResult::Emit(Token::LeftParen, Resume::AtNext)
         } else if c.is_right_paren() {
             StateResult::Emit(Token::RightParen, Resume::AtNext)
-        } else if c.is_whitespace() {
-            // TODO: Figure out some way to track newlines.
-            StateResult::Continue
+        } else if c.is_dot() {
+            StateResult::advance(Box::new(Dot::new()))
         } else if c.is_identifier_initial() {
             StateResult::advance(Box::new(IdSub{}))
         } else if c.is_hash() {
