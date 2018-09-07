@@ -4,7 +4,8 @@
 
 use std::any::Any;
 use std::fmt;
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Rem};
+use number::arith::{GCD, LCM};
 use number::{Frac, Number};
 use object::{Obj, Object};
 
@@ -35,6 +36,32 @@ impl<'a, 'b> Add<&'a Int> for &'b Int {
 impl fmt::Display for Int {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl GCD for Int {
+    fn gcd(self, other: Int) -> Int {
+		let (mut a, mut b) = if self.0 > other.0 {
+			(self.0, other.0)
+		} else {
+			(other.0, self.0)
+		};
+		while b != 0 {
+			let r = a % b;
+			a = b;
+			b = r;
+		}
+		Int(a)
+    }
+}
+
+impl LCM for Int {
+    fn lcm(self, other: Int) -> Int {
+        if self.0 == 0 && other.0 == 0 {
+            Int(0)
+        } else {
+            Int(self.0 * other.0 / self.gcd(other).0)
+        }
     }
 }
 
@@ -87,6 +114,27 @@ impl<'a> PartialEq<Number + 'a> for Int {
     }
 }
 
+impl Rem for Int {
+    type Output = Int;
+    fn rem(self, rhs: Self) -> Self::Output {
+        Int(self.0 % rhs.0)
+    }
+}
+
+impl<'a> Rem<Int> for &'a Int {
+    type Output = Int;
+    fn rem(self, rhs: Int) -> Self::Output {
+        Int(self.0 % rhs.0)
+    }
+}
+
+impl<'a, 'b> Rem<&'a Int> for &'b Int {
+    type Output = Int;
+    fn rem(self, rhs: &Int) -> Self::Output {
+        Int(self.0 % rhs.0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,5 +160,33 @@ mod tests {
     #[test]
     fn integers_add() {
         assert_eq!(Int(4) + Int(8), Int(12));
+    }
+
+    #[test]
+    fn integers_multiply() {
+        assert_eq!(Int(4) * Int(5), Int(20));
+    }
+
+    #[test]
+    fn integer_modulo_divide() {
+        assert_eq!(Int(20) % Int(5), Int(0));
+        assert_eq!(Int(20) % Int(6), Int(2));
+    }
+
+    #[test]
+    fn finding_int_gcd() {
+        assert_eq!(Int(0), Int(0).gcd(Int(0)));
+        assert_eq!(Int(10), Int(10).gcd(Int(0)));
+        assert_eq!(Int(10), Int(0).gcd(Int(10)));
+        assert_eq!(Int(10), Int(10).gcd(Int(20)));
+        assert_eq!(Int(44), Int(2024).gcd(Int(748)));
+    }
+
+    #[test]
+    fn finding_int_lcm() {
+        assert_eq!(Int(0), Int(0).lcm(Int(0)));
+        assert_eq!(Int(0), Int(10).lcm(Int(0)));
+        assert_eq!(Int(0), Int(10).lcm(Int(0)));
+        assert_eq!(Int(42), Int(21).lcm(Int(6)));
     }
 }

@@ -4,6 +4,7 @@
 
 use std::any::Any;
 use std::fmt;
+use std::ops::{Add, Mul};
 use number::{Int, Number};
 use object::{Obj, Object};
 
