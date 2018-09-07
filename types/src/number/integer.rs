@@ -4,12 +4,12 @@
 
 use std::any::Any;
 use std::fmt;
-use std::ops::{Add, Mul, Rem};
+use std::ops::{Add, Div, Mul, Rem};
 use number::arith::{GCD, LCM};
 use number::{Frac, Number};
 use object::{Obj, Object};
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Int(pub i64);
 
 impl Add for Int {
@@ -36,6 +36,27 @@ impl<'a, 'b> Add<&'a Int> for &'b Int {
 impl fmt::Display for Int {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl Div for Int {
+    type Output = Int;
+    fn div(self, rhs: Self) -> Self::Output {
+        Int(self.0 / rhs.0)
+    }
+}
+
+impl<'a> Div<Int> for &'a Int {
+    type Output = Int;
+    fn div(self, rhs: Int) -> Self::Output {
+        Int(self.0 / rhs.0)
+    }
+}
+
+impl<'a, 'b> Div<&'a Int> for &'b Int {
+    type Output = Int;
+    fn div(self, rhs: &Int) -> Self::Output {
+        Int(self.0 / rhs.0)
     }
 }
 
@@ -72,7 +93,7 @@ impl Object for Int {
 
 impl Number for Int {
     fn as_int(&self) -> Option<Int> { Some(*self) }
-    fn as_frac(&self) -> Option<Frac> { Some(Frac(self.0, 1)) }
+    fn as_frac(&self) -> Option<Frac> { Frac::new(*self, Int(1)).ok() }
 }
 
 impl Mul for Int {
