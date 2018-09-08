@@ -95,3 +95,10 @@ fn dot() {
     assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Dot, ".", 0, 0))));
     assert_eq!(lex.next(), None);
 }
+
+#[test]
+fn quote() {
+    let mut lex = Lexer::new("'".chars());
+    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Quote, "'", 0, 0))));
+    assert_eq!(lex.next(), None);
+}

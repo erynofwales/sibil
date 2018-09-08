@@ -14,10 +14,11 @@ pub struct Lex {
 pub enum Token {
     Bool(bool),
     Dot,
-    Num(i64),
+    Id,
     LeftParen,
+    Num(i64),
+    Quote,
     RightParen,
-    Id
 }
 
 impl Lex {

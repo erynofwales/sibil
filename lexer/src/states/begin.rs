@@ -36,6 +36,8 @@ impl State for Begin {
             StateResult::advance(Box::new(Hash::new()))
         } else if let Some(st) = Digit::with_char(&Builder::new(), c) {
             StateResult::advance(Box::new(st))
+        } else if c.is_quote() {
+            StateResult::Emit(Token::Quote, Resume::AtNext)
         } else {
             StateResult::fail(Error::invalid_char(c))
         }
