@@ -9,7 +9,6 @@ extern crate sibilparser;
 extern crate sibiltypes;
 
 use sibillexer::{Lex, Token};
-use sibillexer::Result as LexerResult;
 use sibilparser::Parser;
 use sibiltypes::{Obj, Pair, Sym};
 
@@ -42,6 +41,21 @@ fn single_dotted_pair() {
                       Ok(Lex::new(Token::RightParen, ")", 0, 0))].into_iter();
     let mut parser = Parser::new(tokens);
     let ex_list = Obj::new(Pair::new(Obj::new(Sym::with_str("ab")), Obj::new(Sym::with_str("cd"))));
+    assert_eq!(parser.next(), Some(Ok(ex_list)));
+    assert_eq!(parser.next(), None);
+}
+
+#[test]
+fn three_element_dotted_pair() {
+    let tokens = vec![Ok(Lex::new(Token::LeftParen, "(", 0, 0)),
+                      Ok(Lex::new(Token::Id, "ab", 0, 0)),
+                      Ok(Lex::new(Token::Id, "cd", 0, 0)),
+                      Ok(Lex::new(Token::Dot, ".", 0, 0)),
+                      Ok(Lex::new(Token::Id, "ef", 0, 0)),
+                      Ok(Lex::new(Token::RightParen, ")", 0, 0))].into_iter();
+    let mut parser = Parser::new(tokens);
+    let ex_list = Obj::new(Pair::new(Obj::new(Sym::with_str("ab")), Obj::new(
+                Pair::new(Obj::new(Sym::with_str("cd")), Obj::new(Sym::with_str("ef"))))));
     assert_eq!(parser.next(), Some(Ok(ex_list)));
     assert_eq!(parser.next(), None);
 }
