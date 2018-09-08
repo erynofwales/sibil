@@ -12,6 +12,10 @@ use object::{Obj, Object};
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Int(pub i64);
 
+impl Int {
+    pub fn zero() -> Int { Int(0) }
+}
+
 impl Add for Int {
     type Output = Int;
     fn add(self, rhs: Self) -> Self::Output {
@@ -63,25 +67,25 @@ impl<'a, 'b> Div<&'a Int> for &'b Int {
 impl GCD for Int {
     fn gcd(self, other: Int) -> Int {
 		let (mut a, mut b) = if self > other {
-			(self.0, other.0)
+			(self, other)
 		} else {
-			(other.0, self.0)
+			(other, self)
 		};
-		while b != 0 {
+		while !b.is_zero() {
 			let r = a % b;
 			a = b;
 			b = r;
 		}
-		Int(a)
+		a
     }
 }
 
 impl LCM for Int {
     fn lcm(self, other: Int) -> Int {
         if self.0 == 0 && other.0 == 0 {
-            Int(0)
+            Int::zero()
         } else {
-            Int(self.0 * other.0 / self.gcd(other).0)
+            self * other / self.gcd(other)
         }
     }
 }
@@ -94,6 +98,7 @@ impl Object for Int {
 impl Number for Int {
     fn as_int(&self) -> Option<Int> { Some(*self) }
     fn as_frac(&self) -> Option<Frac> { Frac::new(*self, Int(1)).ok() }
+    fn is_zero(&self) -> bool { self.0 == 0 }
 }
 
 impl Mul for Int {

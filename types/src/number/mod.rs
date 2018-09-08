@@ -29,6 +29,7 @@ pub trait Number:
     fn as_frac(&self) -> Option<Frac> { None }
     /// Return `true` if this Number is an exact representation of its value.
     fn is_exact(&self) -> bool { true }
+    fn is_zero(&self) -> bool;
 }
 
 // TODO: Implement PartialEq myself cause there are some weird nuances to comparing numbers.

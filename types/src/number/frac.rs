@@ -5,7 +5,7 @@
 use std::any::Any;
 use std::fmt;
 use std::ops::{Add, Mul};
-use number::arith::{GCD, LCM};
+use number::arith::GCD;
 use number::{Int, Number};
 use object::{Obj, Object};
 
@@ -15,12 +15,16 @@ pub struct Frac { p: Int, q: Int }
 
 impl Frac {
     pub fn new(p: Int, q: Int) -> Result<Frac, ()> {
-        if q == Int(0) {
+        if q.is_zero() {
             // TODO: Return a more specific error about dividing by zero.
             Err(())
         } else {
             Ok(Frac{p, q}.reduced())
         }
+    }
+
+    pub fn from_ints(p: i64, q: i64) -> Result<Frac, ()> {
+        Frac::new(Int(p), Int(q))
     }
 
     fn reduced(self) -> Frac {
@@ -29,23 +33,16 @@ impl Frac {
     }
 
     fn _add(self, rhs: Frac) -> Frac {
-        let lcm = self.q.lcm(rhs.q);
-        let p = self.p * lcm + rhs.p * lcm;
-        let q = self.q * lcm;
-        Frac::new(p, q).unwrap()
-    }
-}
-
-impl Number for Frac {
-    fn as_int(&self) -> Option<Int> {
-        if self.q == Int(1) {
-            Some(self.p)
-        } else {
-            None
-        }
+        let p = self.p * rhs.q + rhs.p * self.q;
+        let q = self.q * rhs.q;
+        Frac{p,q}.reduced()
     }
 
-    fn as_frac(&self) -> Option<Frac> { Frac::new(self.p, self.q).ok() }
+    fn _mul(self, rhs: Frac) -> Frac {
+        let p = self.p * rhs.p;
+        let q = self.q * rhs.q;
+        Frac{p,q}.reduced()
+    }
 }
 
 impl Add for Frac {
@@ -75,6 +72,41 @@ impl fmt::Display for Frac {
     }
 }
 
+impl Mul for Frac {
+    type Output = Frac;
+    fn mul(self, rhs: Self) -> Self::Output {
+        self._mul(rhs)
+    }
+}
+
+impl<'a> Mul<Frac> for &'a Frac {
+    type Output = Frac;
+    fn mul(self, rhs: Frac) -> Self::Output {
+        self._mul(rhs)
+    }
+}
+
+impl<'a, 'b> Mul<&'a Frac> for &'b Frac {
+    type Output = Frac;
+    fn mul(self, rhs: &Frac) -> Self::Output {
+        self._mul(*rhs)
+    }
+}
+
+impl Number for Frac {
+    fn as_int(&self) -> Option<Int> {
+        if self.q == Int(1) {
+            Some(self.p)
+        } else {
+            None
+        }
+    }
+
+    fn as_frac(&self) -> Option<Frac> { Frac::new(self.p, self.q).ok() }
+
+    fn is_zero(&self) -> bool { self.p.is_zero() }
+}
+
 impl Object for Frac {
     fn as_any(&self) -> &Any { self }
     fn as_num(&self) -> Option<&Number> { Some(self) }
@@ -100,29 +132,43 @@ impl<'a> PartialEq<Number + 'a> for Frac {
 
 #[cfg(test)]
 mod tests {
+    use number::Number;
     use super::*;
 
     #[test]
+    fn fracs_with_zero_q_are_invalid() {
+        assert!(Frac::from_ints(3, 0).is_err())
+    }
+
+    #[test]
     fn equal_fracs_are_equal() {
-        assert_eq!(Frac(Int(3), Int(2)), Frac(Int(3), Int(2)));
-        assert_ne!(Frac(Int(12), Int(4)), Frac(Int(9), Int(7)));
+        assert_eq!(Frac::from_ints(3, 2), Frac::from_ints(3, 2));
+        assert_ne!(Frac::from_ints(12, 4), Frac::from_ints(9, 7));
     }
 
     #[test]
     fn fracs_should_reduce_to_ints_where_possible() {
-        let rational_as_integer = Frac(Int(3), Int(1)).as_int();
-        assert!(rational_as_integer.is_some());
-        // Oh my god this line is so dumb.
+        let fr = Frac::from_ints(3, 1).unwrap();
+        assert_eq!(fr.as_int(), Some(Int(3)));
     }
 
     #[test]
     fn fracs_should_not_reduce_to_ints_where_impossible() {
-        let rational_as_integer = Frac(Int(3), Int(2)).as_int();
-        assert!(rational_as_integer.is_none());
+        let fr = Frac::from_ints(3, 2).unwrap();
+        assert_eq!(fr.as_int(), None);
     }
 
     #[test]
     fn fracs_are_exact() {
-        assert!(Frac(Int(4), Int(2)).is_exact());
+        let fr = Frac::from_ints(4, 2).unwrap();
+        assert!(fr.is_exact());
+    }
+
+    #[test]
+    fn fracs_can_add() {
+        let a = Frac::from_ints(5, 6).unwrap();
+        let b = Frac::from_ints(2, 3).unwrap();
+        let r = Frac::from_ints(3, 2).unwrap();
+        assert_eq!(a + b, r);
     }
 }
