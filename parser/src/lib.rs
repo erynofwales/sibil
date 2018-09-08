@@ -53,7 +53,7 @@ impl<T> Parser<T> where T: Iterator<Item=LexerResult> {
     }
 
     fn pop_parser(&mut self) {
-        let popped = self.parsers.pop();
+        self.parsers.pop();
         println!("popped parser stack --> {:?}", self.parsers);
     }
 
