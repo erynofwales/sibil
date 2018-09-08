@@ -2,6 +2,8 @@
  * Eryn Wells <eryn@erynwells.me>
  */
 
+extern crate sibiltypes;
+
 use std::iter::Peekable;
 use states::{Begin, Resume, StateResult};
 
