@@ -10,20 +10,25 @@ use parsers::sym::SymParser;
 
 #[derive(Debug)]
 pub struct ListParser {
-    pairs: Option<Vec<Pair>>
+    pairs: Option<Vec<Pair>>,
+    waiting_for_final: bool,
 }
 
 impl ListParser {
     pub fn new() -> ListParser {
-        ListParser { pairs: None }
+        ListParser {
+            pairs: None,
+            waiting_for_final: false,
+        }
     }
 
     fn assemble(&mut self) -> Result<Obj, String> {
         match self.pairs.take() {
-            Some(pairs) => {
-                let obj = pairs.into_iter().rfold(Obj::Null, |acc, mut pair| {
+            Some(mut pairs) => {
+                let last = pairs.last_mut().and_then(|p| Some(p.cdr.take())).unwrap_or(Obj::Null);
+                let obj = pairs.into_iter().rfold(last, |acc, mut pair| {
                     pair.cdr = acc;
-                    Obj::Ptr(Box::new(pair))
+                    Obj::new(pair)
                 });
                 Ok(obj)
             },
@@ -38,7 +43,11 @@ impl NodeParser for ListParser {
             Token::Bool(_) => {
                 let parser = BoolParser{};
                 NodeParseResult::Push { next: Box::new(parser) }
-            }
+            },
+            Token::Dot => {
+                self.waiting_for_final = true;
+                NodeParseResult::Continue
+            },
             Token::LeftParen => {
                 match self.pairs {
                     None => {
@@ -57,6 +66,12 @@ impl NodeParser for ListParser {
                 let next = Box::new(SymParser{});
                 NodeParseResult::Push { next }
             },
+            Token::Num(n) => {
+                panic!("TODO: Handle numbrs.");
+            },
+            Token::Quote => {
+                panic!("TODO: Handle quotes.");
+            },
             Token::RightParen => {
                 match self.pairs {
                     None => {
@@ -71,7 +86,7 @@ impl NodeParser for ListParser {
                         }
                     }
                 }
-            }
+            },
         }
     }
 
@@ -81,12 +96,26 @@ impl NodeParser for ListParser {
     }
 
     fn subparser_completed(&mut self, obj: Obj) -> NodeParseResult {
-        if let Some(ref mut pairs) = self.pairs {
-            pairs.push(Pair::with_car(obj));
-            NodeParseResult::Continue
-        } else {
-            let msg = format!("what happened here???");
-            NodeParseResult::error(msg)
+        match self.pairs {
+            Some(ref mut pairs) if self.waiting_for_final => match pairs.last_mut() {
+                Some(ref mut last) => {
+                    last.cdr = obj;
+                    // Waiting for RightParen to close list.
+                    NodeParseResult::Continue
+                },
+                None => {
+                    let msg = "Found dot before any pairs parsed".to_string();
+                    NodeParseResult::error(msg)
+                },
+            },
+            Some(ref mut pairs) => {
+                pairs.push(Pair::with_car(obj));
+                NodeParseResult::Continue
+            },
+            None => {
+                let msg = "While attempting to parse list, found token before opening paren".to_string();
+                NodeParseResult::error(msg)
+            },
         }
     }
 }

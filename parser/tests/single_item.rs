@@ -11,7 +11,7 @@ extern crate sibiltypes;
 use sibillexer::{Lex, Token};
 use sibillexer::Result as LexerResult;
 use sibilparser::Parser;
-use sibiltypes::{Bool, Obj, Pair, Sym};
+use sibiltypes::{Bool, Obj, Sym};
 
 #[test]
 fn single_sym() {

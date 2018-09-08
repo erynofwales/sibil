@@ -37,7 +37,10 @@ impl NodeParser for ProgramParser {
                 let parser = SymParser{};
                 let parser = Box::new(parser);
                 NodeParseResult::Push { next: parser }
-            }
+            },
+            _ => {
+                panic!("unhandled symbol");
+            },
         }
     }
 

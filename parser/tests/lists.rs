@@ -32,3 +32,16 @@ fn list_of_four_tokens() {
     assert_eq!(parser.next(), Some(Ok(ex_list)));
     assert_eq!(parser.next(), None);
 }
+
+#[test]
+fn single_dotted_pair() {
+    let tokens = vec![Ok(Lex::new(Token::LeftParen, "(", 0, 0)),
+                      Ok(Lex::new(Token::Id, "ab", 0, 0)),
+                      Ok(Lex::new(Token::Dot, ".", 0, 0)),
+                      Ok(Lex::new(Token::Id, "cd", 0, 0)),
+                      Ok(Lex::new(Token::RightParen, ")", 0, 0))].into_iter();
+    let mut parser = Parser::new(tokens);
+    let ex_list = Obj::new(Pair::new(Obj::new(Sym::with_str("ab")), Obj::new(Sym::with_str("cd"))));
+    assert_eq!(parser.next(), Some(Ok(ex_list)));
+    assert_eq!(parser.next(), None);
+}
