@@ -10,7 +10,7 @@ use object::Object;
 #[derive(Debug, PartialEq)]
 pub struct Pair {
     pub car: Obj,
-    pub cdr: Obj
+    pub cdr: Obj,
 }
 
 impl Pair {
