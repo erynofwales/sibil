@@ -33,7 +33,7 @@ impl Lexable for char {
     }
 
     fn is_identifier_initial(&self) -> bool {
-        self.is_alphabetic() || self.is_special_initial()
+        self.is_alphabetic() || self.is_special_initial() || self.is_explicit_sign()
     }
 
     fn is_identifier_subsequent(&self) -> bool {
