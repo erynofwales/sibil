@@ -171,4 +171,12 @@ mod tests {
         let r = Frac::from_ints(3, 2).unwrap();
         assert_eq!(a + b, r);
     }
+
+    #[test]
+    fn fracs_can_multiply() {
+        let a = Frac::from_ints(4, 3).unwrap();
+        let b = Frac::from_ints(3, 8).unwrap();
+        let r = Frac::from_ints(1, 2).unwrap();
+        assert_eq!(a * b, r);
+    }
 }
