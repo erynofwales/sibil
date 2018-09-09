@@ -9,9 +9,14 @@ use number::arith::GCD;
 use number::{Int, Number};
 use object::{Obj, Object};
 
-/// A fraction consisting of a numerator and denominator.
+/// A fraction of two integers.
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct Frac { p: Int, q: Int }
+pub struct Frac {
+    /// The numerator.
+    p: Int,
+    /// The denominator.
+    q: Int
+}
 
 impl Frac {
     pub fn new(p: Int, q: Int) -> Result<Frac, ()> {
