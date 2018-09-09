@@ -4,8 +4,7 @@
 
 use std::any::Any;
 use std::fmt;
-use super::*;
-use object::Object;
+use object::{Obj, Object};
 
 #[derive(Debug, PartialEq)]
 pub struct Pair {
@@ -72,11 +71,46 @@ impl PartialEq<Obj> for Pair {
 #[cfg(test)]
 mod tests {
     use super::Pair;
+    use object::Obj;
+    use sym::Sym;
 
     #[test]
-    fn empty_pairs_are_equal() {
+    fn eq_empty_pairs() {
         let a = Pair::empty();
         let b = Pair::empty();
         assert_eq!(a, b);
+    }
+
+    #[test]
+    fn display_empty_pair() {
+        let a = Pair::empty();
+        let disp = format!("{}", a);
+        assert_eq!(disp, "(())");
+    }
+
+    #[test]
+    fn display_single_element_pair() {
+        let a = Pair::with_car(Obj::new(Sym::new("abc".to_string())));
+        let disp = format!("{}", a);
+        assert_eq!(disp, "(abc)");
+    }
+
+    #[test]
+    fn display_dotted_pair() {
+        let car = Obj::new(Sym::new("abc".to_string()));
+        let cdr = Obj::new(Sym::new("def".to_string()));
+        let p = Pair::new(car, cdr);
+        let disp = format!("{}", p);
+        assert_eq!(disp, "(abc . def)");
+    }
+
+    #[test]
+    fn display_long_dotted_pair() {
+        let a = Obj::new(Sym::new("abc".to_string()));
+        let d = Obj::new(Sym::new("def".to_string()));
+        let g = Obj::new(Sym::new("ghi".to_string()));
+        let p = Pair::new(a, Obj::new(Pair::new(d, g)));
+        let disp = format!("{}", p);
+        assert_eq!(disp, "(abc def . ghi)");
     }
 }

@@ -54,7 +54,7 @@ mod tests {
     use super::Sym;
 
     #[test]
-    fn syms_with_the_same_name_are_equal() {
+    fn eq_syms_with_same_name() {
         let a = Sym::with_str("abc");
         let b = Sym::with_str("abc");
         assert_eq!(a, b);
