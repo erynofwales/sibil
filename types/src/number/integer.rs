@@ -4,7 +4,6 @@
 
 use std::any::Any;
 use std::fmt;
-use std::ops::{Add, Div, Mul, Rem};
 use number::arith::{GCD, LCM};
 use number::{Frac, Number};
 use object::{Obj, Object};
@@ -16,51 +15,9 @@ impl Int {
     pub fn zero() -> Int { Int(0) }
 }
 
-impl Add for Int {
-    type Output = Int;
-    fn add(self, rhs: Self) -> Self::Output {
-        Int(self.0 + rhs.0)
-    }
-}
-
-impl<'a> Add<Int> for &'a Int {
-    type Output = Int;
-    fn add(self, rhs: Int) -> Self::Output {
-        Int(self.0 + rhs.0)
-    }
-}
-
-impl<'a, 'b> Add<&'a Int> for &'b Int {
-    type Output = Int;
-    fn add(self, rhs: &Int) -> Self::Output {
-        Int(self.0 + rhs.0)
-    }
-}
-
 impl fmt::Display for Int {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
-    }
-}
-
-impl Div for Int {
-    type Output = Int;
-    fn div(self, rhs: Self) -> Self::Output {
-        Int(self.0 / rhs.0)
-    }
-}
-
-impl<'a> Div<Int> for &'a Int {
-    type Output = Int;
-    fn div(self, rhs: Int) -> Self::Output {
-        Int(self.0 / rhs.0)
-    }
-}
-
-impl<'a, 'b> Div<&'a Int> for &'b Int {
-    type Output = Int;
-    fn div(self, rhs: &Int) -> Self::Output {
-        Int(self.0 / rhs.0)
     }
 }
 
@@ -101,27 +58,6 @@ impl Number for Int {
     fn is_zero(&self) -> bool { self.0 == 0 }
 }
 
-impl Mul for Int {
-    type Output = Int;
-    fn mul(self, rhs: Self) -> Self::Output {
-        Int(self.0 * rhs.0)
-    }
-}
-
-impl<'a> Mul<Int> for &'a Int {
-    type Output = Int;
-    fn mul(self, rhs: Int) -> Self::Output {
-        Int(self.0 * rhs.0)
-    }
-}
-
-impl<'a, 'b> Mul<&'a Int> for &'b Int {
-    type Output = Int;
-    fn mul(self, rhs: &Int) -> Self::Output {
-        Int(self.0 * rhs.0)
-    }
-}
-
 impl PartialEq<Obj> for Int {
     fn eq<'a>(&self, rhs: &'a Obj) -> bool {
         match rhs.obj().and_then(Object::as_num) {
@@ -137,27 +73,6 @@ impl<'a> PartialEq<Number + 'a> for Int {
             Some(rhs) => *self == rhs,
             None => false
         }
-    }
-}
-
-impl Rem for Int {
-    type Output = Int;
-    fn rem(self, rhs: Self) -> Self::Output {
-        Int(self.0 % rhs.0)
-    }
-}
-
-impl<'a> Rem<Int> for &'a Int {
-    type Output = Int;
-    fn rem(self, rhs: Int) -> Self::Output {
-        Int(self.0 % rhs.0)
-    }
-}
-
-impl<'a, 'b> Rem<&'a Int> for &'b Int {
-    type Output = Int;
-    fn rem(self, rhs: &Int) -> Self::Output {
-        Int(self.0 % rhs.0)
     }
 }
 
