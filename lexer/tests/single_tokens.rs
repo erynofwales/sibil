@@ -74,22 +74,6 @@ fn bool_with_spaces() {
 }
 
 #[test]
-fn simple_integers() {
-    let mut lex = Lexer::new("23 42".chars());
-    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(23), "23", 0, 0))));
-    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(42), "42", 0, 3))));
-    assert_eq!(lex.next(), None);
-}
-
-#[test]
-fn integers_in_alternative_bases() {
-    let mut lex = Lexer::new("#x2A #b11001".chars());
-    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(0x2A), "#x2A", 0, 0))));
-    assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Num(0b11001), "#b11001", 0, 5))));
-    assert_eq!(lex.next(), None);
-}
-
-#[test]
 fn dot() {
     let mut lex = Lexer::new(".".chars());
     assert_eq!(lex.next(), Some(Ok(Lex::new(Token::Dot, ".", 0, 0))));
