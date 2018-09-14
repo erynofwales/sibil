@@ -3,7 +3,7 @@
  */
 
 use std::ops::{Add, Div, Mul, Sub, Rem};
-use number::{Int, Irr};
+use number::{Int, Irr, Number};
 
 pub trait GCD {
     /// Find the greatest common divisor of `self` and another number.
@@ -17,24 +17,19 @@ pub trait LCM {
 
 macro_rules! impl_newtype_arith_op {
     ($id:ident, $opt:ident, $opm:ident, $op:tt) => {
-        impl $opt for $id {
+        impl<T> $opt<T> for $id where T: Number + Into<$id> {
             type Output = $id;
             #[inline]
-            fn $opm(self, rhs: $id) -> Self::Output {
+            fn $opm(self, rhs: T) -> Self::Output {
+                let rhs: $id = rhs.into();
                 $id(self.0 $op rhs.0)
             }
         }
-        impl<'a> $opt<$id> for &'a $id {
+        impl<'a, T> $opt<T> for &'a $id where T: Number + Into<$id> {
             type Output = $id;
             #[inline]
-            fn $opm(self, rhs: $id) -> Self::Output {
-                $id(self.0 $op rhs.0)
-            }
-        }
-        impl<'a, 'b> $opt<&'a $id> for &'b $id {
-            type Output = $id;
-            #[inline]
-            fn $opm(self, rhs: &$id) -> Self::Output {
+            fn $opm(self, rhs: T) -> Self::Output {
+                let rhs: $id = rhs.into();
                 $id(self.0 $op rhs.0)
             }
         }

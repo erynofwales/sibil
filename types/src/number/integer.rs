@@ -5,8 +5,8 @@
 use std::any::Any;
 use std::fmt;
 use number::arith::{GCD, LCM};
-use number::{Frac, Number};
 use object::{Obj, Object};
+use super::{Frac, Number};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Int(pub i64);

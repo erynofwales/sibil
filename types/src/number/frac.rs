@@ -32,6 +32,10 @@ impl Frac {
         Frac::new(Int(p), Int(q))
     }
 
+    pub fn quotient(&self) -> f64 {
+        self.p.0 as f64 / self.q.0 as f64
+    }
+
     fn reduced(self) -> Frac {
         let gcd = self.p.gcd(self.q);
         Frac { p: self.p / gcd, q: self.q / gcd }
@@ -74,6 +78,12 @@ impl<'a, 'b> Add<&'a Frac> for &'b Frac {
 impl fmt::Display for Frac {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}/{}", self.p, self.q)
+    }
+}
+
+impl From<Int> for Frac {
+    fn from(i: Int) -> Frac {
+        Frac{p: i, q: Int(1)}
     }
 }
 

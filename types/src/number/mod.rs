@@ -11,12 +11,12 @@
 //! Integer can be cast as a Rational (by putting its value over 1), but a Rational like 1/2 cannot
 //! be represented as an Integer.
 
+use object::Object;
+
 mod arith;
 mod frac;
 mod integer;
 mod irr;
-
-use object::Object;
 
 pub use self::frac::Frac;
 pub use self::integer::Int;

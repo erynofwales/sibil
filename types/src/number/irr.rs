@@ -20,9 +20,14 @@ impl fmt::Display for Irr {
     }
 }
 
-impl Object for Irr {
-    fn as_any(&self) -> &Any { self }
-    fn as_num(&self) -> Option<&Number> { Some(self) }
+impl From<Int> for Irr {
+    fn from(i: Int) -> Irr { Irr(i.0 as f64) }
+}
+
+impl From<Frac> for Irr {
+    fn from(f: Frac) -> Irr {
+        Irr(f.quotient())
+    }
 }
 
 impl Number for Irr {
@@ -44,6 +49,11 @@ impl Number for Irr {
     }
 
     fn is_zero(&self) -> bool { self.0 == 0.0 }
+}
+
+impl Object for Irr {
+    fn as_any(&self) -> &Any { self }
+    fn as_num(&self) -> Option<&Number> { Some(self) }
 }
 
 impl PartialEq<Obj> for Irr {
